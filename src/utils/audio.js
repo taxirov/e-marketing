@@ -1,14 +1,16 @@
-const DEFAULT_ENDPOINT = 'https://api.narakeet.com/text-to-speech/wav'
+const API_ENDPOINT = 'https://api.narakeet.com/text-to-speech/m4a'
+const API_KEY = 'd9oq53OreB7PVhOTzX2zV9sNALxL2HrwJ4AvwzK0'
+const DEFAULT_QUERY = '?voice=gulnora'
 
 let audioContext = null
 
 function arrayBufferToBase64(buffer) {
   const bytes = new Uint8Array(buffer)
   let binary = ''
-  const chunkSize = 0x8000
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    const chunk = bytes.subarray(i, i + chunkSize)
-    binary += String.fromCharCode(...chunk)
+  const chunk = 0x8000
+  for (let i = 0; i < bytes.length; i += chunk) {
+    const slice = bytes.subarray(i, i + chunk)
+    binary += String.fromCharCode(...slice)
   }
   return btoa(binary)
 }
@@ -19,40 +21,23 @@ function getAudioContext() {
   }
   if (!audioContext) {
     const Ctx = window.AudioContext || window.webkitAudioContext
-    if (!Ctx) throw new Error(`Brauzer AudioContext ni qo'llab-quvvatlamaydi`)
+    if (!Ctx) throw new Error('Brauzer AudioContext ni qo\'llab-quvvatlamaydi')
     audioContext = new Ctx()
   }
   return audioContext
 }
 
-function resolveEnv(name, fallback = '') {
-  const value = import.meta?.env?.[name]
-  return value !== undefined && value !== null && value !== '' ? value : fallback
-}
-
-function buildEndpoint(options = {}) {
-  const base = options.endpoint || resolveEnv('VITE_NARAKEET_ENDPOINT', DEFAULT_ENDPOINT)
-  const params = new URLSearchParams()
-  const voice = options.voice || resolveEnv('VITE_NARAKEET_VOICE', '')
-  if (voice) params.set('voice', voice)
-  const qs = params.toString()
-  return qs ? `${base}?${qs}` : base
-}
-
-export async function generateAudioFromText(text, options = {}) {
+export async function generateAudioFromText(text) {
   const script = (text || '').trim()
   if (!script) throw new Error('Audio uchun matn mavjud emas')
 
-  const apiKey = `d9oq53OreB7PVhOTzX2zV9sNALxL2HrwJ4AvwzK0`
-
-  const endpoint = buildEndpoint(options)
-
-  const res = await fetch(endpoint, {
+  const url = `${API_ENDPOINT}${DEFAULT_QUERY}`
+  const res = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
       accept: 'application/octet-stream',
-      'x-api-key': apiKey,
+      'x-api-key': API_KEY,
     },
     body: script,
   })
@@ -67,7 +52,7 @@ export async function generateAudioFromText(text, options = {}) {
   const base64 = arrayBufferToBase64(arrayBuffer)
   const durationHeader = res.headers.get('x-duration-seconds')
   const duration = durationHeader ? Number(durationHeader) : undefined
-  const contentType = res.headers.get('content-type') || 'audio/wav'
+  const contentType = res.headers.get('content-type') || 'audio/m4a'
 
   return { base64, duration: Number.isFinite(duration) ? duration : undefined, contentType }
 }
@@ -82,12 +67,12 @@ function base64ToUint8(base64) {
   return bytes
 }
 
-export function base64ToBlob(base64, type = 'audio/wav') {
+export function base64ToBlob(base64, type = 'audio/m4a') {
   const bytes = base64ToUint8(base64)
   return new Blob([bytes], { type })
 }
 
-export function base64ToUrl(base64, type = 'audio/wav') {
+export function base64ToUrl(base64, type = 'audio/m4a') {
   const blob = base64ToBlob(base64, type)
   return { blob, url: URL.createObjectURL(blob) }
 }
