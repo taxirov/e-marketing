@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import FilterForm from './components/FilterForm'
 import ObjectsTable from './components/ObjectsTable'
+import EditModal from './components/EditModal'
 import Pagination from './components/Pagination'
 import data from './data/mock'
 import logo from './images/logo.png'
@@ -35,6 +36,7 @@ export default function App() {
   const [size, setSize] = useState(10)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [selected, setSelected] = useState(null)
 
   const filtered = useMemo(() => {
     const f = filters
@@ -124,7 +126,10 @@ export default function App() {
         {error && <div className="error">{error}</div>}
       </section>
 
-      <ObjectsTable items={filtered} />
+      <ObjectsTable
+        items={filtered}
+        onEdit={(item) => setSelected(item)}
+      />
       <Pagination
         page={page}
         size={size}
@@ -139,6 +144,7 @@ export default function App() {
           if (isAuthorized) handleSearch()
         }}
       />
+      <EditModal item={selected} open={!!selected} onClose={() => setSelected(null)} />
     </div>
   )
 }

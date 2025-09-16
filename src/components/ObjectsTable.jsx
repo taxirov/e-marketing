@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function ObjectsTable({ items }) {
+export default function ObjectsTable({ items, onEdit }) {
   return (
     <div className="table-wrap">
       <table className="table">
@@ -21,8 +21,11 @@ export default function ObjectsTable({ items }) {
               <td>{x.region}</td>
               <td>{x.district}</td>
               <td className="actions">
-                <button title="Tahrirlash" className="icon-btn">✏️</button>
-                <button title="Ko‘rish" className="icon-btn">👁️</button>
+                <button
+                  title="Tahrirlash"
+                  className="icon-btn"
+                  onClick={() => onEdit && onEdit(x)}
+                >✏️</button>
               </td>
             </tr>
           ))}
