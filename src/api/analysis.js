@@ -2,7 +2,7 @@ import { useApi } from '../utils/api'
 
 // Base URL for API. In production on Vercel, we want '/api'.
 // Normalize to avoid trailing slashes to prevent paths like '/api/api/...'
-const API_BASE = (import.meta.env.VITE_API_BASE || '/api').replace(/\/+$/, '')
+const API_BASE = "https://api.uy-joy.uz"
 
 const DEFAULT_PAYLOAD = {
   action: '',
