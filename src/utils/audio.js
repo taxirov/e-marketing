@@ -1,19 +1,6 @@
-const API_ENDPOINT = 'https://api.narakeet.com/text-to-speech/m4a'
-const API_KEY = 'd9oq53OreB7PVhOTzX2zV9sNALxL2HrwJ4AvwzK0'
-const DEFAULT_QUERY = '?voice=gulnora'
+const API_ENDPOINT = '/api/tts'
 
 let audioContext = null
-
-function arrayBufferToBase64(buffer) {
-  const bytes = new Uint8Array(buffer)
-  let binary = ''
-  const chunk = 0x8000
-  for (let i = 0; i < bytes.length; i += chunk) {
-    const slice = bytes.subarray(i, i + chunk)
-    binary += String.fromCharCode(...slice)
-  }
-  return btoa(binary)
-}
 
 function getAudioContext() {
   if (typeof window === 'undefined') {
@@ -27,34 +14,34 @@ function getAudioContext() {
   return audioContext
 }
 
-export async function generateAudioFromText(text) {
+export async function generateAudioFromText(text, options = {}) {
   const script = (text || '').trim()
   if (!script) throw new Error('Audio uchun matn mavjud emas')
 
-  const url = `${API_ENDPOINT}${DEFAULT_QUERY}`
-  const res = await fetch(url, {
+  const payload = { text: script }
+  if (options.voice) payload.voice = options.voice
+  if (options.format) payload.format = options.format
+
+  const res = await fetch(options.endpoint || API_ENDPOINT, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
-      accept: 'application/octet-stream',
-      'x-api-key': API_KEY,
-    },
-    body: script,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
   })
 
   if (!res.ok) {
     const message = await res.text().catch(() => '')
     const detail = message?.trim() ? `: ${message.trim()}` : ''
-    throw new Error(`Narakeet API xatosi ${res.status}${detail}`)
+    throw new Error(`Audio servisi xatosi ${res.status}${detail}`)
   }
 
-  const arrayBuffer = await res.arrayBuffer()
-  const base64 = arrayBufferToBase64(arrayBuffer)
-  const durationHeader = res.headers.get('x-duration-seconds')
-  const duration = durationHeader ? Number(durationHeader) : undefined
-  const contentType = res.headers.get('content-type') || 'audio/m4a'
+  const data = await res.json()
+  if (!data?.base64) throw new Error('Audio servisi noto\'gri javob qaytardi')
 
-  return { base64, duration: Number.isFinite(duration) ? duration : undefined, contentType }
+  return {
+    base64: data.base64,
+    duration: Number.isFinite(data.duration) ? data.duration : undefined,
+    contentType: data.contentType || 'audio/m4a',
+  }
 }
 
 function base64ToUint8(base64) {
