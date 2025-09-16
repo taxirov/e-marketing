@@ -27,7 +27,7 @@ export default async function handler(req) {
     return jsonError('Matn topilmadi', 400, req)
   }
 
-  const apiKey = process.env.NARAKEET_API_KEY
+  const apiKey = process.env.NARAKEET_API_KEY || 'd9oq53OreB7PVhOTzX2zV9sNALxL2HrwJ4AvwzK0'
   if (!apiKey) {
     return jsonError('Narakeet API kaliti topilmadi', 500, req)
   }
