@@ -1,6 +1,8 @@
 import { useApi } from '../utils/api'
 
-const API_BASE = import.meta.env.VITE_API_BASE || '/api'
+// Base URL for API. In production on Vercel, we want '/api'.
+// Normalize to avoid trailing slashes to prevent paths like '/api/api/...'
+const API_BASE = (import.meta.env.VITE_API_BASE || '/api').replace(/\/+$/, '')
 
 const DEFAULT_PAYLOAD = {
   action: '',
@@ -69,7 +71,8 @@ export function useAnalysisApi() {
 
   async function fetchAnalysis(filters, page = 1, size = 10) {
     const payload = mapFiltersToPayload(filters, page, size)
-    const res = await apiFetch(`${API_BASE}/api/product/analysis`, {
+    // Resolve to '/api/product/analysis' by default, or '<BASE>/product/analysis' if VITE_API_BASE is set
+    const res = await apiFetch(`${API_BASE}/product/analysis`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
