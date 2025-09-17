@@ -1,35 +1,40 @@
 export const config = { runtime: 'edge' }
 
 const TARGET = 'https://api.uy-joy.uz'
+const ALLOWED_FORWARD_HEADERS = ['authorization', 'content-type', 'accept']
 
 export default async function handler(req) {
   const url = new URL(req.url)
-  const targetUrl = new URL(url.pathname, TARGET) // preserves /api/product/analysis
+  const targetUrl = new URL(url.pathname + url.search, TARGET)
 
   if (req.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers: corsHeaders(req) })
   }
 
-  const init = {
-    method: req.method,
-    headers: new Headers(req.headers),
-    body: req.body,
-    redirect: 'manual',
+  const headers = new Headers()
+  for (const key of ALLOWED_FORWARD_HEADERS) {
+    const value = req.headers.get(key)
+    if (value) headers.set(key, value)
+  }
+  if (!headers.has('accept')) headers.set('accept', 'application/json')
+
+  let body
+  if (!['GET', 'HEAD'].includes(req.method.toUpperCase())) {
+    body = await req.arrayBuffer()
   }
 
-  // Adjust origin-related headers so upstream doesn’t reject
-  init.headers.set('origin', TARGET)
-  init.headers.set('host', new URL(TARGET).host)
+  const upstream = await fetch(targetUrl.toString(), {
+    method: req.method,
+    headers,
+    body,
+    redirect: 'manual',
+  })
 
-  const resp = await fetch(targetUrl.toString(), init)
-  const resHeaders = new Headers(resp.headers)
-  const body = await resp.arrayBuffer()
+  const resHeaders = new Headers(upstream.headers)
+  const cors = corsHeaders(req)
+  cors.forEach((value, key) => resHeaders.set(key, value))
 
-  // CORS for browser if ever called cross-origin (usually same-origin)
-  const ch = corsHeaders(req)
-  ch.forEach((v, k) => resHeaders.set(k, v))
-
-  return new Response(body, { status: resp.status, headers: resHeaders })
+  return new Response(upstream.body, { status: upstream.status, headers: resHeaders })
 }
 
 function corsHeaders(req) {
@@ -41,4 +46,3 @@ function corsHeaders(req) {
     'Access-Control-Allow-Headers': 'Authorization, Content-Type, Accept',
   })
 }
-
