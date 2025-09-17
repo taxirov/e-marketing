@@ -7,7 +7,7 @@ import data from './data/mock'
 import logo from './images/logo.png'
 import AuthModal from './components/AuthModal'
 import { useAuth } from './auth/AuthContext'
-import { useAnalysisApi } from './api/analysis'
+import { useAnalysisApi, getSavedPayload } from './api/analysis'
 
 export default function App() {
   const { open, setOpen, token } = useAuth()
@@ -38,6 +38,16 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [selected, setSelected] = useState(null)
+  
+  // Initialize filters from localStorage payload on first mount
+  useEffect(() => {
+    try {
+      const saved = getSavedPayload()
+      if (saved) {
+        setFilters((prev) => ({ ...prev, id: saved.search || '', analysisStatus: saved.analysisStatus || '' }))
+      }
+    } catch {}
+  }, [])
 
   const filtered = useMemo(() => {
     const f = filters
