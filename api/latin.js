@@ -44,10 +44,43 @@ export default async function handler(req) {
   }
 
   const rawLatin = await res.text()
-  const latin = normalizeApostrophes(rawLatin)
+  const decodedLatin = decodeLatinResponse(rawLatin)
+  const latin = normalizeApostrophes(decodedLatin)
   const headers = corsHeaders(req)
   headers.set('Content-Type', 'application/json')
   return new Response(JSON.stringify({ text: latin }), { status: 200, headers })
+}
+
+function decodeLatinResponse(value) {
+  if (typeof value !== 'string') {
+    return value
+  }
+
+  const trimmed = value.trim()
+  if (!trimmed) {
+    return value
+  }
+
+  try {
+    const parsed = JSON.parse(trimmed)
+    if (typeof parsed === 'string') {
+      return parsed
+    }
+
+    if (parsed && typeof parsed === 'object') {
+      if (typeof parsed.text === 'string') {
+        return parsed.text
+      }
+
+      if (typeof parsed.data === 'string') {
+        return parsed.data
+      }
+    }
+  } catch (err) {
+    // ignore
+  }
+
+  return value
 }
 
 function normalizeApostrophes(value) {
@@ -55,8 +88,11 @@ function normalizeApostrophes(value) {
     return value
   }
 
-  return value.replace(/[\u2018\u2019]/g, "'")
+  return value
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201c\u201d]/g, '"')
 }
+
 
 function jsonError(message, status, req) {
   const headers = corsHeaders(req)
