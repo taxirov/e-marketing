@@ -34,7 +34,7 @@ export default async function handler(req) {
 
   const format = normalizeFormat(body?.format)
   const endpoint = ENDPOINTS[format] || ENDPOINTS.m4a
-  // const contentType = normalizeContentType(body?.contentType)
+  const requestContentType = normalizeContentType(body?.contentType)
 
   const params = new URLSearchParams()
   const voice = (body?.voice || 'gulnora').trim()
@@ -51,7 +51,7 @@ export default async function handler(req) {
   const narakeetResp = await fetch(url, {
     method: 'POST',
     headers: {
-      'Content-Type': contentType,
+      'Content-Type': requestContentType,
       accept: 'application/octet-stream',
       'x-api-key': apiKey,
     },
@@ -68,12 +68,12 @@ export default async function handler(req) {
   const base64 = arrayBufferToBase64(buffer)
   const durationHeader = narakeetResp.headers.get('x-duration-seconds')
   const duration = durationHeader ? Number(durationHeader) : undefined
-  const contentType = narakeetResp.headers.get('content-type') || `audio/${format}`
+  const responseContentType = narakeetResp.headers.get('content-type') || `audio/${format}`
 
   const response = {
     base64,
     duration: Number.isFinite(duration) ? duration : undefined,
-    contentType,
+    contentType: responseContentType,
   }
 
   const headers = corsHeaders(req)
