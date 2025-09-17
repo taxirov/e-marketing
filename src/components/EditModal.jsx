@@ -1,424 +1,228 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { generateAudioFromText, base64ToUrl, getAudioDuration, convertToLatin } from '../utils/audio'
-import { OBJECT_IMAGES, OBJECT_IMAGE_MAP } from '../utils/objectImages'
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { generateAudioText, generateAudioFile, generateCaptionFile, generateVideo } from '../services/api';
+import { getAudioDurationFromUrl } from '../utils/audio';
+import { OBJECT_IMAGES, OBJECT_IMAGE_MAP } from '../utils/objectImages';
+
+const UPLOAD_SERVER_URL = 'http://46.173.26.14:3000/api/files';
+
 
 export default function EditModal({ item, open, onClose }) {
-  const [audioText, setAudioText] = useState('')
-  const [audioBase64, setAudioBase64] = useState('')
-  const [audioUrl, setAudioUrl] = useState('')
-  const [audioLoading, setAudioLoading] = useState(false)
-  const [audioError, setAudioError] = useState('')
-  const [audioDuration, setAudioDuration] = useState(null)
-  const [audioContentType, setAudioContentType] = useState('audio/m4a')
-  const [captionSrt, setCaptionSrt] = useState('')
-  const [captionLoading, setCaptionLoading] = useState(false)
-  const [captionError, setCaptionError] = useState('')
-  // Video render state
-  const [videoUrl, setVideoUrl] = useState('')
-  const [videoLoading, setVideoLoading] = useState(false)
-  const [videoError, setVideoError] = useState('')
-  const [selectedImages, setSelectedImages] = useState([])
-  const audioUrlRef = useRef('')
-  const videoUrlRef = useRef('')
-  const selectedImagesRef = useRef([])
-  const allImageIds = useMemo(() => OBJECT_IMAGES.map((img) => img.id), [])
-  const selectedImageEntries = useMemo(() => selectedImages.map((id) => OBJECT_IMAGE_MAP[id]).filter(Boolean), [selectedImages])
+  const [audioText, setAudioText] = useState('');
+  const [audioUrl, setAudioUrl] = useState('');
+  const [audioTextUrl, setAudioTextUrl] = useState('');
+  const [audioLoading, setAudioLoading] = useState(false);
+  const [audioError, setAudioError] = useState('');
+  const [audioDuration, setAudioDuration] = useState(null);
 
-  const totalImages = OBJECT_IMAGES.length
+  const [captionUrl, setCaptionUrl] = useState('');
+  const [captionLoading, setCaptionLoading] = useState(false);
+  const [captionError, setCaptionError] = useState('');
 
-  const revokeAudioUrl = () => {
-    if (audioUrlRef.current) {
-      URL.revokeObjectURL(audioUrlRef.current)
-      audioUrlRef.current = ''
-    }
-  }
+  const [videoUrl, setVideoUrl] = useState('');
+  const [videoLoading, setVideoLoading] = useState(false);
+  const [videoError, setVideoError] = useState('');
 
-  const revokeVideoUrl = () => {
-    if (videoUrlRef.current) {
-      URL.revokeObjectURL(videoUrlRef.current)
-      videoUrlRef.current = ''
-    }
-  }
+  const [selectedImages, setSelectedImages] = useState([]);
+  const allImageIds = useMemo(() => OBJECT_IMAGES.map((img) => img.id), []);
+  const selectedImageEntries = useMemo(() => selectedImages.map((id) => OBJECT_IMAGE_MAP[id]).filter(Boolean), [selectedImages]);
 
-  const resetAudioUrl = () => {
-    revokeAudioUrl()
-    setAudioUrl('')
-    setAudioBase64('')
-    setAudioDuration(null)
-    setAudioContentType('audio/m4a')
-  }
+  const totalImages = OBJECT_IMAGES.length;
 
-  const resetVideoUrl = () => {
-    revokeVideoUrl()
-    setVideoUrl('')
-    setVideoError('')
-    setVideoLoading(false)
-  }
-
-  const applyAudioBase64 = (value, meta = {}) => {
-    revokeAudioUrl()
-    if (!value) return
-    try {
-      const { url } = base64ToUrl(value, meta.contentType)
-      audioUrlRef.current = url
-      setAudioUrl(url)
-      setAudioBase64(value)
-      setAudioDuration(meta.duration ?? null)
-      setAudioContentType(meta.contentType || 'audio/m4a')
-    } catch (err) {
-      console.error("Audio data ni o'qishda xato:", err)
-    }
-  }
-
-  useEffect(() => {
-    if (!open) return
-    const onKey = (e) => { if (e.key === 'Escape') onClose?.() }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [open, onClose])
-
+  // Load data from localStorage on modal open
   useEffect(() => {
     if (!open || !item) {
-      setAudioText('')
-      resetAudioUrl()
-      resetVideoUrl()
-      setCaptionSrt('')
-      setSelectedImages([])
-      selectedImagesRef.current = []
-      setAudioDuration(null)
-      return
+      setAudioText('');
+      setAudioUrl('');
+      setAudioTextUrl('');
+      setCaptionUrl('');
+      setVideoUrl('');
+      setSelectedImages([]);
+      return;
     }
 
-    let parsedSelection = []
     try {
-      const textKey = `audioText-${item.id}`
-      const audioKey = `audioData-${item.id}`
-      const captionKey = `captions-${item.id}`
-      const stored = typeof window !== 'undefined' ? window.localStorage.getItem(textKey) : null
-      setAudioText(stored || '')
-      if (typeof window !== 'undefined') {
-        const audioStored = window.localStorage.getItem(audioKey)
-        let meta = {}
-        const metaRaw = window.localStorage.getItem(`audioMeta-${item.id}`)
-        if (metaRaw) {
-          try {
-            meta = JSON.parse(metaRaw)
-          } catch (err) {
-            meta = {}
-          }
-        }
-        applyAudioBase64(audioStored || '', meta)
-        const captionStored = window.localStorage.getItem(captionKey)
-        setCaptionSrt(captionStored || '')
+      const audioTextStored = localStorage.getItem(`audioText-${item.id}`);
+      const audioUrlStored = localStorage.getItem(`audioUrl-${item.id}`);
+      const audioTextUrlStored = localStorage.getItem(`audioTextUrl-${item.id}`);
+      const captionUrlStored = localStorage.getItem(`captionUrl-${item.id}`);
+      const videoUrlStored = localStorage.getItem(`videoUrl-${item.id}`);
+      const imagesStored = JSON.parse(localStorage.getItem(`videoImages-${item.id}`) || '[]');
 
-        const imageKey = `videoImages-${item.id}`
-        const selectionRaw = window.localStorage.getItem(imageKey)
-        if (selectionRaw) {
-          try {
-            const parsed = JSON.parse(selectionRaw)
-            const arr = Array.isArray(parsed) ? parsed : []
-            parsedSelection = arr.filter((id) => OBJECT_IMAGE_MAP[id])
-            if (parsedSelection.length !== arr.length) {
-              window.localStorage.setItem(imageKey, JSON.stringify(parsedSelection))
-            }
-          } catch (err) {
-            parsedSelection = []
-          }
-        }
-      }
+      setAudioText(audioTextStored || '');
+      setAudioUrl(audioUrlStored || '');
+      setAudioTextUrl(audioTextUrlStored || '');
+      setCaptionUrl(captionUrlStored || '');
+      setVideoUrl(videoUrlStored || '');
+      setSelectedImages(imagesStored.filter((id) => OBJECT_IMAGE_MAP[id]));
+
     } catch (err) {
-      setAudioText('')
-      resetAudioUrl()
-      setCaptionSrt('')
-      setAudioDuration(null)
-      parsedSelection = []
+      console.error("Local storage ma'lumotlarini yuklashda xato:", err);
     }
+  }, [open, item]);
 
-    setSelectedImages(parsedSelection)
-    selectedImagesRef.current = parsedSelection
-    setAudioError('')
-    setCaptionError('')
-  }, [open, item])
-
+  // Save audioText to localStorage on change
   useEffect(() => {
-    if (!open || !item) {
-      selectedImagesRef.current = []
-      return
-    }
-
-    const prev = selectedImagesRef.current || []
-    const changed = prev.length !== selectedImages.length || prev.some((v, i) => v !== selectedImages[i])
-    selectedImagesRef.current = selectedImages
-    if (changed) resetVideoUrl()
-
-    try {
-      if (typeof window !== 'undefined') {
-        const key = `videoImages-${item.id}`
-        window.localStorage.setItem(key, JSON.stringify(selectedImages))
+    if (item && audioText) {
+      try {
+        localStorage.setItem(`audioText-${item.id}`, audioText);
+      } catch (err) {
+        console.error("Audio matnni saqlashda xato:", err);
       }
-    } catch (err) {
-      console.error('Video rasmlarini saqlashda xatolik:', err)
     }
-  }, [selectedImages, open, item])
+  }, [audioText, item]);
+  
+  // Set audio duration
+  useEffect(() => {
+    if (audioUrl) {
+      getAudioDurationFromUrl(audioUrl)
+        .then(duration => setAudioDuration(duration))
+        .catch(err => console.error("Audio davomiyligini aniqlashda xato:", err));
+    } else {
+      setAudioDuration(null);
+    }
+  }, [audioUrl]);
 
-  useEffect(() => () => { revokeAudioUrl(); revokeVideoUrl() }, [])
-
-  const handleGenerateAudio = async () => {
-    if (!item) return
-    const baseText = buildAudioTemplate(item)
+  const handleGenerateAudioText = async () => {
+    if (!item) return;
+    setAudioLoading(true);
+    setAudioError('');
     try {
-      const converted = await convertToLatin(baseText)
-      const finalText = converted && typeof converted === 'string' && converted.trim() ? converted.trim() : baseText
-      setAudioText(finalText)
-      setAudioError('')
+      const { text, url } = await generateAudioText(item.id, item, UPLOAD_SERVER_URL);
+      setAudioText(text);
+      setAudioTextUrl(url);
+      // Save to local storage
+      localStorage.setItem(`audioText-${item.id}`, text);
+      localStorage.setItem(`audioTextUrl-${item.id}`, url);
     } catch (err) {
-      console.error("Matnni lotinga o'girishda xatolik:", err)
-      setAudioText(baseText)
-      setAudioError("Matnni lotinga o'girishda xatolik yuz berdi")
+      console.error("Audio matnni yaratishda xatolik:", err);
+      setAudioError(err.message || "Audio matnni yaratishda xatolik yuz berdi");
+    } finally {
+      setAudioLoading(false);
     }
-  }
-
-  const handleSaveAudio = () => {
-    if (!item) return
-    const key = `audioText-${item.id}`
-    try {
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(key, audioText || '')
-      }
-    } catch (err) {
-      console.error('Audio matnni saqlashda xatolik:', err)
-    }
-  }
+  };
 
   const handleGenerateAudioFile = async () => {
-    if (!item) return
-    const baseText = (audioText && audioText.trim()) || buildAudioTemplate(item)
-    let currentText = baseText
-
-    try {
-      const converted = await convertToLatin(baseText)
-      if (converted && typeof converted === 'string' && converted.trim()) {
-        currentText = converted.trim()
-      }
-    } catch (err) {
-      console.error("Matnni lotinga o'girishda xatolik:", err)
-      setAudioError("Matnni lotinga o'girishda xatolik yuz berdi")
+    if (!item || !audioText.trim()) {
+      setAudioError("Avval audio matnini yaratish kerak");
+      return;
     }
-
-    if (!audioText.trim()) setAudioText(currentText)
-    setAudioLoading(true)
-    setAudioError('')
+    setAudioLoading(true);
+    setAudioError('');
     try {
-      const { base64, duration, contentType } = await generateAudioFromText(currentText)
-      applyAudioBase64(base64, { duration, contentType })
-
-      let effectiveDuration = duration
-      if (!Number.isFinite(effectiveDuration)) {
-        try {
-          effectiveDuration = await getAudioDuration(base64)
-        } catch (durErr) {
-          console.error('Audio davomiyligini aniqlashda xatolik:', durErr)
-        }
-      }
-      if (Number.isFinite(effectiveDuration)) {
-        setAudioDuration(effectiveDuration)
-      }
-
-      const srt = buildSrtFromText(currentText, effectiveDuration ?? audioDuration ?? 0)
-      setCaptionSrt(srt)
-      setCaptionError('')
-
-      if (typeof window !== 'undefined') {
-        const metaKey = `audioMeta-${item.id}`
-        const payload = {
-          duration: Number.isFinite(effectiveDuration) ? effectiveDuration : undefined,
-          contentType: contentType || 'audio/m4a',
-        }
-        window.localStorage.setItem(metaKey, JSON.stringify(payload))
-        window.localStorage.setItem(`captions-${item.id}`, srt)
-        window.localStorage.setItem(`audioText-${item.id}`, currentText)
-      }
+      const url = await generateAudioFile(audioText, UPLOAD_SERVER_URL, item.id);
+      setAudioUrl(url);
+      // Save to local storage
+      localStorage.setItem(`audioUrl-${item.id}`, url);
     } catch (err) {
-      console.error('Audio yaratishda xatolik:', err)
-      setAudioError(err.message || 'Audio yaratishda xatolik yuz berdi')
+      console.error('Audio fayl yaratishda xatolik:', err);
+      setAudioError(err.message || 'Audio fayl yaratishda xatolik yuz berdi');
     } finally {
-      setAudioLoading(false)
+      setAudioLoading(false);
     }
-  }
-
-  const handleSaveAudioFile = () => {
-    if (!item || !audioBase64) return
-    const key = `audioData-${item.id}`
-    try {
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(key, audioBase64)
-        const metaKey = `audioMeta-${item.id}`
-        if (audioDuration || audioContentType) {
-          const metaPayload = {
-            duration: Number.isFinite(audioDuration) ? audioDuration : undefined,
-            contentType: audioContentType || 'audio/m4a',
-          }
-          window.localStorage.setItem(metaKey, JSON.stringify(metaPayload))
-        } else {
-          window.localStorage.removeItem(metaKey)
-        }
-      }
-    } catch (err) {
-      console.error('Audio ni saqlashda xatolik:', err)
-      setAudioError('Audio ni saqlashda xatolik yuz berdi')
-    }
-  }
-
-  const handleSaveCaptions = () => {
-    if (!item) return
-    const key = `captions-${item.id}`
-    try {
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(key, captionSrt || '')
-      }
-    } catch (err) {
-      console.error('SRT ni saqlashda xatolik:', err)
-      setCaptionError('Video matnni saqlashda xatolik yuz berdi')
-    }
-  }
+  };
 
   const handleGenerateCaptions = async () => {
-    if (!item) return
-    if (!audioBase64) {
-      setCaptionError('Avval audio yarating')
-      return
+    if (!item || !audioUrl) {
+      setCaptionError("Avval audio faylni yaratish kerak");
+      return;
     }
-    const sourceText = (audioText && audioText.trim()) || buildAudioTemplate(item)
-    if (!sourceText.trim()) {
-      setCaptionError('Matn topilmadi')
-      return
-    }
-    setCaptionLoading(true)
-    setCaptionError('')
+    setCaptionLoading(true);
+    setCaptionError('');
     try {
-      let duration = audioDuration
-      if (!duration) {
-        duration = await getAudioDuration(audioBase64)
-        setAudioDuration(duration)
-        const metaKey = `audioMeta-${item.id}`
-        if (typeof window !== 'undefined') {
-          window.localStorage.setItem(
-            metaKey,
-            JSON.stringify({
-              duration: Number.isFinite(duration) ? duration : undefined,
-              contentType: audioContentType || 'audio/m4a',
-            })
-          )
-        }
-      }
-      const srt = buildSrtFromText(sourceText, duration)
-      setCaptionSrt(srt)
+        const audioDur = audioDuration || await getAudioDurationFromUrl(audioUrl);
+        setAudioDuration(audioDur);
+        const url = await generateCaptionFile(audioText, audioDur, UPLOAD_SERVER_URL, item.id);
+        setCaptionUrl(url);
+        // Save to local storage
+        localStorage.setItem(`captionUrl-${item.id}`, url);
     } catch (err) {
-      console.error('Captions yaratishda xatolik:', err)
-      setCaptionError(err.message || 'Video matn yaratishda xatolik yuz berdi')
+      console.error('Sarlavha yaratishda xatolik:', err);
+      setCaptionError(err.message || 'Sarlavha yaratishda xatolik yuz berdi');
     } finally {
-      setCaptionLoading(false)
+      setCaptionLoading(false);
     }
-  }
-
+  };
+  
   const handleGenerateVideo = async () => {
-    if (!item) return
-    if (!audioBase64) {
-      setVideoError('Avval audio yarating')
-      return
+    if (!item || !audioUrl || !captionUrl || !selectedImages.length) {
+      setVideoError("Video yaratish uchun audio, sarlavha va rasmlar kerak");
+      return;
     }
-    if (!selectedImages.length) {
-      setVideoError('Kamida bitta rasm tanlang')
-      return
-    }
-    setVideoError('')
-    resetVideoUrl()
-    setVideoLoading(true)
+    setVideoLoading(true);
+    setVideoError('');
     try {
-      let duration = audioDuration
-      if (!Number.isFinite(duration)) {
-        try {
-          duration = await getAudioDuration(audioBase64)
-          setAudioDuration(duration)
-        } catch (err) {
-          console.error('Audio davomiyligini aniqlab bo\'lmadi:', err)
-        }
-      }
-
-      const subtitleParts = [item?.region, item?.district].map((x) => (x || '').trim()).filter(Boolean)
-      const payload = {
-        audioBase64,
-        audioContentType: audioContentType || 'audio/m4a',
-        captions: captionSrt || '',
-        images: selectedImages,
-        durationSeconds: Number.isFinite(duration) ? duration : undefined,
-        title: item?.name || '',
-        subtitle: subtitleParts.join(' • '),
-      }
-
-      const res = await fetch('/api/video', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-      if (!res.ok) {
-        const text = await res.text().catch(() => '')
-        const detail = text?.trim() ? `: ${text.trim()}` : ''
-        throw new Error(`Video servisi xatosi ${res.status}${detail}`)
-      }
-      const blob = await res.blob()
-      revokeVideoUrl()
-      const url = URL.createObjectURL(blob)
-      videoUrlRef.current = url
-      setVideoUrl(url)
+      const url = await generateVideo(item, audioUrl, captionUrl, selectedImages, UPLOAD_SERVER_URL);
+      setVideoUrl(url);
+      // Save to local storage
+      localStorage.setItem(`videoUrl-${item.id}`, url);
     } catch (err) {
-      console.error('Video yaratishda xatolik:', err)
-      setVideoError(err.message || 'Video yaratishda xatolik yuz berdi')
+      console.error('Video yaratishda xatolik:', err);
+      setVideoError(err.message || 'Video yaratishda xatolik yuz berdi');
     } finally {
-      setVideoLoading(false)
+      setVideoLoading(false);
     }
-  }
-
-  const handleDownloadVideo = () => {
-    if (!videoUrl) return
-    try {
-      const a = document.createElement('a')
-      a.href = videoUrl
-      a.download = `video-${item?.id || 'property'}.mp4`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-    } catch (err) {
-      console.error('Videoni yuklab olishda xatolik:', err)
-    }
-  }
+  };
 
   const handleToggleImageSelect = (imageId) => {
     setSelectedImages((prev) => {
-      const next = new Set(prev)
+      const next = new Set(prev);
       if (next.has(imageId)) {
-        next.delete(imageId)
+        next.delete(imageId);
       } else if (OBJECT_IMAGE_MAP[imageId]) {
-        next.add(imageId)
+        next.add(imageId);
       }
-      return Array.from(next)
-    })
-  }
+      const newSelection = Array.from(next);
+      try {
+        localStorage.setItem(`videoImages-${item.id}`, JSON.stringify(newSelection));
+      } catch (err) {
+        console.error('Rasmlarni saqlashda xatolik:', err);
+      }
+      return newSelection;
+    });
+  };
 
   const handleSelectAllImages = () => {
-    setSelectedImages((prev) => {
-      if (prev.length === totalImages && totalImages) {
-        return prev
-      }
-      return Array.from(allImageIds)
-    })
-  }
+    setSelectedImages(allImageIds);
+    try {
+      localStorage.setItem(`videoImages-${item.id}`, JSON.stringify(allImageIds));
+    } catch (err) {
+      console.error('Rasmlarni saqlashda xatolik:', err);
+    }
+  };
 
   const handleClearImageSelection = () => {
-    setSelectedImages((prev) => (prev.length ? [] : prev))
-  }
+    setSelectedImages([]);
+    try {
+      localStorage.removeItem(`videoImages-${item.id}`);
+    } catch (err) {
+      console.error('Rasmlarni tozalashda xatolik:', err);
+    }
+  };
 
-  if (!open || !item) return null
+  const handleDownloadFile = (url, filename) => {
+    if (!url) return;
+    try {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error('Faylni yuklab olishda xatolik:', err);
+    }
+  };
+  
+  const getAudioContext = () => {
+    if (typeof window === 'undefined') {
+        throw new Error("AudioContext mavjud emas");
+    }
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) throw new Error("Brauzer AudioContext ni qo'llab-quvvatlamaydi");
+    return new Ctx();
+  };
+
+  if (!open || !item) return null;
 
   return (
     <div className="modal-backdrop" onMouseDown={onClose}>
@@ -442,51 +246,43 @@ export default function EditModal({ item, open, onClose }) {
               <Placeholder text="Audio matn hali yaratilmagan..."/>
             )}
             <div className="row">
-              <button className="btn" onClick={handleSaveAudio} disabled={!audioText.trim()}>
-                Saqlash
+              <button className="btn" onClick={handleGenerateAudioText} disabled={audioLoading}>
+                {audioLoading ? 'Yaratilmoqda...' : 'Audio matn yaratish'}
               </button>
-              <button className="btn ghost" onClick={handleGenerateAudio}>
-                Audio matn yaratish
-              </button>
+              {audioTextUrl && <div className="hint">Fayl manzili: <a href={audioTextUrl} target="_blank" rel="noopener noreferrer">{audioTextUrl}</a></div>}
             </div>
+            {audioError && <div className="error-text">{audioError}</div>}
           </Section>
 
           <Section title="Audio:">
             {audioUrl ? (
-              <audio controls src={audioUrl} />
+              <>
+                <audio controls src={audioUrl} />
+                <div className="hint">Fayl manzili: <a href={audioUrl} target="_blank" rel="noopener noreferrer">{audioUrl}</a></div>
+              </>
             ) : (
               <Placeholder text="Audio hali yaratilmagan..."/>
             )}
-            {audioError && <div className="error-text">{audioError}</div>}
             <div className="row">
-              <button className="btn" onClick={handleSaveAudioFile} disabled={!audioBase64}>
-                Saqlash
-              </button>
-              <button className="btn ghost" onClick={handleGenerateAudioFile} disabled={audioLoading}>
+              <button className="btn" onClick={handleGenerateAudioFile} disabled={audioLoading || !audioText.trim()}>
                 {audioLoading ? 'Yaratilmoqda...' : 'Audioni yaratish'}
               </button>
+              {audioUrl && <button className="btn ghost" onClick={() => handleDownloadFile(audioUrl, `audio-${item.id}.m4a`)}>Yuklab olish</button>}
             </div>
           </Section>
 
           <Section title="Video matni (Captions):">
-            {captionSrt ? (
-              <textarea
-                className="text-area"
-                rows={8}
-                value={captionSrt}
-                onChange={(e) => setCaptionSrt(e.target.value)}
-              />
+            {captionUrl ? (
+              <div className="hint">Fayl manzili: <a href={captionUrl} target="_blank" rel="noopener noreferrer">{captionUrl}</a></div>
             ) : (
               <Placeholder text="Video matni hali yaratilmagan..."/>
             )}
             {captionError && <div className="error-text">{captionError}</div>}
             <div className="row">
-              <button className="btn" onClick={handleSaveCaptions} disabled={!captionSrt.trim()}>
-                Saqlash
-              </button>
-              <button className="btn ghost" onClick={handleGenerateCaptions} disabled={captionLoading}>
+              <button className="btn" onClick={handleGenerateCaptions} disabled={captionLoading || !audioUrl}>
                 {captionLoading ? 'Yaratilmoqda...' : 'Video matn yaratish'}
               </button>
+              {captionUrl && <button className="btn ghost" onClick={() => handleDownloadFile(captionUrl, `captions-${item.id}.srt`)}>Yuklab olish</button>}
             </div>
           </Section>
 
@@ -556,7 +352,10 @@ export default function EditModal({ item, open, onClose }) {
 
           <Section title="Video:">
             {videoUrl ? (
-              <video controls src={videoUrl} className="video-player" />
+              <>
+                <video controls src={videoUrl} className="video-player" />
+                <div className="hint">Fayl manzili: <a href={videoUrl} target="_blank" rel="noopener noreferrer">{videoUrl}</a></div>
+              </>
             ) : (
               <Placeholder
                 text={
@@ -570,12 +369,10 @@ export default function EditModal({ item, open, onClose }) {
             )}
             {videoError && <div className="error-text">{videoError}</div>}
             <div className="row">
-              <button className="btn" onClick={handleDownloadVideo} disabled={!videoUrl || videoLoading}>
-                Yuklab olish
-              </button>
-              <button className="btn ghost" onClick={handleGenerateVideo} disabled={videoLoading || !audioBase64 || !selectedImages.length}>
+              <button className="btn" onClick={handleGenerateVideo} disabled={videoLoading || !audioUrl || !captionUrl || !selectedImages.length}>
                 {videoLoading ? 'Yaratilmoqda...' : 'Videoni yaratish'}
               </button>
+              {videoUrl && <button className="btn ghost" onClick={() => handleDownloadFile(videoUrl, `video-${item.id}.mp4`)}>Yuklab olish</button>}
             </div>
           </Section>
         </div>
@@ -596,136 +393,3 @@ function Section({ title, children }) {
 function Placeholder({ text }) {
   return <div className="placeholder">{text}</div>
 }
-
-function buildAudioTemplate(item) {
-  const rawRegion = item?.productRegion || item?.raw?.productOrder?.region || item?.raw?.region || null
-  const parentName = rawRegion?.parent?.name || rawRegion?.parent?.parent?.name || item?.region || ''
-  const regionName = rawRegion?.name || item?.district || ''
-  const mfyName = item?.productMfy?.name || item?.raw?.productOrder?.mfy?.name || ''
-  const mfyWord = mfyName.trim().split(/\s+/)[0] || ''
-  const categoryText = (() => {
-    const map = { 19: 'noturar binoni', 8: 'kvartirani', 12: 'xususiy uyni' }
-    if (map[item?.categoryId]) return map[item.categoryId]
-    if (item?.category) return `${String(item.category).toLowerCase()}ni`
-    return 'obyektni'
-  })()
-  const areaAll = formatRounded(item?.areaAll ?? item?.area)
-  const buildingArea = formatRounded(item?.buildingArea ?? item?.areaAll ?? item?.area)
-  const effectiveArea = formatRounded(item?.effectiveArea || item?.area_living)
-  const typeOfBuilding = (() => {
-    const base = item?.typeOfBuildingLabel || item?.typeOfBuilding
-    if (!base || !String(base).trim()) return ""
-    return String(base).trim().toLowerCase()
-  })()
-  const floorsBuilding = normalizeValue(item?.floorsBuilding)
-  const floors = normalizeValue(item?.floors)
-  const floorsSentence = item?.separateBuilding
-    ? `Uy qavatliligi ${floorsBuilding}.`
-    : `Uy qavatliligi ${floorsBuilding}, qavati ${floors}.`
-  const communications = formatCommunications(item?.engineerCommunications)
-
-  const sentences = [
-    normalizeSpaces(`${parentName || ''} ${regionName || ''} ${mfyWord ? `${mfyWord} mahallasida` : ''} joylashgan ${categoryText} taklif qilamiz.`),
-    `Umumiy yer maydoni ${areaAll} metr kvadrat.`,
-    `Qurilish osti maydoni ${buildingArea} metr kvadrat.`,
-    `Foydali maydoni ${effectiveArea} metr kvadrat.`,
-    normalizeSpaces(`Qurilish turi ${typeOfBuilding}.`),
-    normalizeSpaces(floorsSentence),
-    communications ? `${communications} taʻminoti mavjud.` : `Taʻminot bo'yicha maʻlumot mavjud emas.`,
-    'Joylashuvi qulay.',
-    `Batafsil maʻlumot uchun 55 517 22 20 raqamiga bogʻlaning!`,
-  ]
-
-  return sentences.join(' ')
-}
-
-function formatRounded(value, fallback = "maʻlumot koʻrsatilmagan") {
-  if (value === null || value === undefined || value === '') return fallback
-  const num = Number(value)
-  if (!Number.isFinite(num)) return fallback
-  return String(Math.round(num))
-}
-
-function normalizeValue(value, fallback = "maʻlumot ko'rsatilmagan") {
-  if (value === null || value === undefined) return fallback
-  const str = String(value).trim()
-  return str ? str : fallback
-}
-
-function formatCommunications(values) {
-  if (!Array.isArray(values) || !values.length) return ''
-  const titles = {
-    water_supply: 'Suv',
-    electric_lighting: 'Elektr',
-    gas_supply: 'Gaz',
-    sewage: 'Kanalizatsiya',
-  }
-  return values
-    .map((code) => titles[code] || code)
-    .filter(Boolean)
-    .join(', ')
-}
-
-function buildSrtFromText(text, durationSeconds) {
-  const source = normalizeSpaces(text)
-  const segments = splitTextSegments(source)
-  const joined = normalizeSpaces(segments.join(' '))
-  const useSegments = joined === source ? segments : [source]
-  const totalWords = countWords(source)
-  const total = durationSeconds > 0 ? durationSeconds : useSegments.length
-  let accumulatedWords = 0
-
-  const timed = useSegments.map((segment, idx) => {
-    if (!totalWords) {
-      const equalChunk = total / useSegments.length
-      const start = equalChunk * idx
-      const end = idx === useSegments.length - 1 ? total : equalChunk * (idx + 1)
-      return { index: idx + 1, start, end, text: segment }
-    }
-    const words = Math.max(countWords(segment), 1)
-    const startFraction = accumulatedWords / totalWords
-    accumulatedWords += words
-    const endFraction = idx === useSegments.length - 1 ? 1 : Math.min(1, accumulatedWords / totalWords)
-    const start = total * startFraction
-    const end = total * endFraction
-    return { index: idx + 1, start, end, text: segment }
-  })
-
-  return timed
-    .map((entry) => [
-      String(entry.index),
-      `${formatTimestamp(entry.start)} --> ${formatTimestamp(entry.end)}`,
-      entry.text,
-      '',
-    ].join('\n'))
-    .join('\n')
-    .trim()
-}
-
-function normalizeSpaces(text) {
-  return text.replace(/\s+/g, ' ').trim()
-}
-
-function splitTextSegments(text) {
-  const matches = text.match(/[^.!?]+[.!?]?/g) || []
-  const trimmed = matches.map((segment) => segment.trim()).filter(Boolean)
-  if (trimmed.length) return trimmed
-  return [text]
-}
-
-function countWords(text) {
-  return text.split(/\s+/).filter(Boolean).length
-}
-
-function formatTimestamp(seconds) {
-  const totalMs = Math.max(0, Math.round(seconds * 1000))
-  const ms = totalMs % 1000
-  const totalSeconds = (totalMs - ms) / 1000
-  const s = totalSeconds % 60
-  const totalMinutes = (totalSeconds - s) / 60
-  const m = totalMinutes % 60
-  const h = (totalMinutes - m) / 60
-  const pad = (n) => String(n).padStart(2, '0')
-  return `${pad(h)}:${pad(m)}:${pad(s)},${String(ms).padStart(3, '0')}`
-}
-

@@ -1,8 +1,11 @@
+// This API endpoint renders a video and uploads it to a user-provided server.
+// It fetches the necessary assets (audio, captions, images) and uses Remotion to render the video.
 import path from 'node:path'
 import os from 'node:os'
 import fs from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import crypto from 'node:crypto'
+import FormData from 'form-data';
 import { bundle, renderMedia, getCompositions } from '@remotion/renderer'
 
 export const config = { runtime: 'nodejs', maxDuration: 300 }
@@ -30,24 +33,38 @@ export default async function handler(req, res) {
   try { body = raw ? JSON.parse(raw) : {} } catch { return res.status(400).json({ error: 'Invalid JSON' }) }
 
   const {
-    audioBase64,
-    audioContentType = 'audio/m4a',
-    captions = '',
+    audioUrl, // Changed from audioBase64 to audioUrl
+    captionsUrl, // New parameter for caption file URL
     images = [],
     durationSeconds,
     title = '',
     subtitle = '',
-  } = body || {}
+    uploadUrl, // New parameter for server upload URL
+    productId,
+  } = body || {};
 
-  if (!audioBase64) return res.status(400).json({ error: 'Audio topilmadi' })
+  if (!audioUrl) return res.status(400).json({ error: 'Audio fayli manzili topilmadi' })
+  if (!captionsUrl) return res.status(400).json({ error: 'Sarlavha fayli manzili topilmadi' });
   if (!Array.isArray(images) || !images.length) return res.status(400).json({ error: 'Kamida bitta rasm tanlang' })
+  if (!uploadUrl) return res.status(400).json({ error: 'Video yuklash uchun server manzili topilmadi' });
+  if (!productId) return res.status(400).json({ error: "productId talab qilinadi" });
 
   try {
-    const audioSrc = `data:${audioContentType};base64,${audioBase64}`
+    // Fetch audio and captions from the provided URLs
+    const audioRes = await fetch(audioUrl);
+    if (!audioRes.ok) throw new Error(`Audio faylini yuklashda xatolik: ${audioRes.statusText}`);
+    const audioBuffer = await audioRes.arrayBuffer();
+    const audioBase64 = Buffer.from(audioBuffer).toString('base64');
+    const audioSrc = `data:${audioRes.headers.get('content-type')};base64,${audioBase64}`;
+
+    const captionsRes = await fetch(captionsUrl);
+    if (!captionsRes.ok) throw new Error(`Sarlavha faylini yuklashda xatolik: ${captionsRes.statusText}`);
+    const captionsSrt = await captionsRes.text();
+
     const backgroundSrc = await fileToDataUrl(backgroundPng)
     const slides = await resolveSlides(images)
 
-    const parsedCaptions = parseSrt(captions)
+    const parsedCaptions = parseSrt(captionsSrt)
     const endFromCaptions = parsedCaptions.length ? Math.max(...parsedCaptions.map((c) => c.endSeconds)) : 0
     const estFromSlides = slides.length * 3.2
     const seconds = resolveDuration(durationSeconds, endFromCaptions, estFromSlides)
@@ -81,9 +98,31 @@ export default async function handler(req, res) {
     await renderMedia({ serveUrl: bundleLocation, composition, codec: 'h264', inputProps, outputLocation, audioCodec: 'aac', videoBitrate: '8M' })
 
     const buffer = await fs.readFile(outputLocation)
-    res.setHeader('Content-Type', 'video/mp4')
-    res.setHeader('Content-Disposition', 'attachment; filename="property-video.mp4"')
-    res.status(200).end(buffer)
+
+    const formData = new FormData();
+    formData.append('file', buffer, {
+      filename: `${productId}.mp4`,
+      contentType: 'video/mp4',
+    });
+
+    const uploadResp = await fetch(`${uploadUrl}/video/${productId}`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        ...formData.getHeaders(),
+      },
+    });
+
+    if (!uploadResp.ok) {
+        const message = await uploadResp.text().catch(() => '');
+        const detail = message?.trim() ? `: ${message.trim()}` : '';
+        throw new Error(`Serverga yuklashda xatolik ${uploadResp.status}${detail}`);
+    }
+
+    const uploadData = await uploadResp.json().catch(() => null);
+
+    res.setHeader('Content-Type', 'application/json')
+    res.status(200).json(uploadData || { message: 'Video muvaffaqiyatli yuklandi' });
     await safeRm(bundleLocation); await safeRm(outputLocation)
   } catch (err) {
     console.error('Video rendering failed:', err)
@@ -133,4 +172,3 @@ function parseSrt(s) {
   return out
 }
 function tc(code) { const m = code.match(/(\d{2}):(\d{2}):(\d{2}),(\d{3})/); if (!m) return NaN; const [,h,mi,s,ms] = m; return Number(h)*3600 + Number(mi)*60 + Number(s) + Number(ms)/1000 }
-
