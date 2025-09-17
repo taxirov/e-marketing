@@ -43,7 +43,7 @@ export default async function handler(req) {
     return jsonError(`Matn.uz xatosi ${res.status}${detail}`, res.status, req)
   }
 
-  const latin = await res.text()
+  const latin = (await res.text()).replace('\u2018', "ʻ")
   const headers = corsHeaders(req)
   headers.set('Content-Type', 'application/json')
   return new Response(JSON.stringify({ text: latin }), { status: 200, headers })
