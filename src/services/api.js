@@ -1,5 +1,14 @@
-// This file contains API-related utility functions without any Firebase dependencies.
-import { buildAudioTemplate, normalizeSpaces } from '../utils/audio';
+// Note: Template helpers are defined in this file.
+
+function toAbsoluteUrl(base, maybeRelative) {
+  const v = String(maybeRelative || '').trim();
+  if (!v) return v;
+  if (/^(https?:)?\/\//i.test(v)) return v;
+  if (v.startsWith('data:') || v.startsWith('blob:')) return v;
+  const b = String(base || '').trim().replace(/\/$/, '');
+  const p = v.replace(/^\//, '');
+  return b ? `${b}/${p}` : `/${p}`;
+}
 
 export async function generateAudioText(productId, item, uploadUrl) {
   const text = buildAudioTemplate(item);
@@ -14,7 +23,8 @@ export async function generateAudioText(productId, item, uploadUrl) {
       throw new Error(`Audio matn yaratishda xato: ${res.status} - ${errorText}`);
   }
   const data = await res.json();
-  return { text, url: data.url };
+  const url = toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
+  return { text, url };
 }
 
 export async function generateAudioFile(text, uploadUrl, productId, options = {}) {
@@ -41,7 +51,7 @@ export async function generateAudioFile(text, uploadUrl, productId, options = {}
     }
 
     const data = await res.json();
-    return data.url;
+    return toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
 }
 
 export async function generateCaptionFile(text, duration, uploadUrl, productId) {
@@ -63,7 +73,7 @@ export async function generateCaptionFile(text, duration, uploadUrl, productId) 
     }
 
     const data = await res.json();
-    return data.url;
+    return toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
 }
 
 export async function generateVideo(item, audioUrl, captionsUrl, images, uploadUrl) {
@@ -94,7 +104,7 @@ export async function generateVideo(item, audioUrl, captionsUrl, images, uploadU
         throw new Error(`Video servisi xatosi ${res.status}${detail}`);
     }
     const data = await res.json();
-    return data.url;
+    return toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
 }
 
 

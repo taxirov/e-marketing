@@ -120,9 +120,11 @@ export default async function handler(req, res) {
     }
 
     const uploadData = await uploadResp.json().catch(() => null);
+    const url = uploadData?.fileUrl || uploadData?.url || null;
 
     res.setHeader('Content-Type', 'application/json')
-    res.status(200).json(uploadData || { message: 'Video muvaffaqiyatli yuklandi' });
+    // Normalize shape to include `url`, like other endpoints
+    res.status(200).json({ url, ...(uploadData || {}) });
     await safeRm(bundleLocation); await safeRm(outputLocation)
   } catch (err) {
     console.error('Video rendering failed:', err)
@@ -139,7 +141,17 @@ async function fileToDataUrl(p) {
 async function resolveSlides(ids) {
   const map = await indexLocalImages()
   const out = []
-  for (const id of ids) { const k = String(id || '').trim(); if (k && map.has(k)) out.push(map.get(k)) }
+  await Promise.all((ids || []).map(async (val) => {
+    const k = String(val || '').trim()
+    if (!k) return
+    if (map.has(k)) { out.push(map.get(k)); return }
+    if (/^https?:\/\//i.test(k)) {
+      const d = await httpImageToDataUrl(k).catch(() => null)
+      if (d) out.push({ src: d })
+      return
+    }
+    if (k.startsWith('data:')) { out.push({ src: k }); return }
+  }))
   return out
 }
 async function indexLocalImages() {
@@ -156,6 +168,14 @@ async function indexLocalImages() {
 function mime(ext) {
   const e = ext.toLowerCase();
   if (e === '.png') return 'image/png'; if (e === '.jpg' || e === '.jpeg') return 'image/jpeg'; if (e === '.webp') return 'image/webp'; if (e === '.m4a') return 'audio/mp4'; if (e === '.mp3') return 'audio/mpeg'; return 'application/octet-stream'
+}
+async function httpImageToDataUrl(url) {
+  const resp = await fetch(url)
+  if (!resp.ok) throw new Error(`Rasmni yuklab bo'lmadi: ${resp.status}`)
+  const ct = resp.headers.get('content-type') || 'image/jpeg'
+  const buf = Buffer.from(await resp.arrayBuffer())
+  const b64 = buf.toString('base64')
+  return `data:${ct};base64,${b64}`
 }
 function resolveDuration(explicit, a, b) { const c = [explicit, a, b].filter((x) => Number.isFinite(x) && x > 0); return c.length ? Math.max(...c) : 30 }
 function parseSrt(s) {

@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { generateAudioText, generateAudioFile, generateCaptionFile, generateVideo } from '../services/api';
 import { getAudioDurationFromUrl } from '../utils/audio';
-import { OBJECT_IMAGES, OBJECT_IMAGE_MAP } from '../utils/objectImages';
+import { useApi } from '../utils/api';
 
 const UPLOAD_SERVER_URL = 'http://46.173.26.14:3000/api/files';
 
 
 export default function EditModal({ item, open, onClose }) {
+  const { apiFetch } = useApi();
   const [audioText, setAudioText] = useState('');
   const [audioUrl, setAudioUrl] = useState('');
   const [audioTextUrl, setAudioTextUrl] = useState('');
@@ -22,11 +23,15 @@ export default function EditModal({ item, open, onClose }) {
   const [videoLoading, setVideoLoading] = useState(false);
   const [videoError, setVideoError] = useState('');
 
-  const [selectedImages, setSelectedImages] = useState([]);
-  const allImageIds = useMemo(() => OBJECT_IMAGES.map((img) => img.id), []);
-  const selectedImageEntries = useMemo(() => selectedImages.map((id) => OBJECT_IMAGE_MAP[id]).filter(Boolean), [selectedImages]);
-
-  const totalImages = OBJECT_IMAGES.length;
+  // Photos fetched per item from API
+  const [photos, setPhotos] = useState([]);
+  const [photosLoading, setPhotosLoading] = useState(false);
+  const [photosError, setPhotosError] = useState('');
+  const photoMap = useMemo(() => new Map(photos.map((p) => [p.id, p])), [photos]);
+  const [selectedImages, setSelectedImages] = useState([]); // stores photo ids
+  const selectedImageEntries = useMemo(() => selectedImages.map((id) => photoMap.get(id)).filter(Boolean), [selectedImages, photoMap]);
+  const allImageIds = useMemo(() => photos.map((p) => p.id), [photos]);
+  const totalImages = photos.length;
 
   // Load data from localStorage on modal open
   useEffect(() => {
@@ -37,6 +42,9 @@ export default function EditModal({ item, open, onClose }) {
       setCaptionUrl('');
       setVideoUrl('');
       setSelectedImages([]);
+      setPhotos([]);
+      setPhotosError('');
+      setPhotosLoading(false);
       return;
     }
 
@@ -53,12 +61,50 @@ export default function EditModal({ item, open, onClose }) {
       setAudioTextUrl(audioTextUrlStored || '');
       setCaptionUrl(captionUrlStored || '');
       setVideoUrl(videoUrlStored || '');
-      setSelectedImages(imagesStored.filter((id) => OBJECT_IMAGE_MAP[id]));
+      setSelectedImages(Array.isArray(imagesStored) ? imagesStored : []);
 
     } catch (err) {
       console.error("Local storage ma'lumotlarini yuklashda xato:", err);
     }
   }, [open, item]);
+
+  // Fetch real photos for the item when modal opens
+  useEffect(() => {
+    let cancelled = false;
+    async function run() {
+      if (!open || !item?.id) return;
+      setPhotosLoading(true);
+      setPhotosError('');
+      try {
+        const res = await apiFetch(`/api/product/${item.id}`, { method: 'GET' });
+        if (!res.ok) {
+          const t = await res.text().catch(() => '');
+          throw new Error(t || `Rasmlar API xatosi: ${res.status}`);
+        }
+        const data = await res.json();
+        const list = Array.isArray(data?.photos) ? data.photos : [];
+        const mapped = list
+          .map((p, idx) => {
+            const url = p?.url || p?.imageUrl || p?.src || '';
+            const id = p?.id || url || String(idx);
+            return url ? { id: String(id), url: String(url) } : null;
+          })
+          .filter(Boolean);
+        if (!cancelled) {
+          setPhotos(mapped);
+          // Filter selected images to existing ones
+          setSelectedImages((cur) => cur.filter((id) => mapped.find((m) => m.id === id)));
+        }
+      } catch (err) {
+        console.error('Rasmlarni yuklashda xatolik:', err);
+        if (!cancelled) setPhotosError(err.message || 'Rasmlarni yuklashda xatolik');
+      } finally {
+        if (!cancelled) setPhotosLoading(false);
+      }
+    }
+    run();
+    return () => { cancelled = true };
+  }, [open, item?.id]);
 
   // Save audioText to localStorage on change
   useEffect(() => {
@@ -151,7 +197,9 @@ export default function EditModal({ item, open, onClose }) {
     setVideoLoading(true);
     setVideoError('');
     try {
-      const url = await generateVideo(item, audioUrl, captionUrl, selectedImages, UPLOAD_SERVER_URL);
+      // Pass image URLs to video renderer (supports http/https/data URLs)
+      const imageUrls = selectedImageEntries.map((e) => e.url);
+      const url = await generateVideo(item, audioUrl, captionUrl, imageUrls, UPLOAD_SERVER_URL);
       setVideoUrl(url);
       // Save to local storage
       localStorage.setItem(`videoUrl-${item.id}`, url);
@@ -166,11 +214,8 @@ export default function EditModal({ item, open, onClose }) {
   const handleToggleImageSelect = (imageId) => {
     setSelectedImages((prev) => {
       const next = new Set(prev);
-      if (next.has(imageId)) {
-        next.delete(imageId);
-      } else if (OBJECT_IMAGE_MAP[imageId]) {
-        next.add(imageId);
-      }
+      if (next.has(imageId)) next.delete(imageId);
+      else if (photoMap.has(imageId)) next.add(imageId);
       const newSelection = Array.from(next);
       try {
         localStorage.setItem(`videoImages-${item.id}`, JSON.stringify(newSelection));
@@ -287,7 +332,9 @@ export default function EditModal({ item, open, onClose }) {
           </Section>
 
           <Section title="Obyekt rasmlari:">
-            {totalImages ? (
+            {photosLoading ? (
+              <Placeholder text="Rasmlar yuklanmoqda..." />
+            ) : totalImages ? (
               <>
                 <div className="image-toolbar">
                   <div className="image-toolbar-status">
@@ -313,9 +360,9 @@ export default function EditModal({ item, open, onClose }) {
                   </div>
                 </div>
                 <div className="image-grid">
-                  {OBJECT_IMAGES.map((image, index) => {
-                    const isSelected = selectedImages.includes(image.id)
-                    const altLabel = `Obyekt rasm ${index + 1}`
+                  {photos.map((image, index) => {
+                    const isSelected = selectedImages.includes(image.id);
+                    const altLabel = `Obyekt rasm ${index + 1}`;
                     return (
                       <button
                         type="button"
@@ -341,10 +388,12 @@ export default function EditModal({ item, open, onClose }) {
                         </span>
                         <img src={image.url} alt={altLabel} loading="lazy" />
                       </button>
-                    )
+                    );
                   })}
                 </div>
               </>
+            ) : photosError ? (
+              <div className="error-text">{photosError}</div>
             ) : (
               <Placeholder text="Obyekt rasmlari topilmadi" />
             )}
