@@ -1,8 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { generateAudioFromText, base64ToUrl, getAudioDuration, convertToLatin } from '../utils/audio'
-import { OBJECT_IMAGES, OBJECT_IMAGE_MAP } from '../utils/objectImages'
+import { useProductApi } from '../api/product'
 
 export default function EditModal({ item, open, onClose }) {
+  const { fetchProductById } = useProductApi()
+  const [productDetails, setProductDetails] = useState(null)
+  const [productLoading, setProductLoading] = useState(false)
+  const [productError, setProductError] = useState('')
   const [audioText, setAudioText] = useState('')
   const [audioBase64, setAudioBase64] = useState('')
   const [audioUrl, setAudioUrl] = useState('')
@@ -20,10 +24,63 @@ export default function EditModal({ item, open, onClose }) {
   const audioUrlRef = useRef('')
   const videoUrlRef = useRef('')
   const selectedImagesRef = useRef([])
-  const allImageIds = useMemo(() => OBJECT_IMAGES.map((img) => img.id), [])
-  const selectedImageEntries = useMemo(() => selectedImages.map((id) => OBJECT_IMAGE_MAP[id]).filter(Boolean), [selectedImages])
+  const currentItem = useMemo(() => {
+    if (productDetails?.normalized) {
+      const normalized = productDetails.normalized
+      const merged = item ? { ...item, ...normalized } : { ...normalized }
+      return { ...merged, raw: productDetails.raw || normalized.raw }
+    }
+    return item || null
+  }, [productDetails, item])
+  const currentItemId = useMemo(() => {
+    if (currentItem && currentItem.id !== undefined && currentItem.id !== null) return currentItem.id
+    if (item && item.id !== undefined && item.id !== null) return item.id
+    return null
+  }, [currentItem, item])
+  const hasItemId = currentItemId !== null && currentItemId !== undefined
+  const availableImages = useMemo(() => {
+    if (Array.isArray(productDetails?.raw?.photos) && productDetails.raw.photos.length) {
+      return productDetails.raw.photos
+        .map((photo, index) => {
+          const url = photo?.url || ''
+          if (!url) return null
+          const id = photo?.id ?? photo?.uuid ?? `photo-${index}`
+          return {
+            id: String(id),
+            url,
+            name: photo?.name || '',
+            original: photo,
+          }
+        })
+        .filter(Boolean)
+    }
+    if (productDetails?.raw?.photo?.url) {
+      const photo = productDetails.raw.photo
+      const id = photo?.id ?? photo?.uuid ?? 'main'
+      return [
+        {
+          id: String(id),
+          url: photo.url,
+          name: photo?.name || '',
+          original: photo,
+        },
+      ]
+    }
+    return []
+  }, [productDetails])
+  const imageMap = useMemo(() => {
+    return availableImages.reduce((acc, image) => {
+      acc[image.id] = image
+      return acc
+    }, {})
+  }, [availableImages])
+  const allImageIds = useMemo(() => availableImages.map((img) => img.id), [availableImages])
+  const selectedImageEntries = useMemo(
+    () => selectedImages.map((id) => imageMap[id]).filter(Boolean),
+    [selectedImages, imageMap]
+  )
 
-  const totalImages = OBJECT_IMAGES.length
+  const totalImages = availableImages.length
 
   const revokeAudioUrl = () => {
     if (audioUrlRef.current) {
@@ -56,6 +113,39 @@ export default function EditModal({ item, open, onClose }) {
   }
 
   useEffect(() => {
+    if (!open || !item?.id) {
+      setProductDetails(null)
+      setProductError('')
+      setProductLoading(false)
+      return
+    }
+
+    let cancelled = false
+    setProductLoading(true)
+    setProductError('')
+
+    fetchProductById(item.id)
+      .then((data) => {
+        if (cancelled) return
+        setProductDetails(data)
+      })
+      .catch((err) => {
+        if (cancelled) return
+        console.error('Obyekt maʼlumotlarini yuklashda xatolik:', err)
+        setProductError(err.message || 'Obyekt maʼlumotlarini yuklab boʼlmadi')
+        setProductDetails(null)
+      })
+      .finally(() => {
+        if (cancelled) return
+        setProductLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [open, item?.id, fetchProductById])
+
+  useEffect(() => {
     if (!open) return
     const onKey = (e) => { if (e.key === 'Escape') onClose?.() }
     window.addEventListener('keydown', onKey)
@@ -63,7 +153,7 @@ export default function EditModal({ item, open, onClose }) {
   }, [open, onClose])
 
   useEffect(() => {
-    if (!open || !item) {
+    if (!open || !hasItemId) {
       setAudioText('')
       resetAudioUrl()
       setCaptionSrt('')
@@ -75,15 +165,15 @@ export default function EditModal({ item, open, onClose }) {
 
     let parsedSelection = []
     try {
-      const textKey = `audioText-${item.id}`
-      const audioKey = `audioData-${item.id}`
-      const captionKey = `captions-${item.id}`
+      const textKey = `audioText-${currentItemId}`
+      const audioKey = `audioData-${currentItemId}`
+      const captionKey = `captions-${currentItemId}`
       const stored = typeof window !== 'undefined' ? window.localStorage.getItem(textKey) : null
       setAudioText(stored || '')
       if (typeof window !== 'undefined') {
         const audioStored = window.localStorage.getItem(audioKey)
         let meta = {}
-        const metaRaw = window.localStorage.getItem(`audioMeta-${item.id}`)
+        const metaRaw = window.localStorage.getItem(`audioMeta-${currentItemId}`)
         if (metaRaw) {
           try {
             meta = JSON.parse(metaRaw)
@@ -95,15 +185,21 @@ export default function EditModal({ item, open, onClose }) {
         const captionStored = window.localStorage.getItem(captionKey)
         setCaptionSrt(captionStored || '')
 
-        const imageKey = `videoImages-${item.id}`
+        const imageKey = `videoImages-${currentItemId}`
         const selectionRaw = window.localStorage.getItem(imageKey)
         if (selectionRaw) {
           try {
             const parsed = JSON.parse(selectionRaw)
             const arr = Array.isArray(parsed) ? parsed : []
-            parsedSelection = arr.filter((id) => OBJECT_IMAGE_MAP[id])
-            if (parsedSelection.length !== arr.length) {
-              window.localStorage.setItem(imageKey, JSON.stringify(parsedSelection))
+            const filtered = arr.filter((id) => imageMap[id])
+            parsedSelection = filtered
+            const hasImages = Object.keys(imageMap).length > 0
+            if (
+              typeof window !== 'undefined' &&
+              hasImages &&
+              filtered.length !== arr.length
+            ) {
+              window.localStorage.setItem(imageKey, JSON.stringify(filtered))
             }
           } catch (err) {
             parsedSelection = []
@@ -122,10 +218,10 @@ export default function EditModal({ item, open, onClose }) {
     selectedImagesRef.current = parsedSelection
     setAudioError('')
     setCaptionError('')
-  }, [open, item])
+  }, [open, currentItemId, imageMap, hasItemId])
 
   useEffect(() => {
-    if (!open || !item) {
+    if (!open || !hasItemId) {
       selectedImagesRef.current = []
       return
     }
@@ -133,13 +229,13 @@ export default function EditModal({ item, open, onClose }) {
     selectedImagesRef.current = selectedImages
     try {
       if (typeof window !== 'undefined') {
-        const key = `videoImages-${item.id}`
+        const key = `videoImages-${currentItemId}`
         window.localStorage.setItem(key, JSON.stringify(selectedImages))
       }
     } catch (err) {
       console.error('Video rasmlarini saqlashda xatolik:', err)
     }
-  }, [selectedImages, open, item])
+  }, [selectedImages, open, currentItemId, hasItemId])
 
   useEffect(() => () => {
     revokeAudioUrl()
@@ -147,8 +243,8 @@ export default function EditModal({ item, open, onClose }) {
   }, [])
 
   const handleGenerateAudio = async () => {
-    if (!item) return
-    const baseText = buildAudioTemplate(item)
+    if (!currentItem) return
+    const baseText = buildAudioTemplate(currentItem)
     try {
       const converted = await convertToLatin(baseText)
       const finalText = converted && typeof converted === 'string' && converted.trim() ? converted.trim() : baseText
@@ -162,8 +258,8 @@ export default function EditModal({ item, open, onClose }) {
   }
 
   const handleSaveAudio = () => {
-    if (!item) return
-    const key = `audioText-${item.id}`
+    if (!hasItemId) return
+    const key = `audioText-${currentItemId}`
     try {
       if (typeof window !== 'undefined') {
         window.localStorage.setItem(key, audioText || '')
@@ -174,8 +270,8 @@ export default function EditModal({ item, open, onClose }) {
   }
 
   const handleGenerateAudioFile = async () => {
-    if (!item) return
-    const baseText = (audioText && audioText.trim()) || buildAudioTemplate(item)
+    if (!currentItem) return
+    const baseText = (audioText && audioText.trim()) || buildAudioTemplate(currentItem)
     let currentText = baseText
 
     try {
@@ -211,15 +307,15 @@ export default function EditModal({ item, open, onClose }) {
       setCaptionSrt(srt)
       setCaptionError('')
 
-      if (typeof window !== 'undefined') {
-        const metaKey = `audioMeta-${item.id}`
+      if (typeof window !== 'undefined' && hasItemId) {
+        const metaKey = `audioMeta-${currentItemId}`
         const payload = {
           duration: Number.isFinite(effectiveDuration) ? effectiveDuration : undefined,
           contentType: contentType || 'audio/m4a',
         }
         window.localStorage.setItem(metaKey, JSON.stringify(payload))
-        window.localStorage.setItem(`captions-${item.id}`, srt)
-        window.localStorage.setItem(`audioText-${item.id}`, currentText)
+        window.localStorage.setItem(`captions-${currentItemId}`, srt)
+        window.localStorage.setItem(`audioText-${currentItemId}`, currentText)
       }
     } catch (err) {
       console.error('Audio yaratishda xatolik:', err)
@@ -230,12 +326,12 @@ export default function EditModal({ item, open, onClose }) {
   }
 
   const handleSaveAudioFile = () => {
-    if (!item || !audioBase64) return
-    const key = `audioData-${item.id}`
+    if (!hasItemId || !audioBase64) return
+    const key = `audioData-${currentItemId}`
     try {
       if (typeof window !== 'undefined') {
         window.localStorage.setItem(key, audioBase64)
-        const metaKey = `audioMeta-${item.id}`
+        const metaKey = `audioMeta-${currentItemId}`
         if (audioDuration || audioContentType) {
           const metaPayload = {
             duration: Number.isFinite(audioDuration) ? audioDuration : undefined,
@@ -253,8 +349,8 @@ export default function EditModal({ item, open, onClose }) {
   }
 
   const handleSaveCaptions = () => {
-    if (!item) return
-    const key = `captions-${item.id}`
+    if (!hasItemId) return
+    const key = `captions-${currentItemId}`
     try {
       if (typeof window !== 'undefined') {
         window.localStorage.setItem(key, captionSrt || '')
@@ -266,12 +362,12 @@ export default function EditModal({ item, open, onClose }) {
   }
 
   const handleGenerateCaptions = async () => {
-    if (!item) return
+    if (!currentItem) return
     if (!audioBase64) {
       setCaptionError('Avval audio yarating')
       return
     }
-    const sourceText = (audioText && audioText.trim()) || buildAudioTemplate(item)
+    const sourceText = (audioText && audioText.trim()) || buildAudioTemplate(currentItem)
     if (!sourceText.trim()) {
       setCaptionError('Matn topilmadi')
       return
@@ -283,8 +379,8 @@ export default function EditModal({ item, open, onClose }) {
       if (!duration) {
         duration = await getAudioDuration(audioBase64)
         setAudioDuration(duration)
-        const metaKey = `audioMeta-${item.id}`
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && hasItemId) {
+          const metaKey = `audioMeta-${currentItemId}`
           window.localStorage.setItem(
             metaKey,
             JSON.stringify({
@@ -309,7 +405,7 @@ export default function EditModal({ item, open, onClose }) {
       const next = new Set(prev)
       if (next.has(imageId)) {
         next.delete(imageId)
-      } else if (OBJECT_IMAGE_MAP[imageId]) {
+      } else if (imageMap[imageId]) {
         next.add(imageId)
       }
       return Array.from(next)
@@ -329,14 +425,14 @@ export default function EditModal({ item, open, onClose }) {
     setSelectedImages((prev) => (prev.length ? [] : prev))
   }
 
-  if (!open || !item) return null
+  if (!open || !currentItem) return null
 
   return (
     <div className="modal-backdrop" onMouseDown={onClose}>
       <div className="edit-modal" onMouseDown={(e) => e.stopPropagation()}>
         <div className="edit-header">
           <button className="back-btn" onClick={onClose} title="Ortga">x</button>
-          <div className="title">{item.id} | {item.name}</div>
+          <div className="title">{currentItemId} | {currentItem?.name}</div>
           <button className="btn publish">Reklamaga chiqarish</button>
         </div>
 
@@ -402,7 +498,9 @@ export default function EditModal({ item, open, onClose }) {
           </Section>
 
           <Section title="Obyekt rasmlari:">
-            {totalImages ? (
+            {productLoading ? (
+              <Placeholder text="Obyekt ma'lumotlari yuklanmoqda..." />
+            ) : totalImages ? (
               <>
                 <div className="image-toolbar">
                   <div className="image-toolbar-status">
@@ -428,7 +526,7 @@ export default function EditModal({ item, open, onClose }) {
                   </div>
                 </div>
                 <div className="image-grid">
-                  {OBJECT_IMAGES.map((image, index) => {
+                  {availableImages.map((image, index) => {
                     const isSelected = selectedImages.includes(image.id)
                     const altLabel = `Obyekt rasm ${index + 1}`
                     return (
@@ -463,6 +561,7 @@ export default function EditModal({ item, open, onClose }) {
             ) : (
               <Placeholder text="Obyekt rasmlari topilmadi" />
             )}
+            {productError && <div className="error-text">{productError}</div>}
           </Section>
 
           <Section title="Video:">
