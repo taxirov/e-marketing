@@ -65,10 +65,18 @@ body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI
 .placeholder { color: var(--muted); background: #f3f4f6; border: 1px dashed var(--border); border-radius: 8px; padding: 12px; }
 .text-area { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 12px; font: inherit; resize: vertical; min-height: 160px; background: #fff; color: #111827; }
 .error-text { color: #b91c1c; font-size: 13px; margin-top: 8px; }
-.image-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
-.img-card { border: 1px solid var(--border); border-radius: 8px; padding: 8px; position: relative; }
-.img-check { position: absolute; top: 6px; left: 6px; width: 16px; height: 16px; border-radius: 999px; border: 1px solid var(--border); background: #fff; }
-.img-ph { width: 100%; padding-top: 75%; background: #e5e7eb; border-radius: 6px; }
+.image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.img-card { position: relative; border: 1px solid var(--border); border-radius: 10px; padding: 0; overflow: hidden; background: #fff; cursor: pointer; display: block; transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; }
+.img-card img { width: 100%; display: block; aspect-ratio: 4 / 3; object-fit: cover; }
+.img-card .img-check { position: absolute; top: 8px; left: 8px; width: 24px; height: 24px; border-radius: 999px; background: rgba(255,255,255,0.92); color: var(--primary); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(17,24,39,0.25); transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease; pointer-events: none; }
+.img-card .img-check svg { display: block; }
+.img-card.selected { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.25); transform: translateY(-2px); }
+.img-card.selected .img-check { background: var(--primary); color: #fff; border-color: var(--primary); }
+.img-card:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.image-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.image-toolbar-actions { display: flex; gap: 8px; }
+.image-toolbar-status { font-size: 13px; color: var(--muted); }
+.btn.small { padding: 6px 10px; font-size: 13px; }
 
 @media (max-width: 900px) {
   .filters .grid { grid-template-columns: repeat(2, 1fr); }

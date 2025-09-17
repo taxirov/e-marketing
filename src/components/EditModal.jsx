@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { generateAudioFromText, base64ToUrl, getAudioDuration, convertToLatin } from '../utils/audio'
+import { OBJECT_IMAGES, OBJECT_IMAGE_MAP } from '../utils/objectImages'
 
 export default function EditModal({ item, open, onClose }) {
   const [audioText, setAudioText] = useState('')
@@ -12,7 +13,13 @@ export default function EditModal({ item, open, onClose }) {
   const [captionSrt, setCaptionSrt] = useState('')
   const [captionLoading, setCaptionLoading] = useState(false)
   const [captionError, setCaptionError] = useState('')
+  const [selectedImages, setSelectedImages] = useState([])
   const audioUrlRef = useRef('')
+  const selectedImagesRef = useRef([])
+  const allImageIds = useMemo(() => OBJECT_IMAGES.map((img) => img.id), [])
+  const selectedImageEntries = useMemo(() => selectedImages.map((id) => OBJECT_IMAGE_MAP[id]).filter(Boolean), [selectedImages])
+
+  const totalImages = OBJECT_IMAGES.length
 
   const revokeAudioUrl = () => {
     if (audioUrlRef.current) {
@@ -56,8 +63,13 @@ export default function EditModal({ item, open, onClose }) {
       setAudioText('')
       resetAudioUrl()
       setCaptionSrt('')
+      setSelectedImages([])
+      selectedImagesRef.current = []
+      setAudioDuration(null)
       return
     }
+
+    let parsedSelection = []
     try {
       const textKey = `audioText-${item.id}`
       const audioKey = `audioData-${item.id}`
@@ -78,16 +90,52 @@ export default function EditModal({ item, open, onClose }) {
         applyAudioBase64(audioStored || '', meta)
         const captionStored = window.localStorage.getItem(captionKey)
         setCaptionSrt(captionStored || '')
+
+        const imageKey = `videoImages-${item.id}`
+        const selectionRaw = window.localStorage.getItem(imageKey)
+        if (selectionRaw) {
+          try {
+            const parsed = JSON.parse(selectionRaw)
+            const arr = Array.isArray(parsed) ? parsed : []
+            parsedSelection = arr.filter((id) => OBJECT_IMAGE_MAP[id])
+            if (parsedSelection.length !== arr.length) {
+              window.localStorage.setItem(imageKey, JSON.stringify(parsedSelection))
+            }
+          } catch (err) {
+            parsedSelection = []
+          }
+        }
       }
     } catch (err) {
       setAudioText('')
       resetAudioUrl()
       setCaptionSrt('')
       setAudioDuration(null)
+      parsedSelection = []
     }
+
+    setSelectedImages(parsedSelection)
+    selectedImagesRef.current = parsedSelection
     setAudioError('')
     setCaptionError('')
   }, [open, item])
+
+  useEffect(() => {
+    if (!open || !item) {
+      selectedImagesRef.current = []
+      return
+    }
+
+    selectedImagesRef.current = selectedImages
+    try {
+      if (typeof window !== 'undefined') {
+        const key = `videoImages-${item.id}`
+        window.localStorage.setItem(key, JSON.stringify(selectedImages))
+      }
+    } catch (err) {
+      console.error('Video rasmlarini saqlashda xatolik:', err)
+    }
+  }, [selectedImages, open, item])
 
   useEffect(() => () => revokeAudioUrl(), [])
 
@@ -249,6 +297,31 @@ export default function EditModal({ item, open, onClose }) {
     }
   }
 
+  const handleToggleImageSelect = (imageId) => {
+    setSelectedImages((prev) => {
+      const next = new Set(prev)
+      if (next.has(imageId)) {
+        next.delete(imageId)
+      } else if (OBJECT_IMAGE_MAP[imageId]) {
+        next.add(imageId)
+      }
+      return Array.from(next)
+    })
+  }
+
+  const handleSelectAllImages = () => {
+    setSelectedImages((prev) => {
+      if (prev.length === totalImages && totalImages) {
+        return prev
+      }
+      return Array.from(allImageIds)
+    })
+  }
+
+  const handleClearImageSelection = () => {
+    setSelectedImages((prev) => (prev.length ? [] : prev))
+  }
+
   if (!open || !item) return null
 
   return (
@@ -322,18 +395,75 @@ export default function EditModal({ item, open, onClose }) {
           </Section>
 
           <Section title="Obyekt rasmlari:">
-            <div className="image-grid">
-              {Array.from({ length: 9 }).map((_, i) => (
-                <div key={i} className="img-card">
-                  <div className="img-check" />
-                  <div className="img-ph" />
+            {totalImages ? (
+              <>
+                <div className="image-toolbar">
+                  <div className="image-toolbar-status">
+                    Tanlangan: {selectedImageEntries.length} / {totalImages}
+                  </div>
+                  <div className="image-toolbar-actions">
+                    <button
+                      type="button"
+                      className="btn ghost small"
+                      onClick={handleSelectAllImages}
+                      disabled={!totalImages || selectedImageEntries.length === totalImages}
+                    >
+                      Hammasini tanlash
+                    </button>
+                    <button
+                      type="button"
+                      className="btn ghost small"
+                      onClick={handleClearImageSelection}
+                      disabled={!selectedImageEntries.length}
+                    >
+                      Tanlovni tozalash
+                    </button>
+                  </div>
                 </div>
-              ))}
-            </div>
+                <div className="image-grid">
+                  {OBJECT_IMAGES.map((image, index) => {
+                    const isSelected = selectedImages.includes(image.id)
+                    const altLabel = `Obyekt rasm ${index + 1}`
+                    return (
+                      <button
+                        type="button"
+                        key={image.id}
+                        className={`img-card ${isSelected ? 'selected' : ''}`}
+                        onClick={() => handleToggleImageSelect(image.id)}
+                        aria-pressed={isSelected}
+                        title={isSelected ? 'Rasm tanlangan' : 'Rasmni tanlash'}
+                      >
+                        <span className="img-check" aria-hidden="true">
+                          {isSelected && (
+                            <svg viewBox="0 0 16 16" width="16" height="16">
+                              <path
+                                d="M3 8.5 6.5 12 13 4"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          )}
+                        </span>
+                        <img src={image.url} alt={altLabel} loading="lazy" />
+                      </button>
+                    )
+                  })}
+                </div>
+              </>
+            ) : (
+              <Placeholder text="Obyekt rasmlari topilmadi" />
+            )}
           </Section>
 
           <Section title="Video:">
-            <Placeholder text="Video hali yaratilmagan..."/>
+            <Placeholder
+              text={selectedImageEntries.length
+                ? `Video hali yaratilmagan. Tanlangan rasmlar: ${selectedImageEntries.length} ta.`
+                : 'Video hali yaratilmagan...'}
+            />
           </Section>
         </div>
       </div>
