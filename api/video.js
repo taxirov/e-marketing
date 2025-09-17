@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import crypto from 'node:crypto'
 import { bundle, renderMedia, getCompositions } from '@remotion/renderer'
 
-export const config = { runtime: 'nodejs', maxDuration: 900 }
+export const config = { runtime: 'nodejs', maxDuration: 300 }
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
