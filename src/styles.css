@@ -33,10 +33,11 @@ body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI
 .table { width: 100%; border-collapse: collapse; }
 .table th, .table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 16px; }
 .table th { text-align: left; font-size: 18px; }
-.actions .icon-btn { border: 1px solid var(--border); background: #fff; border-radius: 999px; padding: 6px 8px; margin-right: 8px; cursor: pointer; }
+.actions .icon-btn { border: 1px solid var(--border); background: #fff; border-radius: 999px; padding: 6px 8px; margin-right: 8px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.actions .icon-btn svg { display: block; }
 
 /* Status dot */
-.status-dot { display: inline-block; width: 12px; height: 12px; border-radius: 999px; border: 1px solid rgba(17,24,39,0.2); vertical-align: middle; }
+.status-dot { display: inline-block; width: 14px; height: 14px; border-radius: 999px; border: 1px solid rgba(17,24,39,0.2); vertical-align: middle; }
 .status-dot.green { background: #10b981; }
 .status-dot.yellow { background: #f59e0b; }
 .status-dot.red { background: #ef4444; }
