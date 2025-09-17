@@ -34,6 +34,7 @@ export default async function handler(req) {
 
   const format = normalizeFormat(body?.format)
   const endpoint = ENDPOINTS[format] || ENDPOINTS.m4a
+  // const contentType = normalizeContentType(body?.contentType)
 
   const params = new URLSearchParams()
   const voice = (body?.voice || 'gulnora').trim()
@@ -50,7 +51,7 @@ export default async function handler(req) {
   const narakeetResp = await fetch(url, {
     method: 'POST',
     headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
+      'Content-Type': contentType,
       accept: 'application/octet-stream',
       'x-api-key': apiKey,
     },
@@ -87,6 +88,21 @@ function normalizeFormat(value) {
   return 'm4a'
 }
 
+function normalizeContentType(value) {
+  if (!value) return 'text/plain; charset=utf-8'
+  const v = value.toLowerCase().trim()
+  if (v === 'application/x-subrip' || v === 'application/x-subrip; charset=utf-8') {
+    return 'application/x-subrip'
+  }
+  if (v === 'text/srt' || v === 'text/srt; charset=utf-8') {
+    return 'text/srt'
+  }
+  if (v === 'text/plain' || v === 'text/plain; charset=utf-8') {
+    return 'text/plain; charset=utf-8'
+  }
+  return 'text/plain; charset=utf-8'
+}
+
 function arrayBufferToBase64(buffer) {
   const bytes = new Uint8Array(buffer)
   let binary = ''
@@ -113,4 +129,3 @@ function corsHeaders(req) {
     'Access-Control-Allow-Headers': 'Content-Type, Accept',
   })
 }
-

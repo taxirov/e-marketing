@@ -21,6 +21,7 @@ export async function generateAudioFromText(text, options = {}) {
   const payload = { text: script }
   if (options.voice) payload.voice = options.voice
   if (options.format) payload.format = options.format
+  if (options.contentType) payload.contentType = options.contentType
 
   const res = await fetch(options.endpoint || API_ENDPOINT, {
     method: 'POST',
@@ -82,3 +83,20 @@ export async function getAudioDuration(base64) {
   })
 }
 
+export async function convertToLatin(text) {
+  const payload = { text: text || '' }
+  const res = await fetch('/api/latin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+
+  if (!res.ok) {
+    const message = await res.text().catch(() => '')
+    const detail = message?.trim() ? `: ${message.trim()}` : ''
+    throw new Error(`Matnni lotinga o'girishda xatolik${detail}`)
+  }
+
+  const data = await res.json().catch(() => null)
+  return data?.text || payload.text
+}

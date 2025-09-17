@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { generateAudioFromText, base64ToUrl, getAudioDuration } from '../utils/audio'
+import { generateAudioFromText, base64ToUrl, getAudioDuration, convertToLatin } from '../utils/audio'
 
 export default function EditModal({ item, open, onClose }) {
   const [audioText, setAudioText] = useState('')
@@ -91,9 +91,19 @@ export default function EditModal({ item, open, onClose }) {
 
   useEffect(() => () => revokeAudioUrl(), [])
 
-  const handleGenerateAudio = () => {
+  const handleGenerateAudio = async () => {
     if (!item) return
-    setAudioText(buildAudioTemplate(item))
+    const baseText = buildAudioTemplate(item)
+    try {
+      const converted = await convertToLatin(baseText)
+      const finalText = converted && typeof converted === 'string' && converted.trim() ? converted.trim() : baseText
+      setAudioText(finalText)
+      setAudioError('')
+    } catch (err) {
+      console.error("Matnni lotinga o'girishda xatolik:", err)
+      setAudioText(baseText)
+      setAudioError("Matnni lotinga o'girishda xatolik yuz berdi")
+    }
   }
 
   const handleSaveAudio = () => {
@@ -110,14 +120,52 @@ export default function EditModal({ item, open, onClose }) {
 
   const handleGenerateAudioFile = async () => {
     if (!item) return
-    const currentText = (audioText && audioText.trim()) || buildAudioTemplate(item)
+    const baseText = (audioText && audioText.trim()) || buildAudioTemplate(item)
+    let currentText = baseText
+
+    try {
+      const converted = await convertToLatin(baseText)
+      if (converted && typeof converted === 'string' && converted.trim()) {
+        currentText = converted.trim()
+      }
+    } catch (err) {
+      console.error("Matnni lotinga o'girishda xatolik:", err)
+      setAudioError("Matnni lotinga o'girishda xatolik yuz berdi")
+    }
+
     if (!audioText.trim()) setAudioText(currentText)
     setAudioLoading(true)
     setAudioError('')
     try {
       const { base64, duration, contentType } = await generateAudioFromText(currentText)
       applyAudioBase64(base64, { duration, contentType })
-      if (duration) setAudioDuration(duration)
+
+      let effectiveDuration = duration
+      if (!Number.isFinite(effectiveDuration)) {
+        try {
+          effectiveDuration = await getAudioDuration(base64)
+        } catch (durErr) {
+          console.error('Audio davomiyligini aniqlashda xatolik:', durErr)
+        }
+      }
+      if (Number.isFinite(effectiveDuration)) {
+        setAudioDuration(effectiveDuration)
+      }
+
+      const srt = buildSrtFromText(currentText, effectiveDuration ?? audioDuration ?? 0)
+      setCaptionSrt(srt)
+      setCaptionError('')
+
+      if (typeof window !== 'undefined') {
+        const metaKey = `audioMeta-${item.id}`
+        const payload = {
+          duration: Number.isFinite(effectiveDuration) ? effectiveDuration : undefined,
+          contentType: contentType || 'audio/m4a',
+        }
+        window.localStorage.setItem(metaKey, JSON.stringify(payload))
+        window.localStorage.setItem(`captions-${item.id}`, srt)
+        window.localStorage.setItem(`audioText-${item.id}`, currentText)
+      }
     } catch (err) {
       console.error('Audio yaratishda xatolik:', err)
       setAudioError(err.message || 'Audio yaratishda xatolik yuz berdi')
@@ -307,36 +355,72 @@ function Placeholder({ text }) {
 }
 
 function buildAudioTemplate(item) {
-  const region = (item?.region && `${item.region} viloyati`) || 'Xorazm viloyati'
-  const district = (item?.district && `${item.district} tumani`) || 'Shovot tumani'
-  const addressBase = item?.address?.trim() || `Yangi yo'l mahallasida`
-  const address = `${addressBase} joylashgan`
-  const categoryBase = item?.category || 'Noturar'
-  const normalizedCategory = String(categoryBase).toLowerCase()
-  const category = normalizedCategory.includes('bino')
-    ? normalizedCategory
-    : `${normalizedCategory} bino`
-  const areaAll = formatMetric(item?.areaAll ?? item?.area, '399')
-  const buildingArea = formatMetric(item?.buildingArea ?? item?.areaAll ?? item?.area, '399')
-  const effective = formatMetric(item?.effectiveArea, '313')
+  const rawRegion = item?.productRegion || item?.raw?.productOrder?.region || item?.raw?.region || null
+  const parentName = rawRegion?.parent?.name || rawRegion?.parent?.parent?.name || item?.region || ''
+  const regionName = rawRegion?.name || item?.district || ''
+  const mfyName = item?.productMfy?.name || item?.raw?.productOrder?.mfy?.name || ''
+  const mfyWord = mfyName.trim().split(/\s+/)[0] || ''
+  const categoryText = (() => {
+    const map = { 19: 'noturar binoni', 8: 'kvartirani', 12: 'xususiy uyni' }
+    if (map[item?.categoryId]) return map[item.categoryId]
+    if (item?.category) return `${String(item.category).toLowerCase()}ni`
+    return 'obyektni'
+  })()
+  const areaAll = formatRounded(item?.areaAll ?? item?.area)
+  const buildingArea = formatRounded(item?.buildingArea ?? item?.areaAll ?? item?.area)
+  const effectiveArea = formatRounded(item?.effectiveArea)
+  const typeOfBuilding = (() => {
+    const base = item?.typeOfBuildingLabel || item?.typeOfBuilding
+    if (!base || !String(base).trim()) return "ma'lumot ko'rsatilmagan"
+    return String(base).trim().toLowerCase()
+  })()
+  const floorsBuilding = normalizeValue(item?.floorsBuilding)
+  const floors = normalizeValue(item?.floors)
+  const floorsSentence = item?.separateBuilding
+    ? `Uy qavatliligi ${floorsBuilding}.`
+    : `Uy qavatliligi ${floorsBuilding}, qavati ${floors}.`
+  const communications = formatCommunications(item?.engineerCommunications)
 
-  return (
-    `${region}, ${district}, ${address} ${category} taklif qilamiz. ` +
-    `Umumiy yer maydoni ${areaAll} metr kvadrat. ` +
-    `Qurilish osti maydoni ${buildingArea} metr kvadrat. ` +
-    `Foydali maydon ${effective} metr kvadrat. ` +
-    `Bir qavatli, xom g'ishtdan qurilgan bino bo'lib. ` +
-    `Suv va elektr ta'minoti mavjud. ` +
-    `Joylashuvi qulay, yo'l bo'yida joylashgan. ` +
-    `Batafsil ma'lumot uchun 55-517-22-20 raqamiga bog'laning! `
-  )
+  const sentences = [
+    normalizeSpaces(`${parentName || ''} ${regionName || ''} ${mfyWord ? `${mfyWord} mahallasida` : ''} joylashgan ${categoryText} taklif qilamiz.`),
+    `Umumiy yer maydoni ${areaAll} metr kvadrat.`,
+    `Qurilish osti maydoni ${buildingArea} metr kvadrat.`,
+    `Foydali maydoni ${effectiveArea} metr kvadrat.`,
+    normalizeSpaces(`Qurilish turi ${typeOfBuilding}.`),
+    normalizeSpaces(floorsSentence),
+    communications ? `${communications} ta'minoti mavjud.` : `Ta'minot bo'yicha ma'lumot mavjud emas.`,
+    'Joylashuvi qulay.',
+    `Batafsil ma'lumot uchun 55 517 22 20 raqamiga bog'laning!`,
+  ]
+
+  return sentences.join(' ')
 }
 
-function formatMetric(value, fallback) {
+function formatRounded(value, fallback = "ma'lumot ko'rsatilmagan") {
   if (value === null || value === undefined || value === '') return fallback
-  const num = Number(String(value).replace(/\s/g, '').replace(',', '.'))
-  if (!Number.isFinite(num)) return String(value)
-  return Number.isInteger(num) ? String(num) : num.toFixed(2).replace(/\.0+$/, '')
+  const num = Number(value)
+  if (!Number.isFinite(num)) return fallback
+  return String(Math.round(num))
+}
+
+function normalizeValue(value, fallback = "ma'lumot ko'rsatilmagan") {
+  if (value === null || value === undefined) return fallback
+  const str = String(value).trim()
+  return str ? str : fallback
+}
+
+function formatCommunications(values) {
+  if (!Array.isArray(values) || !values.length) return ''
+  const titles = {
+    water_supply: 'Suv',
+    electric_lighting: 'Elektr',
+    gas_supply: 'Gaz',
+    sewage: 'Kanalizatsiya',
+  }
+  return values
+    .map((code) => titles[code] || code)
+    .filter(Boolean)
+    .join(', ')
 }
 
 function buildSrtFromText(text, durationSeconds) {
@@ -401,3 +485,5 @@ function formatTimestamp(seconds) {
   const pad = (n) => String(n).padStart(2, '0')
   return `${pad(h)}:${pad(m)}:${pad(s)},${String(ms).padStart(3, '0')}`
 }
+
+

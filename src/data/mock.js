@@ -56,6 +56,14 @@ function toRows(input) {
     const buildingArea = toNumber(pickVariation('building_width_area'))
     const effectiveArea = toNumber(pickVariation('area_effective'))
     const { province, district } = pickRegionNames(it?.region)
+    const engineerEntry = variations.find((v) => v?.code === 'engineer_communications')
+    const engineerValues = Array.isArray(engineerEntry?.values)
+      ? engineerEntry.values
+      : typeof engineerEntry?.value === 'string'
+        ? engineerEntry.value.split(',').map((x) => x.trim()).filter(Boolean)
+        : []
+    const typeVariation = variations.find((v) => v?.code === 'type_of_building')
+
     return {
       id: it?.id,
       name: it?.name || '',
@@ -66,7 +74,14 @@ function toRows(input) {
       areaAll,
       buildingArea,
       effectiveArea,
+      typeOfBuilding: typeVariation?.value || '',
+      typeOfBuildingLabel: typeVariation?.valueLabel || '',
+      floorsBuilding: pickVariation('floors_building'),
+      floors: pickVariation('floors'),
+      engineerCommunications: engineerValues,
+      separateBuilding: Boolean(it?.separateBuilding),
       category: mapCategory(it?.category?.code || it?.categoryData?.code),
+      categoryId: it?.category?.id || it?.categoryData?.id,
       cadastral: it?.docNumber || it?.productOrder?.docNumber || '',
       crm: '',
       crmNew: '',
@@ -76,6 +91,9 @@ function toRows(input) {
       productProcessType: it?.productOrder?.productProcessType || '',
       tradeType: mapTradeType(it?.productOrder?.tradeType),
       createdAt: parseDateToMs(it?.createdDate || it?.productOrder?.createdDate),
+      productRegion: it?.productOrder?.region || it?.region || null,
+      productMfy: it?.productOrder?.mfy || it?.mfy || null,
+      raw: it,
     }
   })
 }
@@ -83,3 +101,4 @@ function toRows(input) {
 const rows = toRows(raw)
 
 export default rows
+
