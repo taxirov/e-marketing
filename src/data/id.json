@@ -1,0 +1,3018 @@
+{
+  "id": 108010,
+  "createdDate": "16.09.2025 16:15",
+  "updatedDate": "17.09.2025 09:42",
+  "createdBy": {
+    "id": 2589,
+    "name": "Otabek Ro'zmeto'v Jumanazar O'g'li",
+    "phone": "998339339903"
+  },
+  "updatedBy": {
+    "id": 664,
+    "name": "Murad Atajanov Berdiyevich",
+    "phone": "998939227220"
+  },
+  "name": "Ишлаб чиқариш тeхник таъмирлаш бошқармаси УПТК базаси ва омборхонаси",
+  "description": "",
+  "address": "Иззат кўчаси, 16-а-уй",
+  "price": 42266960385,
+  "priceUnit": {
+    "code": "UZS",
+    "symbol": "сум"
+  },
+  "photo": {
+    "id": 514134,
+    "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/411e30d3-e3b0-425c-87ac-4493aa94f40d_small.jpg",
+    "name": "photo_2025-07-23_19-11-00.jpg",
+    "type": "image/jpeg",
+    "size": 12815
+  },
+  "category": {
+    "id": 19,
+    "name": "Тижорат бинолари - Сотиш",
+    "code": "NotResidential_Sell"
+  },
+  "region": {
+    "id": 7959,
+    "name": "Бехизор МФЙ 4-зона",
+    "parent": {
+      "id": 37,
+      "name": "Яшнобод тумани",
+      "code": "YASHNOBOD_R",
+      "location": {
+        "lat": 41.31114623419659,
+        "lng": 69.27952766418457
+      },
+      "parent": {
+        "id": 2,
+        "name": "Тошкент шаҳар",
+        "code": "Tashkent",
+        "location": {
+          "lat": 41.31114623419659,
+          "lng": 69.27952766418457
+        },
+        "regionType": "PROVINCE"
+      },
+      "regionType": "REGION"
+    },
+    "regionType": "MICRO_REGION"
+  },
+  "location": {
+    "lat": 41.26453391979199,
+    "lng": 69.3453992091189
+  },
+  "cadastreType": "Notorious",
+  "buildingType": {
+    "id": 1,
+    "name": "Ишлаб чикариш",
+    "code": "INDUSTRIAL_BUILDINGS",
+    "uuid": "eb552304-7d27-4f00-9e20-bf53d8c52edd"
+  },
+  "separateBuilding": true,
+  "realTime": false,
+  "docNumber": "10:04:40:03:03:0006",
+  "testEnabled": false,
+  "productOrder": {
+    "id": 8454,
+    "createdDate": "16.09.2025 16:08",
+    "updatedDate": "16.09.2025 17:48",
+    "createdBy": {
+      "id": 2559,
+      "name": "JAMSHID JANIBEKOV JUMANAZAROVICH",
+      "phone": "+99 811 111 1111"
+    },
+    "updatedBy": {
+      "id": 2589,
+      "name": "Otabek Ro'zmeto'v Jumanazar O'g'li",
+      "phone": "998339339903"
+    },
+    "docNumber": "10:04:40:03:03:0006",
+    "region": {
+      "id": 37,
+      "name": "Яшнобод тумани",
+      "code": "YASHNOBOD_R",
+      "location": {
+        "lat": 41.31114623419659,
+        "lng": 69.27952766418457
+      },
+      "parent": {
+        "id": 2,
+        "name": "Тошкент шаҳар",
+        "code": "Tashkent",
+        "location": {
+          "lat": 41.31114623419659,
+          "lng": 69.27952766418457
+        },
+        "regionType": "PROVINCE"
+      },
+      "regionType": "REGION"
+    },
+    "address": "Izzat ko'chasi, 2 tor ko'chasi",
+    "productProcessType": "IDENTIFICATION",
+    "goal": "ON_BALANCE",
+    "price": 42266960385,
+    "priceUnit": {
+      "code": "UZS",
+      "symbol": "сум"
+    },
+    "powerOfAttorneys": [],
+    "cadastres": [
+      {
+        "id": 18264,
+        "url": "https://storage.baxolash.uz/uy-joy/CADASTRE/16-09-2025/aebc5c2d-54da-4c19-8227-c19524cd9cff.pdf",
+        "name": "Adasi Kadastr ko'chirma.pdf",
+        "type": "application/pdf",
+        "size": 183825
+      },
+      {
+        "id": 18265,
+        "url": "https://storage.baxolash.uz/uy-joy/CADASTRE/16-09-2025/a2dd9ed1-ec8d-4096-9fcd-c3eff22d9f2d.pdf",
+        "name": "Adasi Kadastr pasporti.pdf",
+        "type": "application/pdf",
+        "size": 259306
+      }
+    ],
+    "photos": [
+      {
+        "id": 514012,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/411e30d3-e3b0-425c-87ac-4493aa94f40d.jpg",
+        "name": "photo_2025-07-23_19-11-00.jpg",
+        "type": "image/jpeg",
+        "size": 147536
+      },
+      {
+        "id": 514013,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/c3f80276-c1ef-4e21-9c40-2a6b545831a3.jpg",
+        "name": "photo_2025-07-23_19-11-48.jpg",
+        "type": "image/jpeg",
+        "size": 93758
+      },
+      {
+        "id": 514014,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/47d3e449-47cf-4462-93ea-fc01705890f0.jpg",
+        "name": "photo_2025-07-23_19-11-44.jpg",
+        "type": "image/jpeg",
+        "size": 67119
+      },
+      {
+        "id": 514015,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/1c140d43-2967-46c6-9b39-b2b19e75d912.jpg",
+        "name": "photo_2025-07-23_19-11-41.jpg",
+        "type": "image/jpeg",
+        "size": 103972
+      },
+      {
+        "id": 514016,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/1ea63a9b-e121-482f-8faf-2d79f1390182.jpg",
+        "name": "photo_2025-07-23_19-12-05.jpg",
+        "type": "image/jpeg",
+        "size": 110506
+      },
+      {
+        "id": 514017,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/b73bebda-acf1-4bc0-b8ce-5e7e02bc6635.jpg",
+        "name": "photo_2025-07-23_19-11-51.jpg",
+        "type": "image/jpeg",
+        "size": 99290
+      },
+      {
+        "id": 514018,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/fbdcb0ab-24dd-40b0-8897-9b119d8b5df7.jpg",
+        "name": "photo_2025-07-23_19-11-38.jpg",
+        "type": "image/jpeg",
+        "size": 77453
+      },
+      {
+        "id": 514019,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/8197c1a4-118d-41f0-9072-d4504a5af204.jpg",
+        "name": "photo_2025-07-23_19-11-32.jpg",
+        "type": "image/jpeg",
+        "size": 135375
+      },
+      {
+        "id": 514020,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/93d96c5d-cb0a-4831-a400-b2190fc1d189.jpg",
+        "name": "photo_2025-07-23_19-11-29.jpg",
+        "type": "image/jpeg",
+        "size": 130109
+      },
+      {
+        "id": 514021,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/9e3ca757-674d-44db-a9cc-19fea44826e7.jpg",
+        "name": "photo_2025-07-23_19-11-25.jpg",
+        "type": "image/jpeg",
+        "size": 153752
+      },
+      {
+        "id": 514027,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/8ace20b3-7523-4650-bc9f-a1b3acfaaddc.jpg",
+        "name": "photo_2025-07-23_19-10-50.jpg",
+        "type": "image/jpeg",
+        "size": 66359
+      },
+      {
+        "id": 514028,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/b6d6e339-870c-42b4-8662-859e4d180dc7.jpg",
+        "name": "photo_2025-07-23_19-10-37.jpg",
+        "type": "image/jpeg",
+        "size": 113372
+      },
+      {
+        "id": 514029,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/a1be2042-61d6-4bd3-b093-c80efa75a21e.jpg",
+        "name": "photo_2025-07-23_19-10-33.jpg",
+        "type": "image/jpeg",
+        "size": 113842
+      },
+      {
+        "id": 514030,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/f0700e8d-4018-49e5-b852-88e1c7051c6e.jpg",
+        "name": "photo_2025-07-23_19-10-21.jpg",
+        "type": "image/jpeg",
+        "size": 122013
+      },
+      {
+        "id": 514031,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/a66cc233-d79c-4418-b759-c9b85fe08eaa.jpg",
+        "name": "photo_2025-07-23_19-10-18.jpg",
+        "type": "image/jpeg",
+        "size": 129691
+      },
+      {
+        "id": 514032,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/c4653a77-b5e3-4169-ba22-ca2e4f1693e5.jpg",
+        "name": "photo_2025-07-23_19-10-15.jpg",
+        "type": "image/jpeg",
+        "size": 135449
+      },
+      {
+        "id": 514033,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/3a00141d-f930-4924-8dfc-1d3a7b81826b.jpg",
+        "name": "photo_2025-07-23_19-10-11.jpg",
+        "type": "image/jpeg",
+        "size": 95314
+      },
+      {
+        "id": 514034,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/c39854ca-0a65-4400-bfcb-57c406dcfb14.jpg",
+        "name": "photo_2025-07-23_19-09-05.jpg",
+        "type": "image/jpeg",
+        "size": 139154
+      },
+      {
+        "id": 514035,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/79471077-fa0b-4c85-ba78-4d78558b2043.jpg",
+        "name": "photo_2025-07-23_19-12-14.jpg",
+        "type": "image/jpeg",
+        "size": 103443
+      },
+      {
+        "id": 514036,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/25be4bd5-9d36-4ae7-9e55-c80fb421879a.jpg",
+        "name": "photo_2025-07-23_19-12-17.jpg",
+        "type": "image/jpeg",
+        "size": 86745
+      },
+      {
+        "id": 514037,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/5fda24e0-7032-4399-a766-9b76835795ff.jpg",
+        "name": "photo_2025-07-23_19-12-25.jpg",
+        "type": "image/jpeg",
+        "size": 103523
+      },
+      {
+        "id": 514038,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/7cbd9cf6-e68c-4356-8f57-0e4eac4571aa.jpg",
+        "name": "photo_2025-07-23_19-12-11.jpg",
+        "type": "image/jpeg",
+        "size": 82130
+      },
+      {
+        "id": 514039,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/893fe2bd-e60c-4275-9334-5eab582896eb.jpg",
+        "name": "photo_2025-07-23_19-10-25.jpg",
+        "type": "image/jpeg",
+        "size": 95066
+      },
+      {
+        "id": 514040,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/6ee2447a-0fa4-465d-9c09-f79e79070fc9.jpg",
+        "name": "photo_2025-07-23_19-10-31.jpg",
+        "type": "image/jpeg",
+        "size": 128386
+      },
+      {
+        "id": 514041,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/77fb06ca-9e97-46ab-96ef-0da2c66257c2.jpg",
+        "name": "photo_2025-07-23_19-11-13.jpg",
+        "type": "image/jpeg",
+        "size": 137260
+      },
+      {
+        "id": 514042,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/cd7a9e8f-3c85-4ee1-86f5-2cf967cf916f.jpg",
+        "name": "photo_2025-07-23_19-11-17.jpg",
+        "type": "image/jpeg",
+        "size": 75749
+      },
+      {
+        "id": 514043,
+        "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/433754e2-256a-4a95-a45f-95b3fdfeb3dd.jpg",
+        "name": "photo_2025-07-23_19-11-20.jpg",
+        "type": "image/jpeg",
+        "size": 74007
+      }
+    ],
+    "videos": [],
+    "pledgeAgreements": [],
+    "product": {
+      "id": 108010,
+      "price": 42266960385,
+      "priceUnit": {
+        "code": "UZS",
+        "symbol": "сум"
+      },
+      "category": {
+        "id": 19,
+        "name": "Тижорат бинолари - Сотиш",
+        "code": "NotResidential_Sell"
+      },
+      "testEnabled": false,
+      "evaluationDto": {
+        "evaluationId": 237952,
+        "price": 119720655290.14,
+        "diffPercent": 45.3
+      },
+      "notResidentialCategories": [],
+      "branches": [],
+      "variations": [
+        {
+          "value": "simple",
+          "valueLabel": "Оддий",
+          "code": "repair",
+          "label": "Уй ҳолати",
+          "type": "list",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "value": "bank",
+          "valueLabel": "bank",
+          "code": "source",
+          "label": "Фойдаланилган манба",
+          "type": "list",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "value": "satisfactory",
+          "valueLabel": "Қониқарли",
+          "code": "repair_status",
+          "label": "Таъмир холати",
+          "type": "list",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "value": "brick_baked",
+          "valueLabel": "Пишиқ ғишт",
+          "code": "type_of_building",
+          "label": "Қурилиш тури",
+          "type": "list",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "value": "secondary_market",
+          "valueLabel": "Иккиламчи бозор",
+          "code": "housing_type",
+          "label": "Нотураржой тури",
+          "type": "list",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "value": "SIMPLE",
+          "valueLabel": "Оддий",
+          "code": "architectural_style",
+          "label": "Архитектуравий услуб",
+          "type": "list",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "value": "NOT_LIMITED",
+          "valueLabel": "Алоҳида қулайлик мавжуд эмас",
+          "code": "special_comfort",
+          "label": "Алохида кулайликлар",
+          "type": "list",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "code": "more_premises",
+          "label": "Бинода бор",
+          "type": "multiselect",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "code": "owner_phone",
+          "label": "Мулк эгаси телефон рақами",
+          "type": "mask",
+          "menus": [
+            "PRODUCT",
+            "OBJECTS_ANALYSIS"
+          ]
+        },
+        {
+          "code": "owner_fullname",
+          "label": "Мулк эгаси Исми/Фамилияси",
+          "type": "text",
+          "menus": [
+            "PRODUCT"
+          ]
+        },
+        {
+          "value": "27638",
+          "code": "area_all",
+          "label": "Умумий ер майдон (м²)",
+          "type": "decimal",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "value": "9147.27",
+          "code": "area_effective",
+          "label": "Умумий майдони",
+          "type": "decimal",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "value": "11727",
+          "code": "building_width_area",
+          "label": "Умумий қурилиш ости майдони(м²)",
+          "type": "decimal",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "value": "3",
+          "code": "floors_building",
+          "label": "Уй қаватлилиги",
+          "type": "integer",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "value": "3",
+          "code": "floors",
+          "label": "Қавати",
+          "type": "integer",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "value": "NO_BASEMENT",
+          "valueLabel": "Мавжуд эмас",
+          "code": "basement_building_type",
+          "label": "Ертўла тури",
+          "type": "list",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "value": "AVAILABLE",
+          "valueLabel": "Мавжуд",
+          "code": "land_ownership",
+          "label": "Ер участкасига эгалик ҳуқуқи",
+          "type": "list",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "value": "water_supply,electric_lighting",
+          "valueLabel": "сув таъминоти, электр энергия таъминоти",
+          "values": [
+            "water_supply",
+            "electric_lighting"
+          ],
+          "code": "engineer_communications",
+          "label": "Инженерлик комуникациялар",
+          "type": "multiselect",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "value": "100",
+          "code": "construction_completion",
+          "label": "Курилиш тугалланганлиги(фоизда энг катта киймат 100%)",
+          "type": "decimal",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "value": "2000",
+          "code": "year_construction_delivery",
+          "label": "Уй қурилган/топшириладиган йил",
+          "type": "integer",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "value": "simple",
+          "valueLabel": "Оддий",
+          "code": "auto_transport_place_state",
+          "label": "Автотураргоҳ мавжудлиги",
+          "type": "list",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "code": "commission",
+          "label": "Воситачилик ҳаққи",
+          "type": "list",
+          "menus": [
+            "SALE"
+          ]
+        },
+        {
+          "value": "business",
+          "valueLabel": "Бизнес",
+          "code": "private_business",
+          "label": "Жисмоний/юридик шахс",
+          "type": "list",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "value": "16/09/2025 16:15",
+          "code": "source_date",
+          "label": "Савдога қуйиш/Сотиш санаси",
+          "type": "date",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "code": "ceiling_height",
+          "label": "Шифтининг баландлиги",
+          "type": "decimal",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "code": "property_type",
+          "label": "Кўчмас мулк тури",
+          "type": "multiselect",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "code": "location",
+          "label": "Жойлашуви",
+          "type": "list",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "code": "site",
+          "label": "Участок",
+          "type": "decimal",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "code": "railway",
+          "label": "Темир йўл тармоғи",
+          "type": "list",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "code": "house_cover",
+          "label": "Том ёпмаси",
+          "type": "list",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "code": "parking_available",
+          "label": "Парковка",
+          "type": "list",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "value": "DIRECT",
+          "valueLabel": "Харидор топиш",
+          "code": "sell_process",
+          "label": "Жараён",
+          "type": "list",
+          "menus": [
+            "OBJECTS_ANALYSIS"
+          ]
+        },
+        {
+          "value": "STRAIGHTAWAY",
+          "valueLabel": "Тўғридан-тўғри",
+          "code": "sell_type",
+          "label": "Савдо",
+          "type": "list",
+          "menus": [
+            "OBJECTS_ANALYSIS"
+          ]
+        },
+        {
+          "code": "agreement",
+          "label": "Розилиги",
+          "type": "list",
+          "menus": []
+        },
+        {
+          "code": "purchase_type",
+          "label": "Харид тури",
+          "type": "list",
+          "menus": [
+            "OBJECTS_ANALYSIS"
+          ]
+        },
+        {
+          "value": "ADVERTISEMENT",
+          "valueLabel": "Реклама",
+          "code": "find_buyer",
+          "label": "Харидор топиш",
+          "type": "list",
+          "menus": [
+            "OBJECTS_ANALYSIS"
+          ]
+        },
+        {
+          "code": "user_phone",
+          "label": "Фойдаланаётган шахс тел рақами",
+          "type": "mask",
+          "menus": [
+            "OBJECTS_ANALYSIS"
+          ]
+        },
+        {
+          "code": "bank_staff_phone",
+          "label": "Банк ходими рақами",
+          "type": "mask",
+          "menus": [
+            "OBJECTS_ANALYSIS"
+          ]
+        },
+        {
+          "code": "user_full_name",
+          "label": "Фойдаланаётган шахс Ф.И.Ш",
+          "type": "text",
+          "menus": [
+            "OBJECTS_ANALYSIS"
+          ]
+        },
+        {
+          "code": "bank_staff_full_name",
+          "label": "Банк ходими Ф.И.Ш",
+          "type": "text",
+          "menus": [
+            "OBJECTS_ANALYSIS"
+          ]
+        },
+        {
+          "code": "terms_of_sale",
+          "label": "Сотиш шартлари",
+          "type": "list",
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        {
+          "code": "owner",
+          "label": "Эгаси",
+          "type": "text",
+          "menus": []
+        },
+        {
+          "code": "phone",
+          "label": "Телефон",
+          "type": "text",
+          "menus": []
+        },
+        {
+          "code": "url",
+          "label": "Теги",
+          "type": "text",
+          "menus": []
+        }
+      ]
+    },
+    "client": {
+      "clientFirm": {
+        "id": 153,
+        "name": "Asaka Bank",
+        "tin": "201589828",
+        "active": true,
+        "organizationTypeDto": {
+          "displayName": "Банк",
+          "code": "BANK"
+        },
+        "departmentTypeDto": {
+          "displayName": "Республика бошқармаси",
+          "code": "REPUBLIC_ADMINISTRATION"
+        }
+      },
+      "fullName": "Asaka Bank"
+    },
+    "debtorTin": "201589828",
+    "orderRejects": [],
+    "productOrderPropertyOwner": {
+      "id": 1667,
+      "createdDate": "16.09.2025 16:08",
+      "updatedDate": "",
+      "createdBy": {
+        "id": 2559,
+        "name": "JAMSHID JANIBEKOV JUMANAZAROVICH",
+        "phone": "+99 811 111 1111"
+      },
+      "taxAndObligation": "NO"
+    },
+    "productOrderCustomer": {
+      "id": 1670,
+      "createdDate": "16.09.2025 16:08",
+      "updatedDate": "",
+      "createdBy": {
+        "id": 2559,
+        "name": "JAMSHID JANIBEKOV JUMANAZAROVICH",
+        "phone": "+99 811 111 1111"
+      },
+      "fromMib": "ACCEPTED",
+      "courtStatus": "NOT_AVAILABLE",
+      "residuals": []
+    },
+    "productOrderAgents": [
+      {
+        "id": 1387,
+        "createdDate": "17.09.2025 09:37",
+        "updatedDate": "",
+        "createdBy": {
+          "id": 664,
+          "name": "Murad Atajanov Berdiyevich",
+          "phone": "998939227220"
+        },
+        "propertyOwnerAvailability": "EXISTS",
+        "consentToSale": "YES",
+        "customerAvailability": "YES",
+        "objectActivity": "INACTIVE",
+        "pledges": []
+      },
+      {
+        "id": 1388,
+        "createdDate": "17.09.2025 09:38",
+        "updatedDate": "17.09.2025 09:39",
+        "createdBy": {
+          "id": 664,
+          "name": "Murad Atajanov Berdiyevich",
+          "phone": "998939227220"
+        },
+        "propertyOwnerAvailability": "EXISTS",
+        "consentToSale": "YES",
+        "customerAvailability": "NO",
+        "objectActivity": "INACTIVE",
+        "pledges": [],
+        "confirmationStatus": "CONFIRMED"
+      },
+      {
+        "id": 1389,
+        "createdDate": "17.09.2025 09:41",
+        "updatedDate": "",
+        "createdBy": {
+          "id": 664,
+          "name": "Murad Atajanov Berdiyevich",
+          "phone": "998939227220"
+        },
+        "propertyOwnerAvailability": "EXISTS",
+        "consentToSale": "YES",
+        "customerAvailability": "NO",
+        "objectActivity": "INACTIVE",
+        "pledges": []
+      }
+    ],
+    "bankCredits": [],
+    "availabilityOfPrivilegeDto": {
+      "id": 383,
+      "createdDate": "17.09.2025 09:38",
+      "updatedDate": "",
+      "createdBy": {
+        "id": 664,
+        "name": "Murad Atajanov Berdiyevich",
+        "phone": "998939227220"
+      },
+      "privilege": "PRIVILEGE_ARE_NOT_AVAILABLE",
+      "productOrderId": 8454
+    },
+    "productOrderPayments": [
+      {
+        "id": 20,
+        "createdDate": "17.09.2025 09:38",
+        "updatedDate": "",
+        "productOrderId": 8454,
+        "date": "2025-09-17"
+      },
+      {
+        "id": 21,
+        "createdDate": "17.09.2025 09:38",
+        "updatedDate": "",
+        "productOrderId": 8454,
+        "date": "2025-09-17"
+      }
+    ],
+    "buildings": [
+      {
+        "id": 2230,
+        "createdDate": "16.09.2025 16:08",
+        "updatedDate": "",
+        "name": "Omborlar va omborxona maydonlari",
+        "area": 0,
+        "address": "Izzat ko'chasi, 2 tor ko'chasi, 16",
+        "productOrderId": 8454,
+        "exists": true,
+        "photos": []
+      }
+    ],
+    "debtor": {
+      "clientFirm": {
+        "id": 153,
+        "name": "Asaka Bank",
+        "tin": "201589828",
+        "active": true,
+        "organizationTypeDto": {
+          "displayName": "Банк",
+          "code": "BANK"
+        },
+        "departmentTypeDto": {
+          "displayName": "Республика бошқармаси",
+          "code": "REPUBLIC_ADMINISTRATION"
+        }
+      },
+      "fullName": "Asaka Bank"
+    },
+    "evaluationReport": [
+      {
+        "id": 18267,
+        "url": "https://storage.baxolash.uz/uy-joy/EVALUATION_REPORT/16-09-2025/e6525136-c1da-4924-b3dd-62e695ac024c.pdf",
+        "name": "Baxolash xulosasi-adasi.pdf",
+        "type": "application/pdf",
+        "size": 688277
+      },
+      {
+        "id": 18269,
+        "url": "https://storage.baxolash.uz/uy-joy/EVALUATION_REPORT/16-09-2025/54a8d66b-13fa-460b-a1bf-5e64535f6f73.pdf",
+        "name": "BBQ-0708-06.pdf",
+        "type": "application/pdf",
+        "size": 52797
+      }
+    ],
+    "toTakeFromAdvertising": false,
+    "insideBanners": [],
+    "outsideBanners": [],
+    "identificationVideos": [],
+    "prices": [
+      {
+        "createdDate": "16/09/2025 16:08",
+        "price": 42266960385
+      }
+    ],
+    "servicePaymentType": "CUSTOMER",
+    "tradeType": "TRADE_PLATFORM",
+    "bidStep": 1,
+    "daysToStart": 5,
+    "pledgePercent": 1,
+    "description": "Sotuv sharti: Go'lib tomonidan sotib olingan mulk qiymatini 100% to'liq to'lash.\nUshbu obyekt auksion savdosiga mulkiy majmua sifatida chiqarilgan. Mulkiy majmuaning tarkibiga quyidagiar kiradi: 1) Ishlab chiqarish texnik ta`mirlash boshqarmasi UPTK bazasi va omborxonasi; 2) Un ishlab chiqarish asbob-uskunalari; 3) PTSR (polimer zanjirli reaksiyasi) Real Time Ampfilikator K960C tibbiyot uskunasi; 4) 38 dona, shundan 10 turdagi 34 dona tikuv mashikalari va 4 dona mebel ishlab chiqarish uskunalari; 5) \"S 40\" rusumli ultratovush diagnostika tizimi tibbiyot uskunasi (UZI). Auksion savdosida ishtirok etishdan oldin obyektni ko'zdan kechirib, tanishib chiqish tavsiya etiladi. Mazkur obyekt joylashgan hududning bir qismi O'zbekiston Respublikasi Vazirlar Mahkamasining 2024 yil 24 dekabrdagi “Toshkent shahrining 2045 yilgacha bo'lgan davrga mo'ljallangan bosh rejasini tasdiqlash to'g'risida”gi 880-sonli qaroriga asosan renovatsiya hududidaga tushgan.",
+    "withEquipment": true,
+    "legalAccountNumber": "29802000700000873969",
+    "legalMfo": "00873",
+    "productOrderBenefitDto": [],
+    "auctionTradingConditionId": 725
+  },
+  "categoryData": {
+    "id": 19,
+    "createdDate": "19.05.2019 15:15",
+    "updatedDate": "02.05.2025 17:53",
+    "createdBy": {
+      "id": 1,
+      "name": "Admin Admin Admin",
+      "phone": "998973811406"
+    },
+    "updatedBy": {
+      "id": 986,
+      "name": "Niyoz Yunusov Kabildjon o'g'li",
+      "phone": "998977818083"
+    },
+    "name": "Сотиш",
+    "nameRu": "Продажа",
+    "code": "NotResidential_Sell",
+    "parent": {
+      "id": 5,
+      "name": "Тижорат бинолари"
+    },
+    "sortOrder": 520,
+    "variations": {
+      "fields": [
+        "terms_of_sale",
+        "owner",
+        "phone",
+        "url"
+      ],
+      "data": {
+        "owner": {
+          "code": "owner",
+          "type": "text",
+          "label": "Эгаси",
+          "labelRu": "Владелец",
+          "defaultValue": "",
+          "required": false,
+          "filterable": true,
+          "items": [],
+          "menus": []
+        },
+        "phone": {
+          "code": "phone",
+          "type": "text",
+          "label": "Телефон",
+          "labelRu": "Телефон",
+          "defaultValue": "",
+          "required": false,
+          "filterable": true,
+          "items": [],
+          "menus": []
+        },
+        "terms_of_sale": {
+          "code": "terms_of_sale",
+          "type": "list",
+          "label": "Сотиш шартлари",
+          "defaultValue": "",
+          "required": true,
+          "filterable": true,
+          "items": [
+            {
+              "code": "contract",
+              "name": "100% олдиндан тўлов"
+            },
+            {
+              "code": "non_contract",
+              "name": "Бўлиб тўлаш"
+            }
+          ],
+          "sortOrder": 518,
+          "menus": [
+            "PRODUCT",
+            "SALE"
+          ]
+        },
+        "url": {
+          "code": "url",
+          "type": "text",
+          "label": "Теги",
+          "labelRu": "",
+          "defaultValue": "",
+          "required": false,
+          "filterable": false,
+          "items": [],
+          "menus": []
+        }
+      },
+      "haveFields": [
+        "repair",
+        "engineer_communications",
+        "repair_status",
+        "floors_building",
+        "auto_transport_place_state",
+        "source",
+        "architectural_style",
+        "floors",
+        "user_phone",
+        "area_all",
+        "commission",
+        "building_width_area",
+        "bank_staff_phone",
+        "bank_staff_full_name",
+        "area_effective",
+        "basement_building_type",
+        "land_ownership",
+        "type_of_building",
+        "owner_phone",
+        "private_business",
+        "year_construction_delivery",
+        "special_comfort",
+        "more_premises",
+        "user_full_name",
+        "construction_completion",
+        "owner_fullname",
+        "housing_type",
+        "source_date"
+      ]
+    },
+    "parentData": {
+      "variations": {
+        "fields": [
+          "repair",
+          "source",
+          "repair_status",
+          "type_of_building",
+          "housing_type",
+          "architectural_style",
+          "special_comfort",
+          "more_premises",
+          "owner_phone",
+          "owner_fullname",
+          "area_all",
+          "area_effective",
+          "building_width_area",
+          "floors_building",
+          "floors",
+          "basement_building_type",
+          "land_ownership",
+          "engineer_communications",
+          "construction_completion",
+          "year_construction_delivery",
+          "auto_transport_place_state",
+          "commission",
+          "private_business",
+          "source_date",
+          "ceiling_height",
+          "property_type",
+          "location",
+          "site",
+          "railway",
+          "house_cover",
+          "parking_available",
+          "sell_process",
+          "sell_type",
+          "agreement",
+          "purchase_type",
+          "find_buyer",
+          "user_phone",
+          "bank_staff_phone",
+          "user_full_name",
+          "bank_staff_full_name"
+        ],
+        "data": {
+          "repair": {
+            "code": "repair",
+            "type": "list",
+            "label": "Уй ҳолати",
+            "labelRu": "",
+            "defaultValue": "",
+            "required": true,
+            "filterable": false,
+            "items": [
+              {
+                "code": "authors_project",
+                "name": "Каробка"
+              },
+              {
+                "code": "simple",
+                "name": "Оддий"
+              }
+            ],
+            "sortOrder": 501,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "engineer_communications": {
+            "code": "engineer_communications",
+            "type": "multiselect",
+            "label": "Инженерлик комуникациялар",
+            "labelRu": "Инженерные коммуникации",
+            "defaultValue": "",
+            "required": false,
+            "filterable": true,
+            "items": [
+              {
+                "code": "central_heating",
+                "name": "иссиқлик таъминоти"
+              },
+              {
+                "code": "hot_water_supply",
+                "name": "Иссиқ сув таъминоти"
+              },
+              {
+                "code": "sewage",
+                "name": "канализация"
+              },
+              {
+                "code": "water_supply",
+                "name": "сув таъминоти"
+              },
+              {
+                "code": "electric_lighting",
+                "name": "электр энергия таъминоти"
+              },
+              {
+                "code": "gas_supply",
+                "name": "газ таъминоти"
+              },
+              {
+                "code": "does_not_exist",
+                "name": "Мавжуд эмас"
+              }
+            ],
+            "sortOrder": 558,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "repair_status": {
+            "code": "repair_status",
+            "type": "list",
+            "label": "Таъмир холати",
+            "labelRu": "Ремонтное состояние",
+            "defaultValue": "",
+            "required": true,
+            "filterable": true,
+            "items": [
+              {
+                "code": "very_well",
+                "name": "Жуда яхши"
+              },
+              {
+                "code": "good",
+                "name": "Яхши"
+              },
+              {
+                "code": "satisfactory",
+                "name": "Қониқарли"
+              },
+              {
+                "code": "dissatisfied",
+                "name": "Қониқарсиз"
+              },
+              {
+                "code": "wreckage",
+                "name": "Авария холатда"
+              }
+            ],
+            "sortOrder": 503,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "floors_building": {
+            "code": "floors_building",
+            "type": "integer",
+            "label": "Уй қаватлилиги",
+            "required": true,
+            "filterable": true,
+            "items": [],
+            "sortOrder": 554,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "auto_transport_place_state": {
+            "code": "auto_transport_place_state",
+            "type": "list",
+            "label": "Автотураргоҳ мавжудлиги",
+            "labelRu": "Стоянка",
+            "defaultValue": "",
+            "required": true,
+            "filterable": false,
+            "items": [
+              {
+                "code": "specially_closed",
+                "name": "Махсус ёпик",
+                "nameRu": "Махсус ёпик"
+              },
+              {
+                "code": "specially_open",
+                "name": "Махсус очик",
+                "nameRu": "Махсус очик"
+              },
+              {
+                "code": "simple",
+                "name": "Оддий",
+                "nameRu": "Оддий"
+              },
+              {
+                "code": "non_exists",
+                "name": "Мавжуд эмас",
+                "nameRu": "Мавжуд эмас"
+              }
+            ],
+            "sortOrder": 561,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "source": {
+            "code": "source",
+            "type": "list",
+            "label": "Фойдаланилган манба",
+            "labelRu": "Используемый источник",
+            "defaultValue": "",
+            "required": true,
+            "filterable": true,
+            "items": [
+              {
+                "code": "source_olx",
+                "name": "olx.uz",
+                "nameRu": "olx.uz"
+              },
+              {
+                "code": "source_e_auksion",
+                "name": "e-auksion.uz",
+                "nameRu": "e-auksion.uz"
+              },
+              {
+                "code": "uy_bor",
+                "name": "uybor.uz",
+                "nameRu": "uybor.uz"
+              },
+              {
+                "code": "tom_uz",
+                "name": "tom.uz",
+                "nameRu": "tom.uz"
+              },
+              {
+                "code": "namangan_uyjoy",
+                "name": "https://t.me/Namangan_Uyjoy",
+                "nameRu": "https://t.me/Namangan_Uyjoy"
+              },
+              {
+                "code": "@jizzax_uy_sotiladi",
+                "name": "@jizzax_uy_sotiladi",
+                "nameRu": "@jizzax_uy_sotiladi"
+              },
+              {
+                "code": "@maklernavoiy",
+                "name": "@maklernavoiy",
+                "nameRu": "@maklernavoiy"
+              },
+              {
+                "code": "YouTube.com",
+                "name": "YouTube.com",
+                "nameRu": "YouTube.com"
+              },
+              {
+                "code": "bank",
+                "name": "bank",
+                "nameRu": "bank"
+              },
+              {
+                "code": "other",
+                "name": "Бошқа",
+                "nameRu": "Другой"
+              }
+            ],
+            "sortOrder": 502,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "architectural_style": {
+            "code": "architectural_style",
+            "type": "list",
+            "label": "Архитектуравий услуб",
+            "labelRu": "Архитектурный стиль",
+            "defaultValue": "",
+            "required": true,
+            "filterable": true,
+            "items": [
+              {
+                "code": "SIMPLE",
+                "name": "Оддий",
+                "nameRu": "Просто"
+              },
+              {
+                "code": "EURO",
+                "name": "Евро",
+                "nameRu": "Евро"
+              },
+              {
+                "code": "HI_TECH",
+                "name": "Хайтек",
+                "nameRu": "Хайтек"
+              }
+            ],
+            "sortOrder": 506,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "find_buyer": {
+            "code": "find_buyer",
+            "type": "list",
+            "label": "Харидор топиш",
+            "labelRu": "Найти покупателя",
+            "defaultValue": "",
+            "required": false,
+            "filterable": false,
+            "items": [
+              {
+                "code": "PERSONALITY_ANALYSIS",
+                "name": "Якуний назорат",
+                "nameRu": "Анализ личности"
+              },
+              {
+                "code": "AREA_ANALYSIS",
+                "name": "Нарх таҳлили",
+                "nameRu": "Анализ площади"
+              },
+              {
+                "code": "ADVERTISEMENT",
+                "name": "Реклама",
+                "nameRu": "Реклама"
+              }
+            ],
+            "sortOrder": 590,
+            "menus": [
+              "OBJECTS_ANALYSIS"
+            ]
+          },
+          "floors": {
+            "code": "floors",
+            "type": "integer",
+            "label": "Қавати",
+            "required": true,
+            "filterable": true,
+            "items": [],
+            "sortOrder": 555,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "parking_available": {
+            "code": "parking_available",
+            "type": "list",
+            "label": "Парковка",
+            "defaultValue": "",
+            "required": false,
+            "filterable": false,
+            "items": [
+              {
+                "code": "yes",
+                "name": "Бор"
+              },
+              {
+                "code": "no",
+                "name": "Йўқ"
+              }
+            ],
+            "sortOrder": 586,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "user_phone": {
+            "code": "user_phone",
+            "type": "mask",
+            "label": "Фойдаланаётган шахс тел рақами",
+            "labelRu": "Номер телефона пользователя",
+            "defaultValue": "",
+            "required": true,
+            "filterable": false,
+            "items": [
+              {
+                "code": "+998 ## ###-##-##",
+                "name": "Maska1"
+              }
+            ],
+            "sortOrder": 591,
+            "menus": [
+              "OBJECTS_ANALYSIS"
+            ]
+          },
+          "property_type": {
+            "code": "property_type",
+            "type": "multiselect",
+            "label": "Кўчмас мулк тури",
+            "labelRu": "",
+            "defaultValue": "",
+            "required": false,
+            "filterable": false,
+            "items": [
+              {
+                "code": "shops_boutiques",
+                "name": "Дўконлар/бутиклар"
+              },
+              {
+                "code": "salons",
+                "name": "Салонлар"
+              },
+              {
+                "code": "restaurants_cafes_bars",
+                "name": "Ресторанлар/кафелар/барлар"
+              },
+              {
+                "code": "offices",
+                "name": "Офислар"
+              },
+              {
+                "code": "warehouses",
+                "name": "Омборхоналар"
+              },
+              {
+                "code": "freestanding_buildings",
+                "name": "Алоҳида турган бинолар"
+              },
+              {
+                "code": "recreation_facilities",
+                "name": "Дам олиш базалари"
+              },
+              {
+                "code": "industrial_premises",
+                "name": "Ишлаб чиқариш учун мўлжалланган хона-жойлар"
+              },
+              {
+                "code": "premises_free_appointment",
+                "name": "Еркин мақсаддаги хона-жойлар"
+              },
+              {
+                "code": "small_architectural_form",
+                "name": "КМФ (Кичик меъморий шакл)"
+              },
+              {
+                "code": "part_of_the_building",
+                "name": "Бинонинг бир қисми"
+              },
+              {
+                "code": "other",
+                "name": "Бошқа"
+              }
+            ],
+            "sortOrder": 581,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "area_all": {
+            "code": "area_all",
+            "type": "decimal",
+            "label": "Умумий ер майдон (м²)",
+            "required": true,
+            "filterable": true,
+            "items": [],
+            "sortOrder": 551,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "commission": {
+            "code": "commission",
+            "type": "list",
+            "label": "Воситачилик ҳаққи",
+            "defaultValue": "",
+            "required": false,
+            "filterable": false,
+            "items": [
+              {
+                "code": "yes",
+                "name": "Бор"
+              },
+              {
+                "code": "no",
+                "name": "Йўқ"
+              }
+            ],
+            "sortOrder": 562,
+            "menus": [
+              "SALE"
+            ]
+          },
+          "building_width_area": {
+            "code": "building_width_area",
+            "type": "decimal",
+            "label": "Умумий қурилиш ости майдони(м²)",
+            "labelRu": "",
+            "required": true,
+            "filterable": false,
+            "items": [],
+            "sortOrder": 553,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "railway": {
+            "code": "railway",
+            "type": "list",
+            "label": "Темир йўл тармоғи",
+            "labelRu": "",
+            "defaultValue": "",
+            "required": true,
+            "filterable": false,
+            "items": [
+              {
+                "code": "exists",
+                "name": "Мавжуд"
+              },
+              {
+                "code": "non_exists",
+                "name": "Мавжуд эмас"
+              }
+            ],
+            "sortOrder": 584,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "house_cover": {
+            "code": "house_cover",
+            "type": "list",
+            "label": "Том ёпмаси",
+            "labelRu": "",
+            "defaultValue": "",
+            "required": false,
+            "filterable": false,
+            "items": [
+              {
+                "code": "metallic",
+                "name": "Металл",
+                "nameRu": "Металлические"
+              },
+              {
+                "code": "reinforced_concrete",
+                "name": "Темирбетон",
+                "nameRu": "Железобетонные"
+              },
+              {
+                "code": "wooden",
+                "name": "Ёғоч",
+                "nameRu": "Деревянные"
+              }
+            ],
+            "sortOrder": 585,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "bank_staff_phone": {
+            "code": "bank_staff_phone",
+            "type": "mask",
+            "label": "Банк ходими рақами",
+            "labelRu": "Номер сотрудника банка",
+            "defaultValue": "",
+            "required": true,
+            "filterable": false,
+            "items": [
+              {
+                "code": "+998 ## ###-##-##",
+                "name": "Maska1"
+              }
+            ],
+            "sortOrder": 592,
+            "menus": [
+              "OBJECTS_ANALYSIS"
+            ]
+          },
+          "purchase_type": {
+            "code": "purchase_type",
+            "type": "list",
+            "label": "Харид тури",
+            "labelRu": "Тип покупки",
+            "defaultValue": "",
+            "required": false,
+            "filterable": false,
+            "items": [
+              {
+                "code": "FULL_PAYMENT",
+                "name": "100% тўлов",
+                "nameRu": "100% оплата"
+              },
+              {
+                "code": "CREDIT",
+                "name": "Кредит",
+                "nameRu": "Кредит"
+              },
+              {
+                "code": "PAY_IN_INSTALLMENTS",
+                "name": "Бўлиб тўлаш",
+                "nameRu": "Оплата в рассрочку"
+              },
+              {
+                "code": "DEBT_SETTLEMENT",
+                "name": "Қарздорлик сўндириш",
+                "nameRu": "Погашение долга"
+              }
+            ],
+            "sortOrder": 589,
+            "menus": [
+              "OBJECTS_ANALYSIS"
+            ]
+          },
+          "bank_staff_full_name": {
+            "code": "bank_staff_full_name",
+            "type": "text",
+            "label": "Банк ходими Ф.И.Ш",
+            "labelRu": "Сотрудник банка ФИО",
+            "defaultValue": "",
+            "required": true,
+            "filterable": false,
+            "items": [],
+            "sortOrder": 594,
+            "menus": [
+              "OBJECTS_ANALYSIS"
+            ]
+          },
+          "area_effective": {
+            "code": "area_effective",
+            "type": "decimal",
+            "label": "Умумий майдони",
+            "required": true,
+            "filterable": true,
+            "items": [],
+            "sortOrder": 552,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "agreement": {
+            "code": "agreement",
+            "type": "list",
+            "label": "Розилиги",
+            "labelRu": "Согласие",
+            "defaultValue": "",
+            "required": false,
+            "filterable": false,
+            "items": [
+              {
+                "code": "YES",
+                "name": "Ха",
+                "nameRu": "Да"
+              },
+              {
+                "code": "NO",
+                "name": "Йўқ",
+                "nameRu": "Нет"
+              }
+            ],
+            "sortOrder": 589,
+            "menus": []
+          },
+          "basement_building_type": {
+            "code": "basement_building_type",
+            "type": "list",
+            "label": "Ертўла тури",
+            "labelRu": "Тип подвала",
+            "defaultValue": "",
+            "required": true,
+            "filterable": false,
+            "items": [
+              {
+                "code": "BASEMENT",
+                "name": "Ертўла",
+                "nameRu": "Подвал"
+              },
+              {
+                "code": "WITH_BASEMENT",
+                "name": "Ертўла билан",
+                "nameRu": "С Подвалом"
+              },
+              {
+                "code": "NO_BASEMENT",
+                "name": "Мавжуд эмас",
+                "nameRu": "Недоступен"
+              }
+            ],
+            "sortOrder": 556,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "land_ownership": {
+            "code": "land_ownership",
+            "type": "list",
+            "label": "Ер участкасига эгалик ҳуқуқи",
+            "labelRu": "Право собственности на земельный участок",
+            "defaultValue": "",
+            "required": true,
+            "filterable": false,
+            "items": [
+              {
+                "code": "NO_AVAILABLE",
+                "name": "Мавжуд эмас",
+                "nameRu": "Недоступно"
+              },
+              {
+                "code": "AVAILABLE",
+                "name": "Мавжуд",
+                "nameRu": "Доступный"
+              }
+            ],
+            "sortOrder": 557,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "type_of_building": {
+            "code": "type_of_building",
+            "type": "list",
+            "label": "Қурилиш тури",
+            "labelRu": "",
+            "defaultValue": "",
+            "required": true,
+            "filterable": true,
+            "items": [
+              {
+                "code": "brick_baked",
+                "name": "Пишиқ ғишт"
+              },
+              {
+                "code": "brick_crude",
+                "name": "Хом ғишт (лойдан)"
+              },
+              {
+                "code": "brick_baked_and_crude",
+                "name": "Пишиқ ғишт ва хом ғишт"
+              },
+              {
+                "code": "panel_concrete",
+                "name": "Темир бетон панел"
+              },
+              {
+                "code": "wood",
+                "name": "Ёғоч (дарахт)"
+              },
+              {
+                "code": "Metallic",
+                "name": "Металл"
+              },
+              {
+                "code": "large_blocks",
+                "name": "Шлакаблок"
+              },
+              {
+                "code": "gas_block",
+                "name": "Газаблок"
+              },
+              {
+                "code": "sandwich_panel",
+                "name": "Сэндвич панел"
+              }
+            ],
+            "sortOrder": 504,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "owner_phone": {
+            "code": "owner_phone",
+            "type": "mask",
+            "label": "Мулк эгаси телефон рақами",
+            "labelRu": "Номер телефона владельца недвижимости",
+            "defaultValue": "",
+            "required": true,
+            "filterable": false,
+            "items": [
+              {
+                "code": "+998 ## ###-##-##",
+                "name": "Maska1"
+              }
+            ],
+            "sortOrder": 509,
+            "menus": [
+              "PRODUCT",
+              "OBJECTS_ANALYSIS"
+            ]
+          },
+          "private_business": {
+            "code": "private_business",
+            "type": "list",
+            "label": "Жисмоний/юридик шахс",
+            "defaultValue": "",
+            "required": true,
+            "filterable": false,
+            "items": [
+              {
+                "code": "private",
+                "name": "Жисмоний шахс"
+              },
+              {
+                "code": "business",
+                "name": "Бизнес"
+              }
+            ],
+            "sortOrder": 563,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "year_construction_delivery": {
+            "code": "year_construction_delivery",
+            "type": "integer",
+            "label": "Уй қурилган/топшириладиган йил",
+            "labelRu": "",
+            "required": true,
+            "filterable": true,
+            "items": [
+              {
+                "code": "y2017",
+                "name": "2017"
+              },
+              {
+                "code": "y2016",
+                "name": "2016"
+              },
+              {
+                "code": "y2015",
+                "name": "2015"
+              },
+              {
+                "code": "y2011_2014",
+                "name": "2011-2014"
+              },
+              {
+                "code": "y2001_2010",
+                "name": "2001-2010"
+              },
+              {
+                "code": "y1990_2000",
+                "name": "1990-2000"
+              },
+              {
+                "code": "y1980_1989",
+                "name": "1980-1989"
+              },
+              {
+                "code": "y1960_1979",
+                "name": "1960-1979"
+              },
+              {
+                "code": "y1950",
+                "name": "1960 дан аввал"
+              }
+            ],
+            "sortOrder": 560,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "site": {
+            "code": "site",
+            "type": "decimal",
+            "label": "Участок",
+            "required": false,
+            "filterable": false,
+            "items": [],
+            "sortOrder": 583,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "sell_type": {
+            "code": "sell_type",
+            "type": "list",
+            "label": "Савдо",
+            "labelRu": "Тип продажи",
+            "defaultValue": "",
+            "required": false,
+            "filterable": false,
+            "items": [
+              {
+                "code": "STRAIGHTAWAY",
+                "name": "Тўғридан-тўғри",
+                "nameRu": "Напрямую"
+              },
+              {
+                "code": "AUCTION",
+                "name": "МИБ орқали аукцион",
+                "nameRu": "Аукцион через МИБ"
+              },
+              {
+                "code": "AUCTION_VIA_BANK",
+                "name": "Банк орқали аукцион",
+                "nameRu": "Аукцион через банк"
+              },
+              {
+                "code": "AUCTION_VIA_REALTOR",
+                "name": "Риэлтор орқали аукцион",
+                "nameRu": "Аукцион через риэлтора"
+              },
+              {
+                "code": "AGREEMENT",
+                "name": "Келишув битими",
+                "nameRu": "Соглашение"
+              }
+            ],
+            "sortOrder": 588,
+            "menus": [
+              "OBJECTS_ANALYSIS"
+            ]
+          },
+          "special_comfort": {
+            "code": "special_comfort",
+            "type": "list",
+            "label": "Алохида кулайликлар",
+            "labelRu": "Раздельные удобства",
+            "defaultValue": "",
+            "required": true,
+            "filterable": true,
+            "items": [
+              {
+                "code": "MAIN_ROAD",
+                "name": "Асосий йул ёқасида жойлашган",
+                "nameRu": "Асосий йул ёқасида жойлашган"
+              },
+              {
+                "code": "NOT_LIMITED",
+                "name": "Алоҳида қулайлик мавжуд эмас",
+                "nameRu": "Алоҳида қулайлик мавдуд эмас"
+              },
+              {
+                "code": "COMFORT",
+                "name": "Комфорт(уй атрофи курикланадиган,...)",
+                "nameRu": "Комфорт(уй атрофи курикланадиган,...)"
+              },
+              {
+                "code": "CENTRAL",
+                "name": "Марказий бозор ҳудудида",
+                "nameRu": "Марказий бозор ҳудудида"
+              }
+            ],
+            "sortOrder": 507,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "more_premises": {
+            "code": "more_premises",
+            "type": "multiselect",
+            "label": "Бинода бор",
+            "defaultValue": "",
+            "required": false,
+            "filterable": false,
+            "items": [
+              {
+                "code": "internet",
+                "name": "Интернет"
+              },
+              {
+                "code": "phone",
+                "name": "Телефон"
+              },
+              {
+                "code": "lattices_on_the_windows",
+                "name": "Панжарали деразалар"
+              },
+              {
+                "code": "alarm",
+                "name": "Сигнализация"
+              },
+              {
+                "code": "air_conditioning",
+                "name": "Кондиционер"
+              },
+              {
+                "code": "fire_alarm",
+                "name": "Ёнғин сигнализацияси"
+              },
+              {
+                "code": "cctv",
+                "name": "Видео кузатув"
+              },
+              {
+                "code": "h24_security",
+                "name": "Кеча-кундуз қўриқлаш"
+              },
+              {
+                "code": "entry_group",
+                "name": "Кириш группаси"
+              },
+              {
+                "code": "base",
+                "name": "Цокол-пастки қават"
+              },
+              {
+                "code": "basement",
+                "name": "Ертўла"
+              },
+              {
+                "code": "all_communications",
+                "name": "Барча коммуникация алоқалари"
+              },
+              {
+                "code": "furniture",
+                "name": "Мебел"
+              }
+            ],
+            "sortOrder": 508,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "user_full_name": {
+            "code": "user_full_name",
+            "type": "text",
+            "label": "Фойдаланаётган шахс Ф.И.Ш",
+            "labelRu": "Пользователь ФИШ",
+            "defaultValue": "",
+            "required": true,
+            "filterable": false,
+            "items": [],
+            "sortOrder": 593,
+            "menus": [
+              "OBJECTS_ANALYSIS"
+            ]
+          },
+          "construction_completion": {
+            "code": "construction_completion",
+            "type": "decimal",
+            "label": "Курилиш тугалланганлиги(фоизда энг катта киймат 100%)",
+            "labelRu": "Завершение строительства (в процентах наибольшее значение 100%)",
+            "required": true,
+            "filterable": false,
+            "items": [],
+            "sortOrder": 559,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "location": {
+            "code": "location",
+            "type": "list",
+            "label": "Жойлашуви",
+            "defaultValue": "",
+            "required": false,
+            "filterable": false,
+            "items": [
+              {
+                "code": "business_center",
+                "name": "Бизнес марказ"
+              },
+              {
+                "code": "administrative_building",
+                "name": "Маъмурий бино"
+              },
+              {
+                "code": "house",
+                "name": "Турар жой"
+              },
+              {
+                "code": "cottage",
+                "name": "Коттеж"
+              },
+              {
+                "code": "shopping_center",
+                "name": "Савдо маркази"
+              },
+              {
+                "code": "industrial_zone",
+                "name": "Саноат худуди"
+              },
+              {
+                "code": "market",
+                "name": "Бозор"
+              },
+              {
+                "code": "freestanding_buildings",
+                "name": "Алоҳида бино"
+              }
+            ],
+            "sortOrder": 582,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "owner_fullname": {
+            "code": "owner_fullname",
+            "type": "text",
+            "label": "Мулк эгаси Исми/Фамилияси",
+            "labelRu": "Имя/Фамилия владельца недвижимости",
+            "defaultValue": "",
+            "required": true,
+            "filterable": false,
+            "items": [],
+            "sortOrder": 510,
+            "menus": [
+              "PRODUCT"
+            ]
+          },
+          "housing_type": {
+            "code": "housing_type",
+            "type": "list",
+            "label": "Нотураржой тури",
+            "labelRu": "",
+            "defaultValue": "",
+            "required": true,
+            "filterable": false,
+            "items": [
+              {
+                "code": "new_buildings",
+                "name": "Янги қурилган"
+              },
+              {
+                "code": "secondary_market",
+                "name": "Иккиламчи бозор"
+              }
+            ],
+            "sortOrder": 505,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "sell_process": {
+            "code": "sell_process",
+            "type": "list",
+            "label": "Жараён",
+            "labelRu": "Процесс",
+            "defaultValue": "",
+            "required": true,
+            "filterable": false,
+            "items": [
+              {
+                "code": "NEW",
+                "name": "Янги",
+                "nameRu": "Новый"
+              },
+              {
+                "code": "IDENTIFICATION",
+                "name": "Ҳудудга ходим чиқариш",
+                "nameRu": "Отправьте сотрудника в регион"
+              },
+              {
+                "code": "PRICE_ANALYSIS",
+                "name": "Закалат",
+                "nameRu": "Заклад"
+              },
+              {
+                "code": "CONCLUSION",
+                "name": "Банк орқали бўшатиш",
+                "nameRu": "Выписка через банк"
+              },
+              {
+                "code": "DIRECT",
+                "name": "Харидор топиш",
+                "nameRu": "Поиск покупателя"
+              },
+              {
+                "code": "OBJECTION",
+                "name": "Ишончли бошқарув",
+                "nameRu": "Надежное управление"
+              },
+              {
+                "code": "PRESENTATION",
+                "name": "Тергов",
+                "nameRu": "Расследование"
+              },
+              {
+                "code": "SELL",
+                "name": "Суд",
+                "nameRu": "Суд"
+              },
+              {
+                "code": "LEGAL_ANALYSIS",
+                "name": "Банк ходимида харидор бор",
+                "nameRu": "У сотрудника банка есть покупатель"
+              },
+              {
+                "code": "COMMISSION_NOT_PAID",
+                "name": "Хизмат ҳаққини олиш",
+                "nameRu": "Получение платы за обслуживание"
+              },
+              {
+                "code": "DONE",
+                "name": "Бажарилди",
+                "nameRu": "Сделано"
+              },
+              {
+                "code": "FAILED",
+                "name": "Амалга ошмади",
+                "nameRu": "Не удалось"
+              }
+            ],
+            "sortOrder": 587,
+            "menus": [
+              "OBJECTS_ANALYSIS"
+            ]
+          },
+          "ceiling_height": {
+            "code": "ceiling_height",
+            "type": "decimal",
+            "label": "Шифтининг баландлиги",
+            "required": false,
+            "filterable": false,
+            "items": [],
+            "sortOrder": 580,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          },
+          "source_date": {
+            "code": "source_date",
+            "type": "date",
+            "label": "Савдога қуйиш/Сотиш санаси",
+            "labelRu": "Дата источника",
+            "defaultValue": "",
+            "required": true,
+            "filterable": true,
+            "items": [],
+            "sortOrder": 564,
+            "menus": [
+              "PRODUCT",
+              "SALE"
+            ]
+          }
+        },
+        "haveFields": []
+      }
+    },
+    "haveFields": [
+      "repair",
+      "engineer_communications",
+      "repair_status",
+      "floors_building",
+      "auto_transport_place_state",
+      "source",
+      "architectural_style",
+      "floors",
+      "user_phone",
+      "area_all",
+      "commission",
+      "building_width_area",
+      "bank_staff_phone",
+      "bank_staff_full_name",
+      "area_effective",
+      "basement_building_type",
+      "land_ownership",
+      "type_of_building",
+      "owner_phone",
+      "private_business",
+      "year_construction_delivery",
+      "special_comfort",
+      "more_premises",
+      "user_full_name",
+      "construction_completion",
+      "owner_fullname",
+      "housing_type",
+      "source_date"
+    ]
+  },
+  "evaluationDto": {
+    "id": 5118,
+    "evaluationId": 237952,
+    "price": 119720655290.14,
+    "diffPercent": 45.3
+  },
+  "analysisStatus": "GREEN",
+  "mfy": {
+    "id": 45312,
+    "name": "Behizor MFY"
+  },
+  "notResidentialCategories": [
+    {
+      "id": 554,
+      "uuid": "58b8b9e6-e394-42a0-91e1-f05c1891cd67",
+      "createdDate": "04.09.2024 10:43",
+      "updatedDate": "04.09.2024 10:43",
+      "createdBy": {
+        "id": 137,
+        "name": "Nafisa Jumaniyazova Ikramovna",
+        "phone": "998972212222"
+      },
+      "updatedBy": {
+        "id": 137,
+        "name": "Nafisa Jumaniyazova Ikramovna",
+        "phone": "998972212222"
+      },
+      "code": "INDUSTRIAL_BUILDINGS_96",
+      "name": "Бошқалар",
+      "nameRu": "Другие",
+      "sortOrder": 196,
+      "cadastreType": "Notorious",
+      "parent": {
+        "id": 1,
+        "name": "Ишлаб чикариш",
+        "code": "INDUSTRIAL_BUILDINGS",
+        "uuid": "eb552304-7d27-4f00-9e20-bf53d8c52edd"
+      },
+      "branches": [
+        {
+          "id": 19,
+          "createdDate": "",
+          "updatedDate": "25.08.2025 11:11",
+          "name": "Қурилиш",
+          "transferUuid": "cea8e5d6-9699-4e86-a422-56a63a747335"
+        }
+      ]
+    }
+  ],
+  "branches": [
+    {
+      "id": 19,
+      "createdDate": "",
+      "updatedDate": "25.08.2025 11:11",
+      "name": "Қурилиш",
+      "transferUuid": "cea8e5d6-9699-4e86-a422-56a63a747335"
+    }
+  ],
+  "advertisingDate": "2025-09-17T09:39:57.913",
+  "publish": false,
+  "photos": [
+    {
+      "id": 514012,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/411e30d3-e3b0-425c-87ac-4493aa94f40d.jpg",
+      "name": "photo_2025-07-23_19-11-00.jpg",
+      "type": "image/jpeg",
+      "size": 147536
+    },
+    {
+      "id": 514013,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/c3f80276-c1ef-4e21-9c40-2a6b545831a3.jpg",
+      "name": "photo_2025-07-23_19-11-48.jpg",
+      "type": "image/jpeg",
+      "size": 93758
+    },
+    {
+      "id": 514014,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/47d3e449-47cf-4462-93ea-fc01705890f0.jpg",
+      "name": "photo_2025-07-23_19-11-44.jpg",
+      "type": "image/jpeg",
+      "size": 67119
+    },
+    {
+      "id": 514015,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/1c140d43-2967-46c6-9b39-b2b19e75d912.jpg",
+      "name": "photo_2025-07-23_19-11-41.jpg",
+      "type": "image/jpeg",
+      "size": 103972
+    },
+    {
+      "id": 514016,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/1ea63a9b-e121-482f-8faf-2d79f1390182.jpg",
+      "name": "photo_2025-07-23_19-12-05.jpg",
+      "type": "image/jpeg",
+      "size": 110506
+    },
+    {
+      "id": 514017,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/b73bebda-acf1-4bc0-b8ce-5e7e02bc6635.jpg",
+      "name": "photo_2025-07-23_19-11-51.jpg",
+      "type": "image/jpeg",
+      "size": 99290
+    },
+    {
+      "id": 514018,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/fbdcb0ab-24dd-40b0-8897-9b119d8b5df7.jpg",
+      "name": "photo_2025-07-23_19-11-38.jpg",
+      "type": "image/jpeg",
+      "size": 77453
+    },
+    {
+      "id": 514019,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/8197c1a4-118d-41f0-9072-d4504a5af204.jpg",
+      "name": "photo_2025-07-23_19-11-32.jpg",
+      "type": "image/jpeg",
+      "size": 135375
+    },
+    {
+      "id": 514020,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/93d96c5d-cb0a-4831-a400-b2190fc1d189.jpg",
+      "name": "photo_2025-07-23_19-11-29.jpg",
+      "type": "image/jpeg",
+      "size": 130109
+    },
+    {
+      "id": 514021,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/9e3ca757-674d-44db-a9cc-19fea44826e7.jpg",
+      "name": "photo_2025-07-23_19-11-25.jpg",
+      "type": "image/jpeg",
+      "size": 153752
+    },
+    {
+      "id": 514027,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/8ace20b3-7523-4650-bc9f-a1b3acfaaddc.jpg",
+      "name": "photo_2025-07-23_19-10-50.jpg",
+      "type": "image/jpeg",
+      "size": 66359
+    },
+    {
+      "id": 514028,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/b6d6e339-870c-42b4-8662-859e4d180dc7.jpg",
+      "name": "photo_2025-07-23_19-10-37.jpg",
+      "type": "image/jpeg",
+      "size": 113372
+    },
+    {
+      "id": 514029,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/a1be2042-61d6-4bd3-b093-c80efa75a21e.jpg",
+      "name": "photo_2025-07-23_19-10-33.jpg",
+      "type": "image/jpeg",
+      "size": 113842
+    },
+    {
+      "id": 514030,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/f0700e8d-4018-49e5-b852-88e1c7051c6e.jpg",
+      "name": "photo_2025-07-23_19-10-21.jpg",
+      "type": "image/jpeg",
+      "size": 122013
+    },
+    {
+      "id": 514031,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/a66cc233-d79c-4418-b759-c9b85fe08eaa.jpg",
+      "name": "photo_2025-07-23_19-10-18.jpg",
+      "type": "image/jpeg",
+      "size": 129691
+    },
+    {
+      "id": 514032,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/c4653a77-b5e3-4169-ba22-ca2e4f1693e5.jpg",
+      "name": "photo_2025-07-23_19-10-15.jpg",
+      "type": "image/jpeg",
+      "size": 135449
+    },
+    {
+      "id": 514033,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/3a00141d-f930-4924-8dfc-1d3a7b81826b.jpg",
+      "name": "photo_2025-07-23_19-10-11.jpg",
+      "type": "image/jpeg",
+      "size": 95314
+    },
+    {
+      "id": 514034,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/c39854ca-0a65-4400-bfcb-57c406dcfb14.jpg",
+      "name": "photo_2025-07-23_19-09-05.jpg",
+      "type": "image/jpeg",
+      "size": 139154
+    },
+    {
+      "id": 514035,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/79471077-fa0b-4c85-ba78-4d78558b2043.jpg",
+      "name": "photo_2025-07-23_19-12-14.jpg",
+      "type": "image/jpeg",
+      "size": 103443
+    },
+    {
+      "id": 514036,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/25be4bd5-9d36-4ae7-9e55-c80fb421879a.jpg",
+      "name": "photo_2025-07-23_19-12-17.jpg",
+      "type": "image/jpeg",
+      "size": 86745
+    },
+    {
+      "id": 514037,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/5fda24e0-7032-4399-a766-9b76835795ff.jpg",
+      "name": "photo_2025-07-23_19-12-25.jpg",
+      "type": "image/jpeg",
+      "size": 103523
+    },
+    {
+      "id": 514038,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/7cbd9cf6-e68c-4356-8f57-0e4eac4571aa.jpg",
+      "name": "photo_2025-07-23_19-12-11.jpg",
+      "type": "image/jpeg",
+      "size": 82130
+    },
+    {
+      "id": 514039,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/893fe2bd-e60c-4275-9334-5eab582896eb.jpg",
+      "name": "photo_2025-07-23_19-10-25.jpg",
+      "type": "image/jpeg",
+      "size": 95066
+    },
+    {
+      "id": 514040,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/6ee2447a-0fa4-465d-9c09-f79e79070fc9.jpg",
+      "name": "photo_2025-07-23_19-10-31.jpg",
+      "type": "image/jpeg",
+      "size": 128386
+    },
+    {
+      "id": 514041,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/77fb06ca-9e97-46ab-96ef-0da2c66257c2.jpg",
+      "name": "photo_2025-07-23_19-11-13.jpg",
+      "type": "image/jpeg",
+      "size": 137260
+    },
+    {
+      "id": 514042,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/cd7a9e8f-3c85-4ee1-86f5-2cf967cf916f.jpg",
+      "name": "photo_2025-07-23_19-11-17.jpg",
+      "type": "image/jpeg",
+      "size": 75749
+    },
+    {
+      "id": 514043,
+      "url": "https://storage.baxolash.uz/uy-joy/product/16-09-2025/433754e2-256a-4a95-a45f-95b3fdfeb3dd.jpg",
+      "name": "photo_2025-07-23_19-11-20.jpg",
+      "type": "image/jpeg",
+      "size": 74007
+    }
+  ],
+  "variations": [
+    {
+      "value": "simple",
+      "valueLabel": "Оддий",
+      "code": "repair",
+      "label": "Уй ҳолати",
+      "type": "list",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "value": "bank",
+      "valueLabel": "bank",
+      "code": "source",
+      "label": "Фойдаланилган манба",
+      "type": "list",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "value": "satisfactory",
+      "valueLabel": "Қониқарли",
+      "code": "repair_status",
+      "label": "Таъмир холати",
+      "type": "list",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "value": "brick_baked",
+      "valueLabel": "Пишиқ ғишт",
+      "code": "type_of_building",
+      "label": "Қурилиш тури",
+      "type": "list",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "value": "secondary_market",
+      "valueLabel": "Иккиламчи бозор",
+      "code": "housing_type",
+      "label": "Нотураржой тури",
+      "type": "list",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "value": "SIMPLE",
+      "valueLabel": "Оддий",
+      "code": "architectural_style",
+      "label": "Архитектуравий услуб",
+      "type": "list",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "value": "NOT_LIMITED",
+      "valueLabel": "Алоҳида қулайлик мавжуд эмас",
+      "code": "special_comfort",
+      "label": "Алохида кулайликлар",
+      "type": "list",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "code": "more_premises",
+      "label": "Бинода бор",
+      "type": "multiselect",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "code": "owner_phone",
+      "label": "Мулк эгаси телефон рақами",
+      "type": "mask",
+      "menus": [
+        "PRODUCT",
+        "OBJECTS_ANALYSIS"
+      ]
+    },
+    {
+      "code": "owner_fullname",
+      "label": "Мулк эгаси Исми/Фамилияси",
+      "type": "text",
+      "menus": [
+        "PRODUCT"
+      ]
+    },
+    {
+      "value": "27638",
+      "code": "area_all",
+      "label": "Умумий ер майдон (м²)",
+      "type": "decimal",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "value": "9147.27",
+      "code": "area_effective",
+      "label": "Умумий майдони",
+      "type": "decimal",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "value": "11727",
+      "code": "building_width_area",
+      "label": "Умумий қурилиш ости майдони(м²)",
+      "type": "decimal",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "value": "3",
+      "code": "floors_building",
+      "label": "Уй қаватлилиги",
+      "type": "integer",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "value": "3",
+      "code": "floors",
+      "label": "Қавати",
+      "type": "integer",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "value": "NO_BASEMENT",
+      "valueLabel": "Мавжуд эмас",
+      "code": "basement_building_type",
+      "label": "Ертўла тури",
+      "type": "list",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "value": "AVAILABLE",
+      "valueLabel": "Мавжуд",
+      "code": "land_ownership",
+      "label": "Ер участкасига эгалик ҳуқуқи",
+      "type": "list",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "value": "water_supply,electric_lighting",
+      "valueLabel": "сув таъминоти, электр энергия таъминоти",
+      "values": [
+        "water_supply",
+        "electric_lighting"
+      ],
+      "code": "engineer_communications",
+      "label": "Инженерлик комуникациялар",
+      "type": "multiselect",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "value": "100",
+      "code": "construction_completion",
+      "label": "Курилиш тугалланганлиги(фоизда энг катта киймат 100%)",
+      "type": "decimal",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "value": "2000",
+      "code": "year_construction_delivery",
+      "label": "Уй қурилган/топшириладиган йил",
+      "type": "integer",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "value": "simple",
+      "valueLabel": "Оддий",
+      "code": "auto_transport_place_state",
+      "label": "Автотураргоҳ мавжудлиги",
+      "type": "list",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "code": "commission",
+      "label": "Воситачилик ҳаққи",
+      "type": "list",
+      "menus": [
+        "SALE"
+      ]
+    },
+    {
+      "value": "business",
+      "valueLabel": "Бизнес",
+      "code": "private_business",
+      "label": "Жисмоний/юридик шахс",
+      "type": "list",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "value": "16/09/2025 16:15",
+      "code": "source_date",
+      "label": "Савдога қуйиш/Сотиш санаси",
+      "type": "date",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "code": "ceiling_height",
+      "label": "Шифтининг баландлиги",
+      "type": "decimal",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "code": "property_type",
+      "label": "Кўчмас мулк тури",
+      "type": "multiselect",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "code": "location",
+      "label": "Жойлашуви",
+      "type": "list",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "code": "site",
+      "label": "Участок",
+      "type": "decimal",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "code": "railway",
+      "label": "Темир йўл тармоғи",
+      "type": "list",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "code": "house_cover",
+      "label": "Том ёпмаси",
+      "type": "list",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "code": "parking_available",
+      "label": "Парковка",
+      "type": "list",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "value": "DIRECT",
+      "valueLabel": "Харидор топиш",
+      "code": "sell_process",
+      "label": "Жараён",
+      "type": "list",
+      "menus": [
+        "OBJECTS_ANALYSIS"
+      ]
+    },
+    {
+      "value": "STRAIGHTAWAY",
+      "valueLabel": "Тўғридан-тўғри",
+      "code": "sell_type",
+      "label": "Савдо",
+      "type": "list",
+      "menus": [
+        "OBJECTS_ANALYSIS"
+      ]
+    },
+    {
+      "code": "agreement",
+      "label": "Розилиги",
+      "type": "list",
+      "menus": []
+    },
+    {
+      "code": "purchase_type",
+      "label": "Харид тури",
+      "type": "list",
+      "menus": [
+        "OBJECTS_ANALYSIS"
+      ]
+    },
+    {
+      "value": "ADVERTISEMENT",
+      "valueLabel": "Реклама",
+      "code": "find_buyer",
+      "label": "Харидор топиш",
+      "type": "list",
+      "menus": [
+        "OBJECTS_ANALYSIS"
+      ]
+    },
+    {
+      "code": "user_phone",
+      "label": "Фойдаланаётган шахс тел рақами",
+      "type": "mask",
+      "menus": [
+        "OBJECTS_ANALYSIS"
+      ]
+    },
+    {
+      "code": "bank_staff_phone",
+      "label": "Банк ходими рақами",
+      "type": "mask",
+      "menus": [
+        "OBJECTS_ANALYSIS"
+      ]
+    },
+    {
+      "code": "user_full_name",
+      "label": "Фойдаланаётган шахс Ф.И.Ш",
+      "type": "text",
+      "menus": [
+        "OBJECTS_ANALYSIS"
+      ]
+    },
+    {
+      "code": "bank_staff_full_name",
+      "label": "Банк ходими Ф.И.Ш",
+      "type": "text",
+      "menus": [
+        "OBJECTS_ANALYSIS"
+      ]
+    },
+    {
+      "code": "terms_of_sale",
+      "label": "Сотиш шартлари",
+      "type": "list",
+      "menus": [
+        "PRODUCT",
+        "SALE"
+      ]
+    },
+    {
+      "code": "owner",
+      "label": "Эгаси",
+      "type": "text",
+      "menus": []
+    },
+    {
+      "code": "phone",
+      "label": "Телефон",
+      "type": "text",
+      "menus": []
+    },
+    {
+      "code": "url",
+      "label": "Теги",
+      "type": "text",
+      "menus": []
+    }
+  ],
+  "productViewerCountDto": {
+    "id": 19213,
+    "createdDate": "17.09.2025 09:35",
+    "updatedDate": "17.09.2025 10:05",
+    "objectViewerCount": 11,
+    "productId": 108010
+  },
+  "productShareTelegramAndInstagramDto": {
+    "id": 76,
+    "createdDate": "17.09.2025 10:32",
+    "updatedDate": "",
+    "shareTelegramAndInstagramCount": 1,
+    "productId": 108010
+  }
+}

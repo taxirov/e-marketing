@@ -85,3 +85,4 @@ body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI
 @media (max-width: 600px) {
   .filters .grid { grid-template-columns: 1fr; }
 }
+
