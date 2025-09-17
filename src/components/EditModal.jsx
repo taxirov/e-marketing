@@ -13,8 +13,13 @@ export default function EditModal({ item, open, onClose }) {
   const [captionSrt, setCaptionSrt] = useState('')
   const [captionLoading, setCaptionLoading] = useState(false)
   const [captionError, setCaptionError] = useState('')
+  // Video render state
+  const [videoUrl, setVideoUrl] = useState('')
+  const [videoLoading, setVideoLoading] = useState(false)
+  const [videoError, setVideoError] = useState('')
   const [selectedImages, setSelectedImages] = useState([])
   const audioUrlRef = useRef('')
+  const videoUrlRef = useRef('')
   const selectedImagesRef = useRef([])
   const allImageIds = useMemo(() => OBJECT_IMAGES.map((img) => img.id), [])
   const selectedImageEntries = useMemo(() => selectedImages.map((id) => OBJECT_IMAGE_MAP[id]).filter(Boolean), [selectedImages])
@@ -28,12 +33,26 @@ export default function EditModal({ item, open, onClose }) {
     }
   }
 
+  const revokeVideoUrl = () => {
+    if (videoUrlRef.current) {
+      URL.revokeObjectURL(videoUrlRef.current)
+      videoUrlRef.current = ''
+    }
+  }
+
   const resetAudioUrl = () => {
     revokeAudioUrl()
     setAudioUrl('')
     setAudioBase64('')
     setAudioDuration(null)
     setAudioContentType('audio/m4a')
+  }
+
+  const resetVideoUrl = () => {
+    revokeVideoUrl()
+    setVideoUrl('')
+    setVideoError('')
+    setVideoLoading(false)
   }
 
   const applyAudioBase64 = (value, meta = {}) => {
@@ -62,6 +81,7 @@ export default function EditModal({ item, open, onClose }) {
     if (!open || !item) {
       setAudioText('')
       resetAudioUrl()
+      resetVideoUrl()
       setCaptionSrt('')
       setSelectedImages([])
       selectedImagesRef.current = []
@@ -126,7 +146,11 @@ export default function EditModal({ item, open, onClose }) {
       return
     }
 
+    const prev = selectedImagesRef.current || []
+    const changed = prev.length !== selectedImages.length || prev.some((v, i) => v !== selectedImages[i])
     selectedImagesRef.current = selectedImages
+    if (changed) resetVideoUrl()
+
     try {
       if (typeof window !== 'undefined') {
         const key = `videoImages-${item.id}`
@@ -137,7 +161,7 @@ export default function EditModal({ item, open, onClose }) {
     }
   }, [selectedImages, open, item])
 
-  useEffect(() => () => revokeAudioUrl(), [])
+  useEffect(() => () => { revokeAudioUrl(); revokeVideoUrl() }, [])
 
   const handleGenerateAudio = async () => {
     if (!item) return
@@ -294,6 +318,78 @@ export default function EditModal({ item, open, onClose }) {
       setCaptionError(err.message || 'Video matn yaratishda xatolik yuz berdi')
     } finally {
       setCaptionLoading(false)
+    }
+  }
+
+  const handleGenerateVideo = async () => {
+    if (!item) return
+    if (!audioBase64) {
+      setVideoError('Avval audio yarating')
+      return
+    }
+    if (!selectedImages.length) {
+      setVideoError('Kamida bitta rasm tanlang')
+      return
+    }
+    setVideoError('')
+    resetVideoUrl()
+    setVideoLoading(true)
+    try {
+      let duration = audioDuration
+      if (!Number.isFinite(duration)) {
+        try {
+          duration = await getAudioDuration(audioBase64)
+          setAudioDuration(duration)
+        } catch (err) {
+          console.error('Audio davomiyligini aniqlab bo\'lmadi:', err)
+        }
+      }
+
+      const subtitleParts = [item?.region, item?.district].map((x) => (x || '').trim()).filter(Boolean)
+      const payload = {
+        audioBase64,
+        audioContentType: audioContentType || 'audio/m4a',
+        captions: captionSrt || '',
+        images: selectedImages,
+        durationSeconds: Number.isFinite(duration) ? duration : undefined,
+        title: item?.name || '',
+        subtitle: subtitleParts.join(' • '),
+      }
+
+      const res = await fetch('/api/video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        const detail = text?.trim() ? `: ${text.trim()}` : ''
+        throw new Error(`Video servisi xatosi ${res.status}${detail}`)
+      }
+      const blob = await res.blob()
+      revokeVideoUrl()
+      const url = URL.createObjectURL(blob)
+      videoUrlRef.current = url
+      setVideoUrl(url)
+    } catch (err) {
+      console.error('Video yaratishda xatolik:', err)
+      setVideoError(err.message || 'Video yaratishda xatolik yuz berdi')
+    } finally {
+      setVideoLoading(false)
+    }
+  }
+
+  const handleDownloadVideo = () => {
+    if (!videoUrl) return
+    try {
+      const a = document.createElement('a')
+      a.href = videoUrl
+      a.download = `video-${item?.id || 'property'}.mp4`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    } catch (err) {
+      console.error('Videoni yuklab olishda xatolik:', err)
     }
   }
 
@@ -459,11 +555,28 @@ export default function EditModal({ item, open, onClose }) {
           </Section>
 
           <Section title="Video:">
-            <Placeholder
-              text={selectedImageEntries.length
-                ? `Video hali yaratilmagan. Tanlangan rasmlar: ${selectedImageEntries.length} ta.`
-                : 'Video hali yaratilmagan...'}
-            />
+            {videoUrl ? (
+              <video controls src={videoUrl} className="video-player" />
+            ) : (
+              <Placeholder
+                text={
+                  videoLoading
+                    ? 'Video yaratilmoqda...'
+                    : selectedImageEntries.length
+                      ? `Video hali yaratilmagan. Tanlangan rasmlar: ${selectedImageEntries.length} ta.`
+                      : 'Video hali yaratilmagan. Kamida bitta rasm tanlang.'
+                }
+              />
+            )}
+            {videoError && <div className="error-text">{videoError}</div>}
+            <div className="row">
+              <button className="btn" onClick={handleDownloadVideo} disabled={!videoUrl || videoLoading}>
+                Yuklab olish
+              </button>
+              <button className="btn ghost" onClick={handleGenerateVideo} disabled={videoLoading || !audioBase64 || !selectedImages.length}>
+                {videoLoading ? 'Yaratilmoqda...' : 'Videoni yaratish'}
+              </button>
+            </div>
           </Section>
         </div>
       </div>
@@ -498,10 +611,10 @@ function buildAudioTemplate(item) {
   })()
   const areaAll = formatRounded(item?.areaAll ?? item?.area)
   const buildingArea = formatRounded(item?.buildingArea ?? item?.areaAll ?? item?.area)
-  const effectiveArea = formatRounded(item?.effectiveArea)
+  const effectiveArea = formatRounded(item?.effectiveArea || item?.area_living)
   const typeOfBuilding = (() => {
     const base = item?.typeOfBuildingLabel || item?.typeOfBuilding
-    if (!base || !String(base).trim()) return "maʻlumot koʻrsatilmagan"
+    if (!base || !String(base).trim()) return ""
     return String(base).trim().toLowerCase()
   })()
   const floorsBuilding = normalizeValue(item?.floorsBuilding)
