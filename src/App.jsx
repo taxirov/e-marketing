@@ -14,6 +14,7 @@ export default function App() {
   const { fetchAnalysis, isAuthorized } = useAnalysisApi()
   const [filters, setFilters] = useState({
     id: '',
+    analysisStatus: '',
     category: '',
     cadastral: '',
     areaMin: '',
@@ -45,6 +46,7 @@ export default function App() {
 
     if (pass(f.id)) itemsList = itemsList.filter((x) => String(x.id).includes(String(f.id)))
     if (pass(f.category)) itemsList = itemsList.filter((x) => x.category === f.category)
+    if (pass(f.analysisStatus)) itemsList = itemsList.filter((x) => (x.analysisStatus || x.raw?.analysisStatus) === f.analysisStatus)
     if (pass(f.cadastral)) itemsList = itemsList.filter((x) => x.cadastral?.includes(f.cadastral))
     if (pass(f.areaMin)) itemsList = itemsList.filter((x) => (x.area ?? 0) >= Number(f.areaMin))
     if (pass(f.areaMax)) itemsList = itemsList.filter((x) => (x.area ?? 0) <= Number(f.areaMax))

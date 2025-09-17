@@ -27,10 +27,10 @@ const DEFAULT_PAYLOAD = {
     parentData: null,
     isChild: false,
   },
-  sellProcess: { code: 'sell_process', value: null },
+  sellProcess: { code: 'sell_process', value: 'DIRECT' },
   sellType: { code: 'sell_type', value: null },
   purchaseType: { code: 'purchase_type', value: null },
-  findBuyer: { code: 'find_buyer', value: null },
+  findBuyer: { code: 'find_buyer', value: 'ADVERTISEMENT' },
   pledgePaymentType: null,
   productProcessType: 'IDENTIFICATION',
   tradeType: null,
@@ -50,8 +50,8 @@ function mapFiltersToPayload(filters, page = 1, size = 10) {
   payload.pageFilter.sort.col = sortMap[filters.sortBy] || 'updated_date'
   payload.pageFilter.sort.dir = filters.sortDir || 'desc'
 
-  const terms = [filters.id, filters.cadastral, filters.client].filter(Boolean)
-  payload.search = terms.join(' ').trim()
+  // Search by ID only, as requested
+  payload.search = (filters.id || '').toString().trim()
   payload.category = filters.category || null
   payload.productProcessType = filters.productProcessType || 'IDENTIFICATION'
   payload.tradeType = filters.tradeType || null
