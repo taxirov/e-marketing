@@ -44,7 +44,7 @@ export default function App() {
     try {
       const saved = getSavedPayload()
       if (saved) {
-        setFilters((prev) => ({ ...prev, id: saved.search || '', analysisStatus: saved.analysisStatus || '' }))
+        setFilters((prev) => ({ ...prev, id: saved.search || '', analysisStatus: saved.analysisStatus || '', region: (Array.isArray(saved.regions) && saved.regions.length ? String(saved.regions[0]) : '') }))
       }
     } catch {}
   }, [])
@@ -54,9 +54,9 @@ export default function App() {
     const pass = (v) => v !== undefined && v !== null && String(v).trim() !== ''
     let itemsList = isAuthorized ? itemsState() : data
 
-    if (pass(f.id)) itemsList = itemsList.filter((x) => String(x.id).includes(String(f.id)))
+    // Do not filter locally by id; search button triggers API with saved payload
     if (pass(f.category)) itemsList = itemsList.filter((x) => x.category === f.category)
-    if (pass(f.analysisStatus)) itemsList = itemsList.filter((x) => (x.analysisStatus || x.raw?.analysisStatus) === f.analysisStatus)
+    // Do not filter locally by analysisStatus; use API payload instead
     if (pass(f.cadastral)) itemsList = itemsList.filter((x) => x.cadastral?.includes(f.cadastral))
     if (pass(f.areaMin)) itemsList = itemsList.filter((x) => (x.area ?? 0) >= Number(f.areaMin))
     if (pass(f.areaMax)) itemsList = itemsList.filter((x) => (x.area ?? 0) <= Number(f.areaMax))
@@ -64,7 +64,7 @@ export default function App() {
     if (pass(f.crmNew)) itemsList = itemsList.filter((x) => x.crmNew === f.crmNew)
     if (pass(f.source)) itemsList = itemsList.filter((x) => x.source === f.source)
     if (pass(f.client)) itemsList = itemsList.filter((x) => x.client?.toLowerCase().includes(f.client.toLowerCase()))
-    if (pass(f.region)) itemsList = itemsList.filter((x) => x.region === f.region)
+    // Do not filter locally by region; use API payload instead
     if (pass(f.status)) itemsList = itemsList.filter((x) => x.status === f.status)
     if (pass(f.productProcessType)) itemsList = itemsList.filter((x) => x.productProcessType === f.productProcessType)
     if (pass(f.tradeType)) itemsList = itemsList.filter((x) => x.tradeType === f.tradeType)

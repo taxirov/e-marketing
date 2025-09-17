@@ -98,7 +98,7 @@ function mapFiltersToPayload(filters, page = 1, size = 10) {
   payload.category = filters.category || null
   payload.productProcessType = filters.productProcessType || 'IDENTIFICATION'
   payload.tradeType = filters.tradeType || null
-  payload.regions = filters.region ? [filters.region] : []
+  payload.regions = filters.region ? [Number(filters.region)] : []
   payload.objectAnalysisFilter.clientData = filters.client || null
   payload.objectAnalysisFilter.source = filters.source || null
   payload.objectAnalysisFilter.status = filters.status || null
@@ -144,3 +144,4 @@ export function useAnalysisApi() {
 
   return { fetchAnalysis, isAuthorized }
 }
+
