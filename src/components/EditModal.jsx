@@ -13,12 +13,8 @@ export default function EditModal({ item, open, onClose }) {
   const [captionSrt, setCaptionSrt] = useState('')
   const [captionLoading, setCaptionLoading] = useState(false)
   const [captionError, setCaptionError] = useState('')
-  const [videoUrl, setVideoUrl] = useState('')
-  const [videoLoading, setVideoLoading] = useState(false)
-  const [videoError, setVideoError] = useState('')
   const [selectedImages, setSelectedImages] = useState([])
   const audioUrlRef = useRef('')
-  const videoUrlRef = useRef('')
   const selectedImagesRef = useRef([])
   const allImageIds = useMemo(() => OBJECT_IMAGES.map((img) => img.id), [])
   const selectedImageEntries = useMemo(() => selectedImages.map((id) => OBJECT_IMAGE_MAP[id]).filter(Boolean), [selectedImages])
@@ -141,10 +137,7 @@ export default function EditModal({ item, open, onClose }) {
     }
   }, [selectedImages, open, item])
 
-  useEffect(() => () => {
-    revokeAudioUrl()
-    revokeVideoUrl()
-  }, [])
+  useEffect(() => () => revokeAudioUrl(), [])
 
   const handleGenerateAudio = async () => {
     if (!item) return
@@ -466,32 +459,11 @@ export default function EditModal({ item, open, onClose }) {
           </Section>
 
           <Section title="Video:">
-            {videoUrl ? (
-              <video controls src={videoUrl} className="video-player" />
-            ) : (
-              <Placeholder
-                text={
-                  videoLoading
-                    ? 'Video yaratilmoqda...'
-                    : selectedImageEntries.length
-                      ? `Video hali yaratilmagan. Tanlangan rasmlar: ${selectedImageEntries.length} ta.`
-                      : 'Video hali yaratilmagan. Kamida bitta rasm tanlang.'
-                }
-              />
-            )}
-            {videoError && <div className="error-text">{videoError}</div>}
-            <div className="row">
-              <button className="btn" onClick={handleDownloadVideo} disabled={!videoUrl || videoLoading}>
-                Yuklab olish
-              </button>
-              <button
-                className="btn ghost"
-                onClick={handleGenerateVideo}
-                disabled={videoLoading || !audioBase64 || !selectedImages.length}
-              >
-                {videoLoading ? 'Yaratilmoqda...' : 'Videoni yaratish'}
-              </button>
-            </div>
+            <Placeholder
+              text={selectedImageEntries.length
+                ? `Video hali yaratilmagan. Tanlangan rasmlar: ${selectedImageEntries.length} ta.`
+                : 'Video hali yaratilmagan...'}
+            />
           </Section>
         </div>
       </div>
@@ -526,7 +498,7 @@ function buildAudioTemplate(item) {
   })()
   const areaAll = formatRounded(item?.areaAll ?? item?.area)
   const buildingArea = formatRounded(item?.buildingArea ?? item?.areaAll ?? item?.area)
-  const effectiveArea = formatRounded(item?.effectiveArea || item?.area_living)
+  const effectiveArea = formatRounded(item?.effectiveArea)
   const typeOfBuilding = (() => {
     const base = item?.typeOfBuildingLabel || item?.typeOfBuilding
     if (!base || !String(base).trim()) return "maʻlumot koʻrsatilmagan"
@@ -643,22 +615,4 @@ function formatTimestamp(seconds) {
   const pad = (n) => String(n).padStart(2, '0')
   return `${pad(h)}:${pad(m)}:${pad(s)},${String(ms).padStart(3, '0')}`
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
