@@ -1,21 +1,18 @@
-import fetch from 'node-fetch';
-import FormData from 'form-data';
-
 export const config = { runtime: 'edge' };
 
 export default async function handler(req) {
-  const corsHeaders = {
+  const baseCorsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'POST,OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Accept',
     'Access-Control-Allow-Credentials': 'true',
   };
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: corsHeaders });
+    return new Response(null, { status: 204, headers: baseCorsHeaders });
   }
 
   if (req.method !== 'POST') {
-    return new Response('Method Not Allowed', { status: 405, headers: corsHeaders });
+    return new Response('Method Not Allowed', { status: 405, headers: baseCorsHeaders });
   }
 
   let body;
@@ -44,18 +41,12 @@ export default async function handler(req) {
   const srtBlob = new Blob([srtContent], { type: 'text/plain; charset=utf-8' });
 
   const formData = new FormData();
-  formData.append('file', srtBlob, {
-    filename: `${productId}.srt`,
-    contentType: 'text/plain',
-  });
+  formData.append('file', srtBlob, `${productId}.srt`);
 
   // Upload the SRT blob to the user's server
   const uploadResp = await fetch(`${uploadUrl}/caption/${productId}`, {
     method: 'POST',
     body: formData,
-    headers: {
-      ...formData.getHeaders(),
-    },
   });
 
   if (!uploadResp.ok) {
@@ -65,10 +56,7 @@ export default async function handler(req) {
   }
 
   const uploadData = await uploadResp.json().catch(() => null);
-  const headers = new Headers({
-    ...corsHeaders,
-    'Content-Type': 'application/json',
-  });
+  const headers = new Headers({ ...baseCorsHeaders, 'Content-Type': 'application/json' });
 
   if (!uploadData?.fileUrl) {
       return jsonError("Serverdan fayl manzili qaytarilmadi", 500, req);

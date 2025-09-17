@@ -1,8 +1,3 @@
-// This API endpoint generates audio from text and uploads it to a user-provided server.
-// It's a serverless function that acts as a middleware between the frontend and a third-party TTS API.
-import fetch from 'node-fetch';
-import FormData from 'form-data';
-
 export const config = { runtime: 'edge' };
 
 const ENDPOINTS = {
@@ -84,19 +79,16 @@ export default async function handler(req) {
   
   const audioBuffer = await narakeetResp.arrayBuffer();
 
+  // Build multipart form-data using Web APIs (Edge compatible)
   const formData = new FormData();
-  formData.append('file', Buffer.from(audioBuffer), {
-      filename: `${productId}.m4a`, // Fayl nomi sifatida productId va kengaytmani ishlatamiz
-      contentType: narakeetResp.headers.get('content-type'),
-  });
+  const contentType = narakeetResp.headers.get('content-type') || 'audio/mp4';
+  const fileBlob = new Blob([audioBuffer], { type: contentType });
+  formData.append('file', fileBlob, `${productId}.m4a`);
 
-  // Upload the audio stream directly to the user's server
+  // Upload the audio blob directly to the user's server
   const uploadResp = await fetch(`${uploadUrl}/audio/${productId}`, {
     method: 'POST',
     body: formData,
-    headers: {
-      ...formData.getHeaders(),
-    },
   });
 
   if (!uploadResp.ok) {
@@ -135,13 +127,13 @@ function normalizeContentType(value) {
 
 function jsonError(message, status, req) {
   const headers = new Headers({
-    ...corsHeaders(req),
+    ...buildCorsHeaders(req),
     'Content-Type': 'application/json',
   });
   return new Response(JSON.stringify({ error: message }), { status, headers });
 }
 
-function corsHeaders(req) {
+function buildCorsHeaders(req) {
   const origin = req.headers.get('origin') || '*';
   return new Headers({
     'Access-Control-Allow-Origin': origin,
