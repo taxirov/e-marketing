@@ -7,7 +7,7 @@ import { bundle, renderMedia, getCompositions } from '@remotion/renderer'
 
 export const config = {
   runtime: 'nodejs',
-  maxDuration: 900,
+  maxDuration: 300,
 }
 
 const __filename = fileURLToPath(import.meta.url)
