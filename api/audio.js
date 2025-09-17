@@ -6,43 +6,34 @@ const ENDPOINTS = {
   wav: 'https://api.narakeet.com/text-to-speech/wav',
 };
 
-export default async function handler(req) {
-  // CORS headers for preflight OPTIONS requests and the main POST request.
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Accept',
-    'Access-Control-Allow-Credentials': 'true',
-  };
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: corsHeaders });
-  }
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept')
+  res.setHeader('Access-Control-Allow-Credentials', 'true')
 
-  if (req.method !== 'POST') {
-    return new Response('Method Not Allowed', { status: 405, headers: corsHeaders });
-  }
+  if (req.method === 'OPTIONS') return res.status(204).end()
+  if (req.method !== 'POST') return res.status(405).end('Method Not Allowed')
 
-  let body;
-  try {
-    body = await req.json();
-  } catch (err) {
-    return jsonError("Noto'g'ri JSON", 400, req);
-  }
+  let raw = ''
+  for await (const chunk of req) raw += chunk
+  let body
+  try { body = raw ? JSON.parse(raw) : {} } catch { return res.status(400).json({ error: "Noto'g'ri JSON" }) }
 
   const { text, uploadUrl, productId } = body || {};
   if (!text) {
-    return jsonError('Matn topilmadi', 400, req);
+    return res.status(400).json({ error: 'Matn topilmadi' });
   }
   if (!uploadUrl) {
-    return jsonError("Yuklash uchun server manzili topilmadi (uploadUrl)", 400, req);
+    return res.status(400).json({ error: "Yuklash uchun server manzili topilmadi (uploadUrl)" });
   }
   if (!productId) {
-    return jsonError("productId talab qilinadi", 400, req);
+    return res.status(400).json({ error: "productId talab qilinadi" });
   }
 
   const apiKey = process.env.NARAKEET_API_KEY || 'd9oq53OreB7PVhOTzX2zV9sNALxL2HrwJ4AvwzK0';
   if (!apiKey) {
-    return jsonError('Narakeet API kaliti topilmadi', 500, req);
+    return res.status(500).json({ error: 'Narakeet API kaliti topilmadi' });
   }
 
   const format = normalizeFormat(body?.format);
@@ -62,53 +53,38 @@ export default async function handler(req) {
   const narakeetUrl = params.toString() ? `${endpoint}?${params.toString()}` : endpoint;
 
   // Generate audio from Narakeet API
-  const narakeetResp = await fetch(narakeetUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': requestContentType,
-      'x-api-key': apiKey,
-    },
-    body: text,
-  });
+  try {
+    const narakeetResp = await fetch(narakeetUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': requestContentType, 'x-api-key': apiKey },
+      body: text,
+    })
+    if (!narakeetResp.ok) {
+      const message = await narakeetResp.text().catch(() => '')
+      const detail = message?.trim() ? `: ${message.trim()}` : ''
+      return res.status(narakeetResp.status).json({ error: `Narakeet xatosi ${narakeetResp.status}${detail}` })
+    }
 
-  if (!narakeetResp.ok) {
-    const message = await narakeetResp.text().catch(() => '');
-    const detail = message?.trim() ? `: ${message.trim()}` : '';
-    return jsonError(`Narakeet xatosi ${narakeetResp.status}${detail}`, narakeetResp.status, req);
+    const audioBuffer = await narakeetResp.arrayBuffer()
+    const contentType = narakeetResp.headers.get('content-type') || 'audio/mp4'
+    const formData = new FormData()
+    const fileBlob = new Blob([audioBuffer], { type: contentType })
+    formData.append('file', fileBlob, `${productId}.m4a`)
+
+    const uploadResp = await fetch(`${uploadUrl}/audio/${productId}`, { method: 'POST', body: formData })
+    if (!uploadResp.ok) {
+      const message = await uploadResp.text().catch(() => '')
+      const detail = message?.trim() ? `: ${message.trim()}` : ''
+      return res.status(uploadResp.status).json({ error: `Serverga yuklashda xatolik ${uploadResp.status}${detail}` })
+    }
+
+    const uploadData = await uploadResp.json().catch(() => null)
+    if (!uploadData?.fileUrl) return res.status(500).json({ error: 'Serverdan fayl manzili qaytarilmadi' })
+    return res.status(200).json({ url: uploadData.fileUrl })
+  } catch (err) {
+    console.error('audio error:', err)
+    return res.status(500).json({ error: err?.message || 'Server xatosi' })
   }
-  
-  const audioBuffer = await narakeetResp.arrayBuffer();
-
-  // Build multipart form-data using Web APIs (Edge compatible)
-  const formData = new FormData();
-  const contentType = narakeetResp.headers.get('content-type') || 'audio/mp4';
-  const fileBlob = new Blob([audioBuffer], { type: contentType });
-  formData.append('file', fileBlob, `${productId}.m4a`);
-
-  // Upload the audio blob directly to the user's server
-  const uploadResp = await fetch(`${uploadUrl}/audio/${productId}`, {
-    method: 'POST',
-    body: formData,
-  });
-
-  if (!uploadResp.ok) {
-    const message = await uploadResp.text().catch(() => '');
-    const detail = message?.trim() ? `: ${message.trim()}` : '';
-    return jsonError(`Serverga yuklashda xatolik ${uploadResp.status}${detail}`, uploadResp.status, req);
-  }
-
-  // Return the response from the user's server, which should contain the file URL
-  const uploadData = await uploadResp.json().catch(() => null);
-  const headers = new Headers({
-    ...corsHeaders,
-    'Content-Type': 'application/json',
-  });
-
-  if (!uploadData?.fileUrl) {
-      return jsonError("Serverdan fayl manzili qaytarilmadi", 500, req);
-  }
-
-  return new Response(JSON.stringify({ url: uploadData.fileUrl }), { status: 200, headers });
 }
 
 function normalizeFormat(value) {
@@ -125,20 +101,4 @@ function normalizeContentType(value) {
   return 'text/plain; charset=utf-8';
 }
 
-function jsonError(message, status, req) {
-  const headers = new Headers({
-    ...buildCorsHeaders(req),
-    'Content-Type': 'application/json',
-  });
-  return new Response(JSON.stringify({ error: message }), { status, headers });
-}
-
-function buildCorsHeaders(req) {
-  const origin = req.headers.get('origin') || '*';
-  return new Headers({
-    'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Credentials': 'true',
-    'Access-Control-Allow-Methods': 'POST,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Accept',
-  });
-}
+// Node function uses res.status(...).json(...) above; helpers not needed.
