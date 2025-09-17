@@ -1,8 +1,7 @@
 import { useApi } from '../utils/api'
+import { normalizeObjects } from '../data/normalize'
 
-// Base URL for API. In production on Vercel, we want '/api'.
-// Normalize to avoid trailing slashes to prevent paths like '/api/api/...'
-const API_BASE = "https://api.uy-joy.uz"
+const API_BASE = 'https://api.uy-joy.uz'
 
 const DEFAULT_PAYLOAD = {
   action: '',
@@ -51,7 +50,6 @@ function mapFiltersToPayload(filters, page = 1, size = 10) {
   payload.pageFilter.sort.col = sortMap[filters.sortBy] || 'updated_date'
   payload.pageFilter.sort.dir = filters.sortDir || 'desc'
 
-  // Combine a few simple search terms (id, cadastral, client text)
   const terms = [filters.id, filters.cadastral, filters.client].filter(Boolean)
   payload.search = terms.join(' ').trim()
   payload.category = filters.category || null
@@ -71,8 +69,7 @@ export function useAnalysisApi() {
 
   async function fetchAnalysis(filters, page = 1, size = 10) {
     const payload = mapFiltersToPayload(filters, page, size)
-    // Resolve to '/api/product/analysis' by default, or '<BASE>/product/analysis' if VITE_API_BASE is set
-    const res = await apiFetch(`${API_BASE}/product/analysis`, {
+    const res = await apiFetch(`${API_BASE}/api/product/analysis`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -82,11 +79,21 @@ export function useAnalysisApi() {
       const text = await res.text()
       throw new Error(`API ${res.status}: ${text || res.statusText}`)
     }
-    const json = await res.json()
 
-    // Try to be resilient to different paging structures
-    const rows = Array.isArray(json) ? json : json?.content || json?.items || json?.data || []
-    const total = json?.totalElements || json?.total || rows.length
+    const json = await res.json()
+    const rawList = Array.isArray(json?.content)
+      ? json.content
+      : Array.isArray(json?.items)
+        ? json.items
+        : Array.isArray(json?.data)
+          ? json.data
+          : Array.isArray(json)
+            ? json
+            : []
+
+    const rows = normalizeObjects(rawList.length ? rawList : json)
+    const total = json?.totalElements || json?.total || rawList.length || rows.length
+
     return { rows, total, raw: json }
   }
 

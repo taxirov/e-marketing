@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import FilterForm from './components/FilterForm'
 import ObjectsTable from './components/ObjectsTable'
 import EditModal from './components/EditModal'
@@ -41,24 +41,24 @@ export default function App() {
   const filtered = useMemo(() => {
     const f = filters
     const pass = (v) => v !== undefined && v !== null && String(v).trim() !== ''
-    let items = isAuthorized ? itemsState() : data
+    let itemsList = isAuthorized ? itemsState() : data
 
-    if (pass(f.id)) items = items.filter((x) => String(x.id).includes(String(f.id)))
-    if (pass(f.category)) items = items.filter((x) => x.category === f.category)
-    if (pass(f.cadastral)) items = items.filter((x) => x.cadastral?.includes(f.cadastral))
-    if (pass(f.areaMin)) items = items.filter((x) => (x.area ?? 0) >= Number(f.areaMin))
-    if (pass(f.areaMax)) items = items.filter((x) => (x.area ?? 0) <= Number(f.areaMax))
-    if (pass(f.crm)) items = items.filter((x) => x.crm === f.crm)
-    if (pass(f.crmNew)) items = items.filter((x) => x.crmNew === f.crmNew)
-    if (pass(f.source)) items = items.filter((x) => x.source === f.source)
-    if (pass(f.client)) items = items.filter((x) => x.client?.toLowerCase().includes(f.client.toLowerCase()))
-    if (pass(f.region)) items = items.filter((x) => x.region === f.region)
-    if (pass(f.status)) items = items.filter((x) => x.status === f.status)
-    if (pass(f.productProcessType)) items = items.filter((x) => x.productProcessType === f.productProcessType)
-    if (pass(f.tradeType)) items = items.filter((x) => x.tradeType === f.tradeType)
+    if (pass(f.id)) itemsList = itemsList.filter((x) => String(x.id).includes(String(f.id)))
+    if (pass(f.category)) itemsList = itemsList.filter((x) => x.category === f.category)
+    if (pass(f.cadastral)) itemsList = itemsList.filter((x) => x.cadastral?.includes(f.cadastral))
+    if (pass(f.areaMin)) itemsList = itemsList.filter((x) => (x.area ?? 0) >= Number(f.areaMin))
+    if (pass(f.areaMax)) itemsList = itemsList.filter((x) => (x.area ?? 0) <= Number(f.areaMax))
+    if (pass(f.crm)) itemsList = itemsList.filter((x) => x.crm === f.crm)
+    if (pass(f.crmNew)) itemsList = itemsList.filter((x) => x.crmNew === f.crmNew)
+    if (pass(f.source)) itemsList = itemsList.filter((x) => x.source === f.source)
+    if (pass(f.client)) itemsList = itemsList.filter((x) => x.client?.toLowerCase().includes(f.client.toLowerCase()))
+    if (pass(f.region)) itemsList = itemsList.filter((x) => x.region === f.region)
+    if (pass(f.status)) itemsList = itemsList.filter((x) => x.status === f.status)
+    if (pass(f.productProcessType)) itemsList = itemsList.filter((x) => x.productProcessType === f.productProcessType)
+    if (pass(f.tradeType)) itemsList = itemsList.filter((x) => x.tradeType === f.tradeType)
 
     const dir = f.sortDir === 'asc' ? 1 : -1
-    items = [...items].sort((a, b) => {
+    itemsList = [...itemsList].sort((a, b) => {
       const get = (k) => (k in a ? a[k] : a.createdAt)
       const va = get(f.sortBy)
       const vb = get(f.sortBy)
@@ -66,25 +66,26 @@ export default function App() {
       return va > vb ? dir : -dir
     })
 
-    // Client-side pagination when unauthorized; when authorized, items already from server
     if (!isAuthorized) {
       const start = (page - 1) * size
       const end = start + size
-      return items.slice(start, end)
+      return itemsList.slice(start, end)
     }
-    return items
+    return itemsList
   }, [filters, isAuthorized, items, page, size])
 
   function itemsState() { return items }
 
-  async function handleSearch() {
+  async function handleSearch(targetPage = page, targetSize = size) {
     if (!isAuthorized) return
     setLoading(true)
     setError('')
     try {
-      const { rows, total } = await fetchAnalysis(filters, page, size)
+      const { rows, total } = await fetchAnalysis(filters, targetPage, targetSize)
       setItems(rows || [])
       setTotal(total || 0)
+      setPage(targetPage)
+      setSize(targetSize)
     } catch (e) {
       setError(e.message || 'Xatolik yuz berdi')
     } finally {
@@ -95,16 +96,26 @@ export default function App() {
   function triggerSearchResetPage() {
     setPage(1)
     if (isAuthorized) {
-      // Defer to let state update, then search
-      setTimeout(() => handleSearch(), 0)
+      handleSearch(1, size)
     }
   }
+
+  useEffect(() => {
+    if (token?.trim()) {
+      handleSearch(1, size)
+    } else {
+      setItems(data)
+      setTotal(data.length)
+      setPage(1)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token])
 
   return (
     <div className="page">
       <AuthModal />
       <header className="topbar">
-        <img src={logo} alt="E‑MARKETING" className="logo-img" />
+        <img src={logo} alt="E-MARKETING" className="logo-img" />
         <h1>Elektron Marketing</h1>
         <button className={`authorize ${token?.trim() ? 'on' : ''}`} onClick={() => setOpen(true)}>
           <svg className="lock-icon" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
@@ -115,7 +126,7 @@ export default function App() {
       </header>
 
       <section className="filters-card">
-        <h2>Obyektlar ro‘yxati</h2>
+        <h2>Obyektlar ro'yxati</h2>
         <FilterForm
           value={filters}
           onChange={(v) => setFilters(v)}
@@ -136,12 +147,12 @@ export default function App() {
         total={isAuthorized ? total : data.length}
         onPageChange={(p) => {
           setPage(p)
-          if (isAuthorized) handleSearch()
+          if (isAuthorized) handleSearch(p, size)
         }}
         onSizeChange={(s) => {
           setSize(s)
           setPage(1)
-          if (isAuthorized) handleSearch()
+          if (isAuthorized) handleSearch(1, s)
         }}
       />
       <EditModal item={selected} open={!!selected} onClose={() => setSelected(null)} />
