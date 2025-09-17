@@ -255,7 +255,7 @@ export default function EditModal({ item, open, onClose }) {
     <div className="modal-backdrop" onMouseDown={onClose}>
       <div className="edit-modal" onMouseDown={(e) => e.stopPropagation()}>
         <div className="edit-header">
-          <button className="back-btn" onClick={onClose} title="Ortga">-</button>
+          <button className="back-btn" onClick={onClose} title="Ortga">x</button>
           <div className="title">{item.id} | {item.name}</div>
           <button className="btn publish">Reklamaga chiqarish</button>
         </div>
@@ -371,7 +371,7 @@ function buildAudioTemplate(item) {
   const effectiveArea = formatRounded(item?.effectiveArea)
   const typeOfBuilding = (() => {
     const base = item?.typeOfBuildingLabel || item?.typeOfBuilding
-    if (!base || !String(base).trim()) return "ma'lumot ko'rsatilmagan"
+    if (!base || !String(base).trim()) return "maʻlumot koʻrsatilmagan"
     return String(base).trim().toLowerCase()
   })()
   const floorsBuilding = normalizeValue(item?.floorsBuilding)
@@ -388,22 +388,22 @@ function buildAudioTemplate(item) {
     `Foydali maydoni ${effectiveArea} metr kvadrat.`,
     normalizeSpaces(`Qurilish turi ${typeOfBuilding}.`),
     normalizeSpaces(floorsSentence),
-    communications ? `${communications} ta'minoti mavjud.` : `Ta'minot bo'yicha ma'lumot mavjud emas.`,
+    communications ? `${communications} taʻminoti mavjud.` : `Taʻminot bo'yicha maʻlumot mavjud emas.`,
     'Joylashuvi qulay.',
-    `Batafsil ma'lumot uchun 55 517 22 20 raqamiga bog'laning!`,
+    `Batafsil maʻlumot uchun 55 517 22 20 raqamiga bogʻlaning!`,
   ]
 
   return sentences.join(' ')
 }
 
-function formatRounded(value, fallback = "ma'lumot ko'rsatilmagan") {
+function formatRounded(value, fallback = "maʻlumot koʻrsatilmagan") {
   if (value === null || value === undefined || value === '') return fallback
   const num = Number(value)
   if (!Number.isFinite(num)) return fallback
   return String(Math.round(num))
 }
 
-function normalizeValue(value, fallback = "ma'lumot ko'rsatilmagan") {
+function normalizeValue(value, fallback = "maʻlumot ko'rsatilmagan") {
   if (value === null || value === undefined) return fallback
   const str = String(value).trim()
   return str ? str : fallback
