@@ -23,7 +23,7 @@ export default async function handler(req) {
     return jsonError('Matn topilmadi', 400, req)
   }
 
-  const token = process.env.MATN_API_TOKEN
+  const token = process.env.MATN_API_TOKEN || "vmTYSQIIyB8kUDAaNy33Asu4jjnQ5qXbsJcIehi7SOmoUmhvmdogxsTlKmM8c6W46AFweVlvflEs0VdK"
   if (!token) {
     return jsonError('Matn API token topilmadi', 500, req)
   }
