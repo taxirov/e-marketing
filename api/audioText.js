@@ -54,8 +54,16 @@ export default async function handler(req, res) {
 }
 
 function toAbsolute(base, maybe) {
-  const b = String(base || '').replace(/\/$/, '')
   const p = String(maybe || '')
   if (/^https?:\/\//i.test(p)) return p
-  return `${b}${p.startsWith('/') ? '' : '/'}${p}`
+  try {
+    const u = new URL(String(base || ''))
+    const origin = `${u.protocol}//${u.host}`
+    if (p.startsWith('/')) return `${origin}${p}`
+    const basePath = u.pathname.replace(/\/$/, '')
+    return `${origin}${basePath ? `${basePath}/${p}` : `/${p}`}`
+  } catch {
+    const b = String(base || '').replace(/\/$/, '')
+    return `${b}${p.startsWith('/') ? '' : '/'}${p}`
+  }
 }

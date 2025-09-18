@@ -5,9 +5,17 @@ function toAbsoluteUrl(base, maybeRelative) {
   if (!v) return v;
   if (/^(https?:)?\/\//i.test(v)) return v;
   if (v.startsWith('data:') || v.startsWith('blob:')) return v;
-  const b = String(base || '').trim().replace(/\/$/, '');
-  const p = v.replace(/^\//, '');
-  return b ? `${b}/${p}` : `/${p}`;
+  try {
+    const u = new URL(String(base || ''));
+    const origin = `${u.protocol}//${u.host}`;
+    if (v.startsWith('/')) return `${origin}${v}`;
+    const basePath = u.pathname.replace(/\/$/, '');
+    return `${origin}${basePath ? `${basePath}/${v}` : `/${v}`}`;
+  } catch {
+    const b = String(base || '').trim().replace(/\/$/, '');
+    const p = v.replace(/^\//, '');
+    return b ? `${b}/${p}` : `/${p}`;
+  }
 }
 
 export async function generateAudioText(productId, item, uploadUrl) {
