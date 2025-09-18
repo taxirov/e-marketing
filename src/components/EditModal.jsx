@@ -120,8 +120,9 @@ export default function EditModal({ item, open, onClose }) {
   
   // Set audio duration
   useEffect(() => {
-    if (audioUrl) {
-      getAudioDurationFromUrl(audioUrl)
+    const playable = toPlayableUrl(audioUrl)
+    if (playable) {
+      getAudioDurationFromUrl(playable)
         .then(duration => setAudioDuration(duration))
         .catch(err => console.error("Audio davomiyligini aniqlashda xato:", err));
     } else {
@@ -159,7 +160,7 @@ export default function EditModal({ item, open, onClose }) {
       const url = await generateAudioFile(audioText, UPLOAD_SERVER_URL, item.id);
       setAudioUrl(url);
       try {
-        const dur = await getAudioDurationFromUrl(url);
+        const dur = await getAudioDurationFromUrl(toPlayableUrl(url));
         setAudioDuration(dur);
       } catch {}
       // Save to local storage
@@ -307,8 +308,8 @@ export default function EditModal({ item, open, onClose }) {
           <Section title="Audio:">
             {audioUrl ? (
               <>
-                <audio controls src={audioUrl} />
-                <div className="hint">Fayl manzili: <a href={audioUrl} target="_blank" rel="noopener noreferrer">{audioUrl}</a></div>
+                <audio controls src={toPlayableUrl(audioUrl)} />
+                <div className="hint">Fayl manzili: <a href={toPlayableUrl(audioUrl)} target="_blank" rel="noopener noreferrer">{audioUrl}</a></div>
               </>
             ) : (
               <Placeholder text="Audio hali yaratilmagan..."/>
@@ -323,7 +324,7 @@ export default function EditModal({ item, open, onClose }) {
 
           <Section title="Video matni (Captions):">
             {captionUrl ? (
-              <div className="hint">Fayl manzili: <a href={captionUrl} target="_blank" rel="noopener noreferrer">{captionUrl}</a></div>
+                <div className="hint">Fayl manzili: <a href={toPlayableUrl(captionUrl)} target="_blank" rel="noopener noreferrer">{captionUrl}</a></div>
             ) : (
               <Placeholder text="Video matni hali yaratilmagan..."/>
             )}
@@ -407,8 +408,8 @@ export default function EditModal({ item, open, onClose }) {
           <Section title="Video:">
             {videoUrl ? (
               <>
-                <video controls src={videoUrl} className="video-player" />
-                <div className="hint">Fayl manzili: <a href={videoUrl} target="_blank" rel="noopener noreferrer">{videoUrl}</a></div>
+                <video controls src={toPlayableUrl(videoUrl)} className="video-player" />
+                <div className="hint">Fayl manzili: <a href={toPlayableUrl(videoUrl)} target="_blank" rel="noopener noreferrer">{videoUrl}</a></div>
               </>
             ) : (
               <Placeholder
@@ -446,5 +447,14 @@ function Section({ title, children }) {
 
 function Placeholder({ text }) {
   return <div className="placeholder">{text}</div>
+}
+
+function toPlayableUrl(url) {
+  const v = String(url || '').trim()
+  if (!v) return ''
+  if (typeof window !== 'undefined' && window.location?.protocol === 'https:' && v.startsWith('http://')) {
+    return `/api/proxy?url=${encodeURIComponent(v)}`
+  }
+  return v
 }
 
