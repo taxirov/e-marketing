@@ -10,11 +10,20 @@ function toAbsoluteUrl(base, maybeRelative) {
     const origin = `${u.protocol}//${u.host}`;
     if (v.startsWith('/')) return `${origin}${v}`;
     const basePath = u.pathname.replace(/\/$/, '');
-    return `${origin}${basePath ? `${basePath}/${v}` : `/${v}`}`;
+    const abs = `${origin}${basePath ? `${basePath}/${v}` : `/${v}`}`;
+    // If current page is HTTPS and target is HTTP, route via proxy to avoid mixed-content
+    if (typeof window !== 'undefined' && window.location && window.location.protocol === 'https:' && abs.startsWith('http://')) {
+      return `/api/proxy?url=${encodeURIComponent(abs)}`;
+    }
+    return abs;
   } catch {
     const b = String(base || '').trim().replace(/\/$/, '');
     const p = v.replace(/^\//, '');
-    return b ? `${b}/${p}` : `/${p}`;
+    const abs = b ? `${b}/${p}` : `/${p}`;
+    if (typeof window !== 'undefined' && window.location && window.location.protocol === 'https:' && abs.startsWith('http://')) {
+      return `/api/proxy?url=${encodeURIComponent(abs)}`;
+    }
+    return abs;
   }
 }
 
