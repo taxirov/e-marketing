@@ -41,22 +41,17 @@ export default async function handler(req, res) {
   const requestContentType = normalizeContentType(body?.contentType);
 
   const params = new URLSearchParams();
-  const voice = (body?.voice || 'gulnora').trim();
+  const voice = 'gulnora';
   if (voice) params.set('voice', voice);
-
-  const voiceSpeed = (body?.voiceSpeed || '').trim();
-  if (voiceSpeed) params.set('voice-speed', voiceSpeed);
-
-  const voiceVolume = (body?.voiceVolume || '').trim();
-  if (voiceVolume) params.set('voice-volume', voiceVolume);
 
   const narakeetUrl = params.toString() ? `${endpoint}?${params.toString()}` : endpoint;
 
   // Generate audio from Narakeet API
   try {
+    const accept = format === 'mp3' ? 'audio/mpeg' : (format === 'wav' ? 'audio/wav' : 'audio/mp4')
     const narakeetResp = await fetch(narakeetUrl, {
       method: 'POST',
-      headers: { 'Content-Type': requestContentType, 'x-api-key': apiKey },
+      headers: { 'Content-Type': requestContentType, 'x-api-key': apiKey, 'Accept': accept },
       body: text,
     })
     if (!narakeetResp.ok) {
@@ -65,8 +60,31 @@ export default async function handler(req, res) {
       return res.status(narakeetResp.status).json({ error: `Narakeet xatosi ${narakeetResp.status}${detail}` })
     }
 
-    const audioBuffer = await narakeetResp.arrayBuffer()
-    const contentType = narakeetResp.headers.get('content-type') || 'audio/mp4'
+    // Narakeet returns an async job envelope (JSON) with `statusUrl`.
+    // Poll the status until the `result` URL is available, then download audio.
+    let audioBuffer
+    let contentType
+    try {
+      const meta = await narakeetResp.json()
+      if (!meta?.statusUrl) throw new Error('statusUrl topilmadi')
+      const resultInfo = await pollNarakeetStatus(meta.statusUrl)
+      if (!resultInfo?.result) throw new Error('result topilmadi')
+      const resultResp = await fetch(resultInfo.result)
+      if (!resultResp.ok) throw new Error(`Natija faylini olishda xato: ${resultResp.status}`)
+      audioBuffer = await resultResp.arrayBuffer()
+      contentType = resultResp.headers.get('content-type') || accept
+    } catch (_) {
+      // Fallback: if parsing as JSON failed, assume body already has audio
+      if (!audioBuffer) {
+        const ctHeader = (narakeetResp.headers.get('content-type') || '').toLowerCase()
+        if (ctHeader && !ctHeader.includes('json')) {
+          audioBuffer = await narakeetResp.arrayBuffer()
+          contentType = narakeetResp.headers.get('content-type') || accept
+        } else {
+          return res.status(502).json({ error: 'Narakeet javobini qayta ishlashda xatolik' })
+        }
+      }
+    }
     const formData = new FormData()
     const fileBlob = new Blob([audioBuffer], { type: contentType })
     formData.append('file', fileBlob, `${productId}.m4a`)
@@ -137,3 +155,22 @@ function normalizeContentType(value) {
 }
 
 // Node function uses res.status(...).json(...) above; helpers not needed.
+
+async function pollNarakeetStatus(statusUrl, { timeoutMs = 120000, intervalMs = 1000 } = {}) {
+  const start = Date.now()
+  let last = null
+  while (Date.now() - start < timeoutMs) {
+    const resp = await fetch(statusUrl).catch(() => null)
+    if (resp && resp.ok) {
+      const json = await resp.json().catch(() => null)
+      last = json
+      if (json && (json.finished || json.succeeded || json.result)) {
+        if (json.succeeded === false) throw new Error(json?.message || 'Vazifa bajarilmadi')
+        const result = json.result || json.audioUrl || json.output || json.url
+        if (result) return { result, duration: json.durationInSeconds || json.duration || null, meta: json }
+      }
+    }
+    await new Promise((r) => setTimeout(r, intervalMs))
+  }
+  throw new Error((last && last.message) ? `Tayyor bo'lishi kutilmoqda: ${last.message}` : 'Narakeet vazifa tayyor bo\'lmadi')
+}
