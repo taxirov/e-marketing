@@ -33,9 +33,29 @@ export default async function handler(req, res) {
 
     const uploadData = await uploadResp.json().catch(() => null)
     if (!uploadData?.fileUrl) return res.status(500).json({ error: 'Serverdan fayl manzili qaytarilmadi' })
+
+    // Verify the uploaded file is actually reachable (defensive)
+    const fileUrl = uploadData.fileUrl
+    const abs = toAbsolute(uploadUrl, fileUrl)
+    try {
+      const check = await fetch(abs, { method: 'GET' })
+      if (!check.ok) return res.status(502).json({ error: 'Yuklangan faylga kira olmadik' })
+      const ab = await check.arrayBuffer()
+      if ((ab?.byteLength ?? 0) <= 0) return res.status(502).json({ error: 'Yuklangan fayl bo\'sh ko\'rinadi' })
+    } catch (e) {
+      return res.status(502).json({ error: 'Yuklangan faylni tekshirishda xato' })
+    }
+
     return res.status(200).json({ url: uploadData.fileUrl })
   } catch (err) {
     console.error('audioText error:', err)
     return res.status(500).json({ error: err?.message || 'Server xatosi' })
   }
+}
+
+function toAbsolute(base, maybe) {
+  const b = String(base || '').replace(/\/$/, '')
+  const p = String(maybe || '')
+  if (/^https?:\/\//i.test(p)) return p
+  return `${b}${p.startsWith('/') ? '' : '/'}${p}`
 }

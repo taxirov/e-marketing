@@ -35,11 +35,30 @@ export default async function handler(req, res) {
 
     const uploadData = await uploadResp.json().catch(() => null)
     if (!uploadData?.fileUrl) return res.status(500).json({ error: 'Serverdan fayl manzili qaytarilmadi' })
+
+    // Verify SRT reachable (small file)
+    const abs = toAbsolute(uploadUrl, uploadData.fileUrl)
+    try {
+      const check = await fetch(abs)
+      if (!check.ok) return res.status(502).json({ error: 'SRT fayliga kira olmadik' })
+      const txt = await check.text()
+      if (!txt || !txt.trim()) return res.status(502).json({ error: 'SRT fayli bo\'sh ko\'rinadi' })
+    } catch {
+      return res.status(502).json({ error: 'SRT faylni tekshirishda xato' })
+    }
+
     return res.status(200).json({ url: uploadData.fileUrl })
   } catch (err) {
     console.error('caption error:', err)
     return res.status(500).json({ error: err?.message || 'Server xatosi' })
   }
+}
+
+function toAbsolute(base, maybe) {
+  const b = String(base || '').replace(/\/$/, '')
+  const p = String(maybe || '')
+  if (/^https?:\/\//i.test(p)) return p
+  return `${b}${p.startsWith('/') ? '' : '/'}${p}`
 }
 
 // Node function uses res.status(...).json(...) above; helpers not needed.

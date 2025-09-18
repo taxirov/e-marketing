@@ -11,7 +11,8 @@ export default function EditModal({ item, open, onClose }) {
   const [audioText, setAudioText] = useState('');
   const [audioUrl, setAudioUrl] = useState('');
   const [audioTextUrl, setAudioTextUrl] = useState('');
-  const [audioLoading, setAudioLoading] = useState(false);
+  const [audioTextLoading, setAudioTextLoading] = useState(false);
+  const [audioFileLoading, setAudioFileLoading] = useState(false);
   const [audioError, setAudioError] = useState('');
   const [audioDuration, setAudioDuration] = useState(null);
 
@@ -130,7 +131,7 @@ export default function EditModal({ item, open, onClose }) {
 
   const handleGenerateAudioText = async () => {
     if (!item) return;
-    setAudioLoading(true);
+    setAudioTextLoading(true);
     setAudioError('');
     try {
       const { text, url } = await generateAudioText(item.id, item, UPLOAD_SERVER_URL);
@@ -143,7 +144,7 @@ export default function EditModal({ item, open, onClose }) {
       console.error("Audio matnni yaratishda xatolik:", err);
       setAudioError(err.message || "Audio matnni yaratishda xatolik yuz berdi");
     } finally {
-      setAudioLoading(false);
+      setAudioTextLoading(false);
     }
   };
 
@@ -152,18 +153,22 @@ export default function EditModal({ item, open, onClose }) {
       setAudioError("Avval audio matnini yaratish kerak");
       return;
     }
-    setAudioLoading(true);
+    setAudioFileLoading(true);
     setAudioError('');
     try {
       const url = await generateAudioFile(audioText, UPLOAD_SERVER_URL, item.id);
       setAudioUrl(url);
+      try {
+        const dur = await getAudioDurationFromUrl(url);
+        setAudioDuration(dur);
+      } catch {}
       // Save to local storage
       localStorage.setItem(`audioUrl-${item.id}`, url);
     } catch (err) {
       console.error('Audio fayl yaratishda xatolik:', err);
       setAudioError(err.message || 'Audio fayl yaratishda xatolik yuz berdi');
     } finally {
-      setAudioLoading(false);
+      setAudioFileLoading(false);
     }
   };
 
@@ -291,8 +296,8 @@ export default function EditModal({ item, open, onClose }) {
               <Placeholder text="Audio matn hali yaratilmagan..."/>
             )}
             <div className="row">
-              <button className="btn" onClick={handleGenerateAudioText} disabled={audioLoading}>
-                {audioLoading ? 'Yaratilmoqda...' : 'Audio matn yaratish'}
+              <button className="btn" onClick={handleGenerateAudioText} disabled={audioTextLoading}>
+                {audioTextLoading ? 'Yaratilmoqda...' : 'Audio matn yaratish'}
               </button>
               {audioTextUrl && <div className="hint">Fayl manzili: <a href={audioTextUrl} target="_blank" rel="noopener noreferrer">{audioTextUrl}</a></div>}
             </div>
@@ -309,8 +314,8 @@ export default function EditModal({ item, open, onClose }) {
               <Placeholder text="Audio hali yaratilmagan..."/>
             )}
             <div className="row">
-              <button className="btn" onClick={handleGenerateAudioFile} disabled={audioLoading || !audioText.trim()}>
-                {audioLoading ? 'Yaratilmoqda...' : 'Audioni yaratish'}
+              <button className="btn" onClick={handleGenerateAudioFile} disabled={audioFileLoading || !audioText.trim()}>
+                {audioFileLoading ? 'Yaratilmoqda...' : 'Audioni yaratish'}
               </button>
               {audioUrl && <button className="btn ghost" onClick={() => handleDownloadFile(audioUrl, `audio-${item.id}.m4a`)}>Yuklab olish</button>}
             </div>
@@ -442,3 +447,4 @@ function Section({ title, children }) {
 function Placeholder({ text }) {
   return <div className="placeholder">{text}</div>
 }
+

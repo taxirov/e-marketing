@@ -80,11 +80,38 @@ export default async function handler(req, res) {
 
     const uploadData = await uploadResp.json().catch(() => null)
     if (!uploadData?.fileUrl) return res.status(500).json({ error: 'Serverdan fayl manzili qaytarilmadi' })
+
+    // Verify audio is reachable and not empty using HEAD/GET
+    const abs = toAbsolute(uploadUrl, uploadData.fileUrl)
+    try {
+      let ok = false
+      const head = await fetch(abs, { method: 'HEAD' }).catch(() => null)
+      if (head && head.ok) {
+        const len = Number(head.headers.get('content-length') || '0')
+        ok = Number.isFinite(len) && len > 0
+      }
+      if (!ok) {
+        const resp = await fetch(abs, { method: 'GET' })
+        if (!resp.ok) return res.status(502).json({ error: 'Audio fayliga kira olmadik' })
+        const buf = await resp.arrayBuffer()
+        if ((buf?.byteLength ?? 0) <= 0) return res.status(502).json({ error: 'Audio fayli bo\'sh ko\'rinadi' })
+      }
+    } catch {
+      return res.status(502).json({ error: 'Audio faylni tekshirishda xato' })
+    }
+
     return res.status(200).json({ url: uploadData.fileUrl })
   } catch (err) {
     console.error('audio error:', err)
     return res.status(500).json({ error: err?.message || 'Server xatosi' })
   }
+}
+
+function toAbsolute(base, maybe) {
+  const b = String(base || '').replace(/\/$/, '')
+  const p = String(maybe || '')
+  if (/^https?:\/\//i.test(p)) return p
+  return `${b}${p.startsWith('/') ? '' : '/'}${p}`
 }
 
 function normalizeFormat(value) {
