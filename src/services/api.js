@@ -157,7 +157,21 @@ export async function fetchFilesForProduct(uploadUrl, productId) {
     throw new Error(t || `Fayllarni olishda xato: ${res.status}`);
   }
   const json = await res.json().catch(() => ({}));
-  const makeAbs = (p) => (p ? toAbsoluteUrl(uploadUrl, p) : '');
+  const rewriteHost = (p) => {
+    const s = String(p || '').trim();
+    if (!s) return s;
+    try {
+      const u = new URL(s, 'http://x');
+      const host = u.hostname + (u.port ? `:${u.port}` : '');
+      if (host.startsWith('46.173.26.14')) {
+        u.protocol = 'https:';
+        u.host = 'e-content.webpack.uz';
+        return u.toString();
+      }
+    } catch {}
+    return s;
+  };
+  const makeAbs = (p) => (p ? toAbsoluteUrl(uploadUrl, rewriteHost(p)) : '');
   return {
     id: json?.id || null,
     productId: json?.productId || null,

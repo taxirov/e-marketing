@@ -3,7 +3,7 @@ import { generateAudioText, generateAudioFile, generateCaptionFile, generateVide
 import { getAudioDurationFromUrl } from '../utils/audio';
 import { useApi } from '../utils/api';
 
-const UPLOAD_SERVER_URL = 'http://46.173.26.14:3000/api/files';
+const UPLOAD_SERVER_URL = 'https://e-content.webpack.uz/api/files';
 
 
 export default function EditModal({ item, open, onClose }) {

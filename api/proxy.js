@@ -3,6 +3,8 @@ export const config = { runtime: 'nodejs' };
 const ALLOWED_HOSTS = new Set([
   '46.173.26.14:3000',
   '46.173.26.14',
+  'e-content.webpack.uz',
+  'e-content.webpack.uz:443',
 ]);
 
 export default async function handler(req, res) {
@@ -59,4 +61,3 @@ export default async function handler(req, res) {
     return res.status(500).end('Proxy error');
   }
 }
-
