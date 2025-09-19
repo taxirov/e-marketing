@@ -365,7 +365,8 @@ export default function EditModal({ item, open, onClose }) {
               <button className="btn ghost" onClick={handleSaveAudioText} disabled={audioTextSaveLoading || !audioText.trim()} title="Saqlash">
                 <span style={{display:'inline-flex',alignItems:'center',gap:6}}>
                   <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-                    <path fill="currentColor" d="M17 3H5a2 2 0 0 0-2 2v14l4-4h10a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/>
+                    <path fill="currentColor" d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14V7l-4-4z"/>
+                    <path fill="currentColor" d="M12 4h3l2 2v3h-5V4z"/>
                   </svg>
                   {audioTextSaveLoading ? 'Saqlanmoqda...' : 'Saqlash'}
                 </span>
@@ -405,10 +406,15 @@ export default function EditModal({ item, open, onClose }) {
                 {captionLoading ? 'Yaratilmoqda...' : 'Video matn yaratish'}
               </button>
               {captionUrl && <CopyButton url={captionUrl} />}
-              <button className="btn ghost" onClick={handleSaveCaptions} disabled={captionSaveLoading || !captionText.trim()}>
-                {captionSaveLoading ? 'Saqlanmoqda...' : 'Video matnni saqlash'}
+              <button className="btn ghost" onClick={handleSaveCaptions} disabled={captionSaveLoading || !captionText.trim()} title="Saqlash">
+                <span style={{display:'inline-flex',alignItems:'center',gap:6}}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14V7l-4-4z"/>
+                    <path fill="currentColor" d="M12 4h3l2 2v3h-5V4z"/>
+                  </svg>
+                  {captionSaveLoading ? 'Saqlanmoqda...' : 'Saqlash'}
+                </span>
               </button>
-              {captionUrl && <button className="btn ghost" onClick={() => handleDownloadFile(captionUrl, `captions-${item.id}.srt`)}>Yuklab olish</button>}
             </div>
           </Section>
 

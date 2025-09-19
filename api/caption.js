@@ -39,14 +39,15 @@ export default async function handler(req, res) {
     const uploadData = await uploadResp.json().catch(() => null)
     if (!uploadData?.fileUrl) return res.status(500).json({ error: 'Serverdan fayl manzili qaytarilmadi' })
 
-    // Verify SRT reachable (with small retry to avoid eventual consistency issues)
-    const abs = toAbsolute(uploadUrl, uploadData.fileUrl)
-    try {
-      const ok = await waitUntilReachable(abs, 8, 500, 'text')
-      if (!ok) return res.status(502).json({ error: 'SRT fayliga kira olmadik' })
-    } catch {
-      return res.status(502).json({ error: 'SRT faylni tekshirishda xato' })
+    // Verify SRT reachable (best-effort) on both primary and public origins
+    const primary = toAbsolute(uploadUrl, uploadData.fileUrl)
+    const alt = toPublicAbsolute(uploadUrl, uploadData.fileUrl)
+    let ok = false
+    try { ok = await waitUntilReachable(primary, 10, 600, 'text') } catch {}
+    if (!ok && alt && alt !== primary) {
+      try { ok = await waitUntilReachable(alt, 10, 600, 'text') } catch {}
     }
+    if (!ok) { try { res.setHeader('X-File-Unverified', '1') } catch {} }
 
     return res.status(200).json({ url: uploadData.fileUrl })
   } catch (err) {
@@ -68,6 +69,28 @@ function toAbsolute(base, maybe) {
     const b = String(base || '').replace(/\/$/, '')
     return `${b}${p.startsWith('/') ? '' : '/'}${p}`
   }
+}
+
+function toPublicAbsolute(base, p) {
+  try {
+    const u = new URL(String(base || ''))
+    const origin = `${u.protocol}//${u.host}`
+    const pub = mapPublicOrigin(origin)
+    const path = String(p || '')
+    if (!/^https?:\/\//i.test(path)) return `${pub}${path.startsWith('/') ? '' : '/'}${path}`
+    return path
+  } catch { return '' }
+}
+
+function mapPublicOrigin(origin) {
+  try {
+    const u = new URL(origin)
+    const h = u.hostname
+    if (h.includes('e-kontent.vercel.app') || h.startsWith('46.173.26.14')) {
+      return 'https://e-content.webpack.uz'
+    }
+    return `${u.protocol}//${u.host}`
+  } catch { return origin }
 }
 
 function ensureFilesBase(value) {
