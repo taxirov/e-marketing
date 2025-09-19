@@ -28,7 +28,8 @@ export default async function handler(req, res) {
     const formData = new FormData()
     formData.append('file', srtBlob, `${productId}.srt`)
 
-    const uploadResp = await fetch(`${uploadUrl}/caption/${productId}`, { method: 'POST', body: formData })
+    const uploadBase = ensureFilesBase(uploadUrl)
+    const uploadResp = await fetch(`${uploadBase}/caption/${productId}`, { method: 'POST', body: formData })
     if (!uploadResp.ok) {
       const message = await uploadResp.text().catch(() => '')
       const detail = message?.trim() ? `: ${message.trim()}` : ''
@@ -66,6 +67,22 @@ function toAbsolute(base, maybe) {
   } catch {
     const b = String(base || '').replace(/\/$/, '')
     return `${b}${p.startsWith('/') ? '' : '/'}${p}`
+  }
+}
+
+function ensureFilesBase(value) {
+  const s = String(value || '').trim()
+  if (!s) return '/api/files'
+  try {
+    const u = new URL(s)
+    let p = u.pathname || ''
+    p = p.replace(/\/$/, '')
+    if (!/\/files$/i.test(p)) p = `${p}/files`
+    u.pathname = p
+    return u.toString().replace(/\/$/, '')
+  } catch {
+    const b = s.replace(/\/$/, '')
+    return /\/files$/i.test(b) ? b : `${b}/files`
   }
 }
 

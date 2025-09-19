@@ -174,7 +174,7 @@ export async function fetchFilesForProduct(uploadUrl, productId) {
   if (!productId) throw new Error('Mahsulot identifikatori topilmadi');
   // Build https://e-content.webpack.uz/api/files/:id (do NOT start with a leading slash
   // to preserve the `/api/files` base path)
-  const rawAbs = toAbsoluteUrl(uploadUrl, String(productId));
+  const rawAbs = toAbsoluteUrl(ensureFilesBase(uploadUrl), String(productId));
   // Use proxy to avoid CORS, even for HTTPS
   let urlToFetch = rawAbs;
   try {
@@ -216,6 +216,21 @@ export async function fetchFilesForProduct(uploadUrl, productId) {
     videoUrl: makeAbs(json?.videoUrl),
     raw: json,
   };
+}
+
+function ensureFilesBase(value) {
+  const s = String(value || '').trim();
+  if (!s) return '/api/files';
+  try {
+    const u = new URL(s);
+    let p = (u.pathname || '').replace(/\/$/, '');
+    if (!/\/files$/i.test(p)) p = `${p}/files`;
+    u.pathname = p;
+    return u.toString().replace(/\/$/, '');
+  } catch {
+    const b = s.replace(/\/$/, '');
+    return /\/files$/i.test(b) ? b : `${b}/files`;
+  }
 }
 
 

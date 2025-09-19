@@ -105,7 +105,7 @@ export default async function handler(req, res) {
       contentType: 'video/mp4',
     });
 
-    const uploadResp = await fetch(`${uploadUrl}/video/${productId}`, {
+    const uploadResp = await fetch(`${ensureFilesBase(uploadUrl)}/video/${productId}`, {
       method: 'POST',
       body: formData,
       headers: {
@@ -168,6 +168,21 @@ async function indexLocalImages() {
 function mime(ext) {
   const e = ext.toLowerCase();
   if (e === '.png') return 'image/png'; if (e === '.jpg' || e === '.jpeg') return 'image/jpeg'; if (e === '.webp') return 'image/webp'; if (e === '.m4a') return 'audio/mp4'; if (e === '.mp3') return 'audio/mpeg'; return 'application/octet-stream'
+}
+function ensureFilesBase(value) {
+  const s = String(value || '').trim()
+  if (!s) return '/api/files'
+  try {
+    const u = new URL(s)
+    let p = u.pathname || ''
+    p = p.replace(/\/$/, '')
+    if (!/\/files$/i.test(p)) p = `${p}/files`
+    u.pathname = p
+    return u.toString().replace(/\/$/, '')
+  } catch {
+    const b = s.replace(/\/$/, '')
+    return /\/files$/i.test(b) ? b : `${b}/files`
+  }
 }
 async function httpImageToDataUrl(url) {
   const resp = await fetch(url)
