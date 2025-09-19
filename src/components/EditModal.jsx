@@ -330,16 +330,13 @@ export default function EditModal({ item, open, onClose }) {
 
         <div className="edit-body">
           <Section title="Audio matni:">
-            {audioText ? (
-              <textarea
-                className="text-area"
-                rows={8}
-                value={audioText}
-                onChange={(e) => setAudioText(e.target.value)}
-              />
-            ) : (
-              <Placeholder text="Audio matn hali yaratilmagan..."/>
-            )}
+            <textarea
+              className="text-area"
+              rows={8}
+              placeholder="Audio matn hali yaratilmagan..."
+              value={audioText}
+              onChange={(e) => setAudioText(e.target.value)}
+            />
             <div className="row">
               <button className="btn" onClick={handleGenerateAudioText} disabled={audioTextLoading}>
                 {audioTextLoading ? 'Yaratilmoqda...' : 'Audio matn yaratish'}
@@ -352,7 +349,7 @@ export default function EditModal({ item, open, onClose }) {
           <Section title="Audio:">
             {audioUrl ? (
               <>
-                <audio controls src={toPlayableUrl(audioUrl)} />
+                <audio controls src={toPlayableUrl(audioUrl)} className="audio-player" />
                 <div className="hint">Fayl manzili: <a href={toPlayableUrl(audioUrl)} target="_blank" rel="noopener noreferrer">{audioUrl}</a></div>
               </>
             ) : (
@@ -367,14 +364,12 @@ export default function EditModal({ item, open, onClose }) {
           </Section>
 
           <Section title="Video matni (Captions):">
-            {captionUrl ? (
+            {captionUrl && (
               <div className="hint">Fayl manzili: <a href={toPlayableUrl(captionUrl)} target="_blank" rel="noopener noreferrer">{captionUrl}</a></div>
-            ) : (
-              <Placeholder text="Video matni hali yaratilmagan..."/>
             )}
             <textarea
               className="text-area"
-              placeholder="SRT formatida video matn (00:00:00,000 --> 00:00:02,000)"
+              placeholder="Video matni hali yaratilmagan..."
               value={captionText}
               onChange={(e) => setCaptionText(e.target.value)}
               spellCheck={false}

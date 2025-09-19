@@ -149,8 +149,9 @@ export async function generateVideo(item, audioUrl, captionsUrl, images, uploadU
 export async function fetchFilesForProduct(uploadUrl, productId) {
   if (!uploadUrl) throw new Error('Yuklash uchun server manzili topilmadi');
   if (!productId) throw new Error('Mahsulot identifikatori topilmadi');
-  const url = `${uploadUrl.replace(/\/$/, '')}/${encodeURIComponent(productId)}`;
-  const res = await fetch(url, { method: 'GET' });
+  const url = `/${encodeURIComponent(productId)}`;
+  const abs = toAbsoluteUrl(uploadUrl, url);
+  const res = await fetch(abs, { method: 'GET' });
   if (!res.ok) {
     const t = await res.text().catch(() => '');
     throw new Error(t || `Fayllarni olishda xato: ${res.status}`);
@@ -209,6 +210,14 @@ function buildAudioTemplate(item) {
     `Batafsil maʻlumot uchun 55 517 22 20 raqamiga bogʻlaning!`,
   ]
 
+  const isApartment = Number(item?.categoryId) === 8 || String(item?.category || '').toLowerCase().includes('kvartir')
+  if (isApartment) {
+    const filtered = sentences.filter((line) => {
+      const v = String(line || '')
+      return !/^Umumiy yer maydoni\s+/i.test(v) && !/^Qurilish osti maydoni\s+/i.test(v)
+    })
+    return filtered.join(' ')
+  }
   return sentences.join(' ')
 }
 
