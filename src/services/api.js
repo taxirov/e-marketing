@@ -149,8 +149,9 @@ export async function generateVideo(item, audioUrl, captionsUrl, images, uploadU
 export async function fetchFilesForProduct(uploadUrl, productId) {
   if (!uploadUrl) throw new Error('Yuklash uchun server manzili topilmadi');
   if (!productId) throw new Error('Mahsulot identifikatori topilmadi');
-  const url = `/${encodeURIComponent(productId)}`;
-  const abs = toAbsoluteUrl(uploadUrl, url);
+  // Build https://e-content.webpack.uz/api/files/:id (do NOT start with a leading slash
+  // to preserve the `/api/files` base path)
+  const abs = toAbsoluteUrl(uploadUrl, String(productId));
   const res = await fetch(abs, { method: 'GET' });
   if (!res.ok) {
     const t = await res.text().catch(() => '');
