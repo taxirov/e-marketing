@@ -46,7 +46,8 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: 'Yuklangan faylni tekshirishda xato' })
     }
 
-    return res.status(200).json({ url: uploadData.fileUrl, text: latin })
+    try { res.setHeader('X-Upload-Target', `${uploadBase}/audioText/${productId}`) } catch {}
+    return res.status(200).json({ url: uploadData.fileUrl, text: latin, target: `${uploadBase}/audioText/${productId}` })
   } catch (err) {
     console.error('audioText error:', err)
     return res.status(500).json({ error: err?.message || 'Server xatosi' })
