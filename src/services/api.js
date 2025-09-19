@@ -45,6 +45,29 @@ export async function generateAudioText(productId, item, uploadUrl) {
   return { text: latinText, url };
 }
 
+export async function saveAudioText(text, uploadUrl, productId) {
+  const script = (text || '').trim();
+  if (!script) throw new Error('Audio matni bo\'sh');
+  if (!uploadUrl) throw new Error('Yuklash uchun server manzili topilmadi');
+  if (!productId) throw new Error('Mahsulot identifikatori topilmadi');
+
+  const payload = { text: script, uploadUrl, productId };
+  const res = await fetch('/api/audioText', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const errorText = await res.text().catch(() => '');
+    const detail = errorText?.trim() ? ` - ${errorText.trim()}` : '';
+    throw new Error(`Audio matnni saqlashda xato: ${res.status}${detail}`);
+  }
+  const data = await res.json().catch(() => null);
+  const url = toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
+  const latinText = (data && typeof data.text === 'string') ? data.text : script;
+  return { text: latinText, url };
+}
+
 export async function generateAudioFile(text, uploadUrl, productId, options = {}) {
     const script = (text || '').trim();
     if (!script) throw new Error("Audio uchun matn mavjud emas");

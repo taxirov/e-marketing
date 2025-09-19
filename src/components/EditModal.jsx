@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { generateAudioText, generateAudioFile, generateCaptionFile, generateVideo, saveCaptionText, fetchFilesForProduct } from '../services/api';
+import { generateAudioText, generateAudioFile, generateCaptionFile, generateVideo, saveCaptionText, fetchFilesForProduct, saveAudioText } from '../services/api';
 import { getAudioDurationFromUrl } from '../utils/audio';
 import { useApi } from '../utils/api';
 
@@ -13,6 +13,7 @@ export default function EditModal({ item, open, onClose }) {
   const [audioTextUrl, setAudioTextUrl] = useState('');
   const [audioTextLoading, setAudioTextLoading] = useState(false);
   const [audioFileLoading, setAudioFileLoading] = useState(false);
+  const [audioTextSaveLoading, setAudioTextSaveLoading] = useState(false);
   const [audioError, setAudioError] = useState('');
   const [audioDuration, setAudioDuration] = useState(null);
 
@@ -210,6 +211,25 @@ export default function EditModal({ item, open, onClose }) {
     }
   };
 
+  const handleSaveAudioText = async () => {
+    if (!item) return;
+    const script = String(audioText || '').trim();
+    if (!script) { setAudioError('Audio matni bo\'sh'); return; }
+    setAudioTextSaveLoading(true);
+    setAudioError('');
+    try {
+      const { text, url } = await saveAudioText(script, UPLOAD_SERVER_URL, item.id);
+      // Update with Latin from server
+      setAudioText(text || script);
+      setAudioTextUrl(url);
+    } catch (err) {
+      console.error('Audio matnni saqlashda xato:', err);
+      setAudioError(err.message || 'Audio matnni saqlashda xatolik');
+    } finally {
+      setAudioTextSaveLoading(false);
+    }
+  };
+
   const handleGenerateCaptions = async () => {
     if (!item || !audioUrl) {
       setCaptionError("Avval audio faylni yaratish kerak");
@@ -342,6 +362,14 @@ export default function EditModal({ item, open, onClose }) {
                 {audioTextLoading ? 'Yaratilmoqda...' : 'Audio matn yaratish'}
               </button>
               {audioTextUrl && <CopyButton url={audioTextUrl} />}
+              <button className="btn ghost" onClick={handleSaveAudioText} disabled={audioTextSaveLoading || !audioText.trim()} title="Saqlash">
+                <span style={{display:'inline-flex',alignItems:'center',gap:6}}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M17 3H5a2 2 0 0 0-2 2v14l4-4h10a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/>
+                  </svg>
+                  {audioTextSaveLoading ? 'Saqlanmoqda...' : 'Saqlash'}
+                </span>
+              </button>
             </div>
             {audioError && <div className="error-text">{audioError}</div>}
           </Section>
