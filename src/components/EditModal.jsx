@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { generateAudioText, generateAudioFile, generateCaptionFile, generateVideo, saveCaptionText, fetchFilesForProduct, saveAudioText } from '../services/api';
+import { generateAudioText, generateAudioFile, generateCaptionFile, generateVideo, saveCaptionText, fetchFilesForProduct, saveAudioText, buildVideoCaptionTemplate, saveVideoCaptionText } from '../services/api';
 import { getAudioDurationFromUrl } from '../utils/audio';
 import { useApi } from '../utils/api';
 
@@ -27,6 +27,8 @@ export default function EditModal({ item, open, onClose }) {
   const [videoLoading, setVideoLoading] = useState(false);
   const [videoError, setVideoError] = useState('');
   const [videoCaptionUrl, setVideoCaptionUrl] = useState('');
+  const [videoCaptionText, setVideoCaptionText] = useState('');
+  const [videoCaptionSaveLoading, setVideoCaptionSaveLoading] = useState(false);
 
   // Photos fetched per item from API
   const [photos, setPhotos] = useState([]);
@@ -172,6 +174,40 @@ export default function EditModal({ item, open, onClose }) {
     loadAudioText();
     return () => { cancelled = true };
   }, [open, item, audioTextUrl]);
+
+  // Load video caption text from URL
+  useEffect(() => {
+    let cancelled = false;
+    async function loadVideoCaption() {
+      if (!open || !item) return;
+      if (!videoCaptionUrl) return;
+      try {
+        const resp = await fetch(toPlayableUrl(videoCaptionUrl));
+        if (!resp.ok) throw new Error('Video tasnifini olishda xato');
+        const txt = await resp.text();
+        if (!cancelled) setVideoCaptionText(txt || '');
+      } catch (err) {
+        console.error('Video tasnif GET xato:', err);
+      }
+    }
+    loadVideoCaption();
+    return () => { cancelled = true };
+  }, [open, item, videoCaptionUrl]);
+
+  const handleSaveVideoCaption = async () => {
+    if (!item) return;
+    const text = String(videoCaptionText || '').trim();
+    if (!text) return;
+    setVideoCaptionSaveLoading(true);
+    try {
+      const url = await saveVideoCaptionText(text, UPLOAD_SERVER_URL, item.id);
+      setVideoCaptionUrl(url);
+    } catch (err) {
+      console.error('Video tasnifni saqlashda xato:', err);
+    } finally {
+      setVideoCaptionSaveLoading(false);
+    }
+  };
 
   const handleGenerateAudioText = async () => {
     if (!item) return;
@@ -513,14 +549,28 @@ export default function EditModal({ item, open, onClose }) {
           </Section>
 
           <Section title="Video tasnif:">
-            {videoCaptionUrl ? (
-              <div className="row">
-                <CopyButton url={videoCaptionUrl} />
-                <button className="btn ghost" onClick={() => handleDownloadFile(videoCaptionUrl, `video-caption-${item.id}.txt`)}>Yuklab olish</button>
-              </div>
-            ) : (
-              <Placeholder text="Video tasnifi hali yaratilmagan..." />
-            )}
+            <textarea
+              className="text-area"
+              placeholder="Video tasnifi hali yaratilmagan..."
+              value={videoCaptionText}
+              onChange={(e) => setVideoCaptionText(e.target.value)}
+              spellCheck={false}
+            />
+            <div className="row">
+              <button className="btn" onClick={() => setVideoCaptionText(buildVideoCaptionTemplate(item))}>
+                Video tasnif yaratish
+              </button>
+              {videoCaptionUrl && <CopyButton url={videoCaptionUrl} />}
+              <button className="btn ghost" onClick={handleSaveVideoCaption} disabled={videoCaptionSaveLoading || !videoCaptionText.trim()} title="Saqlash">
+                <span style={{display:'inline-flex',alignItems:'center',gap:6}}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14V7l-4-4z"/>
+                    <path fill="currentColor" d="M12 4h3l2 2v3h-5V4z"/>
+                  </svg>
+                  {videoCaptionSaveLoading ? 'Saqlanmoqda...' : 'Saqlash'}
+                </span>
+              </button>
+            </div>
           </Section>
         </div>
       </div>

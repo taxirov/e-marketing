@@ -218,6 +218,59 @@ export async function fetchFilesForProduct(uploadUrl, productId) {
   };
 }
 
+export function buildVideoCaptionTemplate(item) {
+  const id = item?.id || item?.productId || ''
+  const name = item?.name || 'Obyekt'
+  const region = item?.region || item?.raw?.region || ''
+  const district = item?.district || ''
+  const mfy = item?.productMfy?.name || item?.mfy || ''
+  const addrParts = [region, district, mfy && `${mfy} MFY`].filter(Boolean).join(', ')
+  const floors = normalizeValue(item?.floors)
+  const floorsBuilding = normalizeValue(item?.floorsBuilding)
+  const isApartment = Number(item?.categoryId) === 8 || String(item?.category || '').toLowerCase().includes('kvartir')
+  const areaAll = formatRounded(item?.areaAll ?? item?.area)
+  const effectiveArea = formatRounded(item?.effectiveArea || item?.area_living)
+  const commList = formatCommunications(item?.engineerCommunications)
+  const price = formatSom(item?.price || item?.raw?.price || item?.productPrice)
+  const link = `https://e-riletor.uz/products/product/${id}`
+
+  const lines = []
+  if (id) lines.push(`ID ${id}`)
+  lines.push(`\n🏤 ${name} ✅`)
+  if (addrParts) lines.push(`⛳️ ${addrParts}.`)
+  if (isApartment) {
+    lines.push(`📝 Qavati ${floors}/${floorsBuilding}`)
+    lines.push(`🌏 Umumiy maydoni ${areaAll} m²`)
+  } else {
+    lines.push(`📝 Qavatliligi ${floorsBuilding}`)
+    lines.push(`🌏 Umumiy maydoni ${areaAll} m²`)
+    lines.push(`🌏 Foydali maydoni ${effectiveArea} m²`)
+  }
+  if (commList) lines.push(`🔥⚡️💦 ${commList}`)
+  if (price) lines.push(`\n💰 ${price} so'm`)
+  lines.push(`\n📞 +998 55 517-22-20`)
+  lines.push(`To'liq ma'lumot uchun 👉 ${link} shu havolaga kiring.`)
+  return lines.join('\n')
+}
+
+export async function saveVideoCaptionText(text, uploadUrl, productId) {
+  const script = (text || '').trim()
+  if (!script) throw new Error('Video tasnif matni bo\'sh')
+  if (!uploadUrl) throw new Error('Yuklash uchun server manzili topilmadi')
+  if (!productId) throw new Error('Mahsulot identifikatori topilmadi')
+  const payload = { text: script, uploadUrl, productId }
+  const res = await fetch('/api/videoCaption', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+  })
+  if (!res.ok) {
+    const t = await res.text().catch(() => '')
+    const detail = t?.trim() ? `: ${t.trim()}` : ''
+    throw new Error(`Video tasnifni saqlashda xato ${res.status}${detail}`)
+  }
+  const data = await res.json().catch(() => null)
+  return toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl)
+}
+
 function ensureFilesBase(value) {
   const s = String(value || '').trim();
   if (!s) return '/api/files';
