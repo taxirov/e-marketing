@@ -37,7 +37,7 @@ export default function EditModal({ item, open, onClose }) {
   const allImageIds = useMemo(() => photos.map((p) => p.id), [photos]);
   const totalImages = photos.length;
 
-  // Load data from localStorage on modal open
+  // Reset state on open/close; actual values come from GET /api/files/:id
   useEffect(() => {
     if (!open || !item) {
       setAudioText('');
@@ -51,30 +51,6 @@ export default function EditModal({ item, open, onClose }) {
       setPhotosError('');
       setPhotosLoading(false);
       setVideoCaptionUrl('');
-      return;
-    }
-
-    try {
-      const audioTextStored = localStorage.getItem(`audioText-${item.id}`);
-      const audioUrlStored = localStorage.getItem(`audioUrl-${item.id}`);
-      const audioTextUrlStored = localStorage.getItem(`audioTextUrl-${item.id}`);
-      const captionUrlStored = localStorage.getItem(`captionUrl-${item.id}`);
-      const captionTextStored = localStorage.getItem(`captionText-${item.id}`);
-      const videoUrlStored = localStorage.getItem(`videoUrl-${item.id}`);
-      const videoCaptionUrlStored = localStorage.getItem(`videoCaptionUrl-${item.id}`);
-      const imagesStored = JSON.parse(localStorage.getItem(`videoImages-${item.id}`) || '[]');
-
-      setAudioText(audioTextStored || '');
-      setAudioUrl(audioUrlStored || '');
-      setAudioTextUrl(audioTextUrlStored || '');
-      setCaptionUrl(captionUrlStored || '');
-      setCaptionText(captionTextStored || '');
-      setVideoUrl(videoUrlStored || '');
-      setSelectedImages(Array.isArray(imagesStored) ? imagesStored : []);
-      setVideoCaptionUrl(videoCaptionUrlStored || '');
-
-    } catch (err) {
-      console.error("Local storage ma'lumotlarini yuklashda xato:", err);
     }
   }, [open, item]);
 
@@ -116,16 +92,7 @@ export default function EditModal({ item, open, onClose }) {
     return () => { cancelled = true };
   }, [open, item?.id]);
 
-  // Save audioText to localStorage on change
-  useEffect(() => {
-    if (item && audioText) {
-      try {
-        localStorage.setItem(`audioText-${item.id}`, audioText);
-      } catch (err) {
-        console.error("Audio matnni saqlashda xato:", err);
-      }
-    }
-  }, [audioText, item]);
+  // Do not persist anything to localStorage
   
   // Set audio duration
   useEffect(() => {
@@ -147,26 +114,11 @@ export default function EditModal({ item, open, onClose }) {
       try {
         const meta = await fetchFilesForProduct(UPLOAD_SERVER_URL, item.id);
         if (cancelled) return;
-        if (meta.audioTextUrl) {
-          setAudioTextUrl(meta.audioTextUrl);
-          try { localStorage.setItem(`audioTextUrl-${item.id}`, meta.audioTextUrl); } catch {}
-        }
-        if (meta.audioUrl) {
-          setAudioUrl(meta.audioUrl);
-          try { localStorage.setItem(`audioUrl-${item.id}`, meta.audioUrl); } catch {}
-        }
-        if (meta.captionUrl) {
-          setCaptionUrl(meta.captionUrl);
-          try { localStorage.setItem(`captionUrl-${item.id}`, meta.captionUrl); } catch {}
-        }
-        if (meta.videoUrl) {
-          setVideoUrl(meta.videoUrl);
-          try { localStorage.setItem(`videoUrl-${item.id}`, meta.videoUrl); } catch {}
-        }
-        if (meta.videoCaptionUrl) {
-          setVideoCaptionUrl(meta.videoCaptionUrl);
-          try { localStorage.setItem(`videoCaptionUrl-${item.id}`, meta.videoCaptionUrl); } catch {}
-        }
+        if (meta.audioTextUrl) setAudioTextUrl(meta.audioTextUrl);
+        if (meta.audioUrl) setAudioUrl(meta.audioUrl);
+        if (meta.captionUrl) setCaptionUrl(meta.captionUrl);
+        if (meta.videoUrl) setVideoUrl(meta.videoUrl);
+        if (meta.videoCaptionUrl) setVideoCaptionUrl(meta.videoCaptionUrl);
       } catch (err) {
         // Keep silent, just log for debugging; UI should not break
         console.error('Fayllarni olishda xato:', err);
@@ -176,27 +128,18 @@ export default function EditModal({ item, open, onClose }) {
     return () => { cancelled = true };
   }, [open, item?.id]);
 
-  // Load caption text from URL (GET like audio verification) and keep in localStorage
+  // Load caption text from URL (GET like audio verification)
   useEffect(() => {
     let cancelled = false;
     async function fetchCaption() {
       if (!open || !item) return;
       if (!captionUrl) return;
       try {
-        // Prefer saved local copy first
-        const saved = localStorage.getItem(`captionText-${item.id}`);
-        if (saved && saved.trim()) {
-          setCaptionText(saved);
-          return;
-        }
-      } catch {}
-      try {
         const resp = await fetch(toPlayableUrl(captionUrl));
         if (!resp.ok) throw new Error('Video matnini olishda xato');
         const txt = await resp.text();
         if (!cancelled) {
           setCaptionText(txt || '');
-          try { localStorage.setItem(`captionText-${item.id}`, txt || ''); } catch {}
         }
       } catch (err) {
         // Do not surface noisy errors; keep UI usable
@@ -213,14 +156,13 @@ export default function EditModal({ item, open, onClose }) {
     async function loadAudioText() {
       if (!open || !item) return;
       if (!audioTextUrl) return;
-      if (audioText && audioText.trim()) return; // already have text
+      if (audioText && audioText.trim()) return; // already loaded
       try {
         const resp = await fetch(toPlayableUrl(audioTextUrl));
         if (!resp.ok) throw new Error('Audio matnini olishda xato');
         const txt = await resp.text();
         if (!cancelled) {
           setAudioText(txt || '');
-          try { localStorage.setItem(`audioText-${item.id}`, txt || ''); } catch {}
         }
       } catch (err) {
         console.error('Audio matn GET xato:', err);
@@ -238,9 +180,6 @@ export default function EditModal({ item, open, onClose }) {
       const { text, url } = await generateAudioText(item.id, item, UPLOAD_SERVER_URL);
       setAudioText(text);
       setAudioTextUrl(url);
-      // Save to local storage
-      localStorage.setItem(`audioText-${item.id}`, text);
-      localStorage.setItem(`audioTextUrl-${item.id}`, url);
     } catch (err) {
       console.error("Audio matnni yaratishda xatolik:", err);
       setAudioError(err.message || "Audio matnni yaratishda xatolik yuz berdi");
@@ -263,8 +202,6 @@ export default function EditModal({ item, open, onClose }) {
         const dur = await getAudioDurationFromUrl(toPlayableUrl(url));
         setAudioDuration(dur);
       } catch {}
-      // Save to local storage
-      localStorage.setItem(`audioUrl-${item.id}`, url);
     } catch (err) {
       console.error('Audio fayl yaratishda xatolik:', err);
       setAudioError(err.message || 'Audio fayl yaratishda xatolik yuz berdi');
@@ -291,11 +228,9 @@ export default function EditModal({ item, open, onClose }) {
           if (resp.ok) {
             const txt = await resp.text();
             setCaptionText(txt || '');
-            try { localStorage.setItem(`captionText-${item.id}`, txt || ''); } catch {}
           }
         } catch {}
-        // Save to local storage
-        localStorage.setItem(`captionUrl-${item.id}`, url);
+        // no persistence
     } catch (err) {
       console.error('Sarlavha yaratishda xatolik:', err);
       setCaptionError(err.message || 'Sarlavha yaratishda xatolik yuz berdi');
@@ -316,8 +251,6 @@ export default function EditModal({ item, open, onClose }) {
       const imageUrls = selectedImageEntries.map((e) => e.url);
       const url = await generateVideo(item, audioUrl, captionUrl, imageUrls, UPLOAD_SERVER_URL);
       setVideoUrl(url);
-      // Save to local storage
-      localStorage.setItem(`videoUrl-${item.id}`, url);
     } catch (err) {
       console.error('Video yaratishda xatolik:', err);
       setVideoError(err.message || 'Video yaratishda xatolik yuz berdi');
@@ -332,11 +265,6 @@ export default function EditModal({ item, open, onClose }) {
       if (next.has(imageId)) next.delete(imageId);
       else if (photoMap.has(imageId)) next.add(imageId);
       const newSelection = Array.from(next);
-      try {
-        localStorage.setItem(`videoImages-${item.id}`, JSON.stringify(newSelection));
-      } catch (err) {
-        console.error('Rasmlarni saqlashda xatolik:', err);
-      }
       return newSelection;
     });
   };
@@ -350,8 +278,6 @@ export default function EditModal({ item, open, onClose }) {
     try {
       const url = await saveCaptionText(srt, UPLOAD_SERVER_URL, item.id);
       setCaptionUrl(url);
-      try { localStorage.setItem(`captionText-${item.id}`, srt); } catch {}
-      localStorage.setItem(`captionUrl-${item.id}`, url);
     } catch (err) {
       console.error('Sarlavhani saqlashda xatolik:', err);
       setCaptionError(err.message || 'Sarlavhani saqlashda xatolik');
@@ -362,20 +288,10 @@ export default function EditModal({ item, open, onClose }) {
 
   const handleSelectAllImages = () => {
     setSelectedImages(allImageIds);
-    try {
-      localStorage.setItem(`videoImages-${item.id}`, JSON.stringify(allImageIds));
-    } catch (err) {
-      console.error('Rasmlarni saqlashda xatolik:', err);
-    }
   };
 
   const handleClearImageSelection = () => {
     setSelectedImages([]);
-    try {
-      localStorage.removeItem(`videoImages-${item.id}`);
-    } catch (err) {
-      console.error('Rasmlarni tozalashda xatolik:', err);
-    }
   };
 
   const handleDownloadFile = (url, filename) => {

@@ -2,7 +2,7 @@ import { useApi } from '../utils/api'
 import { normalizeObjects } from '../data/normalize'
 
 const API_ENDPOINT = '/api/product/analysis'
-const LS_KEY = 'analysisPayload'
+const LS_KEY = 'analysisPayload' // no longer used; kept for compatibility
 
 export const DEFAULT_PAYLOAD = {
   action: '',
@@ -41,43 +41,11 @@ function cloneDefault() {
   return JSON.parse(JSON.stringify(DEFAULT_PAYLOAD))
 }
 
-export function getSavedPayload() {
-  if (typeof window === 'undefined') return null
-  try {
-    const raw = window.localStorage.getItem(LS_KEY)
-    if (!raw) return null
-    const parsed = JSON.parse(raw)
-    if (!parsed || typeof parsed !== 'object') return null
-    const base = cloneDefault()
-    const out = { ...base, ...parsed }
-    if (parsed.pageFilter) out.pageFilter = { ...base.pageFilter, ...parsed.pageFilter }
-    if (parsed.objectAnalysisFilter) out.objectAnalysisFilter = { ...base.objectAnalysisFilter, ...parsed.objectAnalysisFilter }
-    return out
-  } catch {
-    return null
-  }
-}
+export function getSavedPayload() { return null }
 
-export function setSavedPayload(payload) {
-  if (typeof window === 'undefined') return
-  try {
-    const base = cloneDefault()
-    const out = { ...base, ...(payload || {}) }
-    if (payload?.pageFilter) out.pageFilter = { ...base.pageFilter, ...payload.pageFilter }
-    if (payload?.objectAnalysisFilter) out.objectAnalysisFilter = { ...base.objectAnalysisFilter, ...payload.objectAnalysisFilter }
-    window.localStorage.setItem(LS_KEY, JSON.stringify(out))
-  } catch {}
-}
+export function setSavedPayload() {}
 
-export function updateSavedPayload(patch) {
-  if (typeof window === 'undefined') return
-  const cur = getSavedPayload() || cloneDefault()
-  const out = { ...cur, ...(patch || {}) }
-  if (patch?.pageFilter) out.pageFilter = { ...cur.pageFilter, ...patch.pageFilter }
-  if (patch?.objectAnalysisFilter) out.objectAnalysisFilter = { ...cur.objectAnalysisFilter, ...patch.objectAnalysisFilter }
-  try { window.localStorage.setItem(LS_KEY, JSON.stringify(out)) } catch {}
-  return out
-}
+export function updateSavedPayload() { return cloneDefault() }
 
 function mapFiltersToPayload(filters, page = 1, size = 10) {
   const sortMap = {

@@ -41,7 +41,8 @@ export async function generateAudioText(productId, item, uploadUrl) {
   }
   const data = await res.json();
   const url = toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
-  return { text, url };
+  const latinText = typeof data?.text === 'string' && data.text.trim() ? data.text : text;
+  return { text: latinText, url };
 }
 
 export async function generateAudioFile(text, uploadUrl, productId, options = {}) {

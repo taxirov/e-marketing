@@ -20,7 +20,8 @@ export default async function handler(req, res) {
   if (!productId) return res.status(400).json({ error: 'productId talab qilinadi' })
 
   try {
-    const textBlob = new Blob([text], { type: 'text/plain; charset=utf-8' })
+    const latin = await toLatinServer(String(text || ''))
+    const textBlob = new Blob([latin], { type: 'text/plain; charset=utf-8' })
     const formData = new FormData()
     formData.append('file', textBlob, `${productId}.txt`)
 
@@ -46,7 +47,7 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: 'Yuklangan faylni tekshirishda xato' })
     }
 
-    return res.status(200).json({ url: uploadData.fileUrl })
+    return res.status(200).json({ url: uploadData.fileUrl, text: latin })
   } catch (err) {
     console.error('audioText error:', err)
     return res.status(500).json({ error: err?.message || 'Server xatosi' })
@@ -66,4 +67,44 @@ function toAbsolute(base, maybe) {
     const b = String(base || '').replace(/\/$/, '')
     return `${b}${p.startsWith('/') ? '' : '/'}${p}`
   }
+}
+
+async function toLatinServer(text) {
+  const t = (text || '').trim()
+  if (!t) return t
+  const token = process.env.MATN_API_TOKEN || "vmTYSQIIyB8kUDAaNy33Asu4jjnQ5qXbsJcIehi7SOmoUmhvmdogxsTlKmM8c6W46AFweVlvflEs0VdK"
+  if (!token) return t
+  try {
+    const resp = await fetch('https://matn.uz/api/v1/latin', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: t }),
+    })
+    if (!resp.ok) return t
+    const raw = await resp.text()
+    const decoded = decodeLatinResponse(raw)
+    return normalizeApostrophes(decoded || t)
+  } catch {
+    return t
+  }
+}
+
+function decodeLatinResponse(value) {
+  if (typeof value !== 'string') return value
+  const trimmed = value.trim()
+  if (!trimmed) return value
+  try {
+    const parsed = JSON.parse(trimmed)
+    if (typeof parsed === 'string') return parsed
+    if (parsed && typeof parsed === 'object') {
+      if (typeof parsed.text === 'string') return parsed.text
+      if (typeof parsed.data === 'string') return parsed.data
+    }
+  } catch {}
+  return value
+}
+
+function normalizeApostrophes(value) {
+  if (typeof value !== 'string') return value
+  return value.replace(/[\u2018\u2019]/g, "'").replace(/[\u201c\u201d]/g, '"')
 }
