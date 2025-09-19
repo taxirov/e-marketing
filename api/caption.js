@@ -14,14 +14,16 @@ export default async function handler(req, res) {
   let body
   try { body = raw ? JSON.parse(raw) : {} } catch { return res.status(400).json({ error: "Noto'g'ri JSON" }) }
 
-  const { text, duration, uploadUrl, productId } = body || {}
-  if (!text) return res.status(400).json({ error: 'Matn topilmadi' })
-  if (!duration) return res.status(400).json({ error: 'Audio davomiyligi topilmadi' })
+  // Accept either raw SRT content via `srt` OR generate from `text` + `duration`.
+  const { text, duration, uploadUrl, productId, srt } = body || {}
+  if (!text && !srt) return res.status(400).json({ error: 'Matn yoki SRT topilmadi' })
+  if (!srt && !duration) return res.status(400).json({ error: 'Audio davomiyligi topilmadi' })
   if (!uploadUrl) return res.status(400).json({ error: 'Yuklash uchun server manzili topilmadi (uploadUrl)' })
   if (!productId) return res.status(400).json({ error: 'productId talab qilinadi' })
 
   try {
-    const srtContent = buildSrtFromText(text, duration)
+    // If `srt` is provided, use it directly; otherwise generate from text+duration
+    const srtContent = String(srt || '')?.trim() ? String(srt) : buildSrtFromText(String(text || ''), duration)
     const srtBlob = new Blob([srtContent], { type: 'text/plain; charset=utf-8' })
     const formData = new FormData()
     formData.append('file', srtBlob, `${productId}.srt`)

@@ -93,6 +93,27 @@ export async function generateCaptionFile(text, duration, uploadUrl, productId) 
     return toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
 }
 
+export async function saveCaptionText(srtText, uploadUrl, productId) {
+    const srt = String(srtText || '').trim();
+    if (!srt) throw new Error('SRT matni bo\'sh');
+    if (!uploadUrl) throw new Error('Yuklash uchun server manzili topilmadi');
+    if (!productId) throw new Error('Mahsulot identifikatori topilmadi');
+
+    const payload = { srt, uploadUrl, productId };
+    const res = await fetch('/api/caption', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+        const message = await res.text().catch(() => '');
+        const detail = message?.trim() ? `: ${message.trim()}` : '';
+        throw new Error(`Sarlavha servisi xatosi ${res.status}${detail}`);
+    }
+    const data = await res.json();
+    return toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
+}
+
 export async function generateVideo(item, audioUrl, captionsUrl, images, uploadUrl) {
     if (!audioUrl) throw new Error('Avval audio faylni yarating');
     if (!captionsUrl) throw new Error('Avval sarlavha faylini yarating');

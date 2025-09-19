@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { generateAudioText, generateAudioFile, generateCaptionFile, generateVideo } from '../services/api';
+import { generateAudioText, generateAudioFile, generateCaptionFile, generateVideo, saveCaptionText } from '../services/api';
 import { getAudioDurationFromUrl } from '../utils/audio';
 import { useApi } from '../utils/api';
 
@@ -17,8 +17,10 @@ export default function EditModal({ item, open, onClose }) {
   const [audioDuration, setAudioDuration] = useState(null);
 
   const [captionUrl, setCaptionUrl] = useState('');
+  const [captionText, setCaptionText] = useState('');
   const [captionLoading, setCaptionLoading] = useState(false);
   const [captionError, setCaptionError] = useState('');
+  const [captionSaveLoading, setCaptionSaveLoading] = useState(false);
 
   const [videoUrl, setVideoUrl] = useState('');
   const [videoLoading, setVideoLoading] = useState(false);
@@ -41,6 +43,7 @@ export default function EditModal({ item, open, onClose }) {
       setAudioUrl('');
       setAudioTextUrl('');
       setCaptionUrl('');
+      setCaptionText('');
       setVideoUrl('');
       setSelectedImages([]);
       setPhotos([]);
@@ -54,6 +57,7 @@ export default function EditModal({ item, open, onClose }) {
       const audioUrlStored = localStorage.getItem(`audioUrl-${item.id}`);
       const audioTextUrlStored = localStorage.getItem(`audioTextUrl-${item.id}`);
       const captionUrlStored = localStorage.getItem(`captionUrl-${item.id}`);
+      const captionTextStored = localStorage.getItem(`captionText-${item.id}`);
       const videoUrlStored = localStorage.getItem(`videoUrl-${item.id}`);
       const imagesStored = JSON.parse(localStorage.getItem(`videoImages-${item.id}`) || '[]');
 
@@ -61,6 +65,7 @@ export default function EditModal({ item, open, onClose }) {
       setAudioUrl(audioUrlStored || '');
       setAudioTextUrl(audioTextUrlStored || '');
       setCaptionUrl(captionUrlStored || '');
+      setCaptionText(captionTextStored || '');
       setVideoUrl(videoUrlStored || '');
       setSelectedImages(Array.isArray(imagesStored) ? imagesStored : []);
 
@@ -130,6 +135,37 @@ export default function EditModal({ item, open, onClose }) {
     }
   }, [audioUrl]);
 
+  // Load caption text from URL (GET like audio verification) and keep in localStorage
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchCaption() {
+      if (!open || !item) return;
+      if (!captionUrl) return;
+      try {
+        // Prefer saved local copy first
+        const saved = localStorage.getItem(`captionText-${item.id}`);
+        if (saved && saved.trim()) {
+          setCaptionText(saved);
+          return;
+        }
+      } catch {}
+      try {
+        const resp = await fetch(toPlayableUrl(captionUrl));
+        if (!resp.ok) throw new Error('Video matnini olishda xato');
+        const txt = await resp.text();
+        if (!cancelled) {
+          setCaptionText(txt || '');
+          try { localStorage.setItem(`captionText-${item.id}`, txt || ''); } catch {}
+        }
+      } catch (err) {
+        // Do not surface noisy errors; keep UI usable
+        console.error('Caption GET xato:', err);
+      }
+    }
+    fetchCaption();
+    return () => { cancelled = true };
+  }, [open, item, captionUrl]);
+
   const handleGenerateAudioText = async () => {
     if (!item) return;
     setAudioTextLoading(true);
@@ -185,6 +221,15 @@ export default function EditModal({ item, open, onClose }) {
         setAudioDuration(audioDur);
         const url = await generateCaptionFile(audioText, audioDur, UPLOAD_SERVER_URL, item.id);
         setCaptionUrl(url);
+        // Refresh caption text after generating
+        try {
+          const resp = await fetch(toPlayableUrl(url));
+          if (resp.ok) {
+            const txt = await resp.text();
+            setCaptionText(txt || '');
+            try { localStorage.setItem(`captionText-${item.id}`, txt || ''); } catch {}
+          }
+        } catch {}
         // Save to local storage
         localStorage.setItem(`captionUrl-${item.id}`, url);
     } catch (err) {
@@ -230,6 +275,25 @@ export default function EditModal({ item, open, onClose }) {
       }
       return newSelection;
     });
+  };
+
+  const handleSaveCaptions = async () => {
+    if (!item) return;
+    const srt = String(captionText || '').trim();
+    if (!srt) { setCaptionError('Video matni bo\'sh'); return; }
+    setCaptionSaveLoading(true);
+    setCaptionError('');
+    try {
+      const url = await saveCaptionText(srt, UPLOAD_SERVER_URL, item.id);
+      setCaptionUrl(url);
+      try { localStorage.setItem(`captionText-${item.id}`, srt); } catch {}
+      localStorage.setItem(`captionUrl-${item.id}`, url);
+    } catch (err) {
+      console.error('Sarlavhani saqlashda xatolik:', err);
+      setCaptionError(err.message || 'Sarlavhani saqlashda xatolik');
+    } finally {
+      setCaptionSaveLoading(false);
+    }
   };
 
   const handleSelectAllImages = () => {
@@ -324,14 +388,24 @@ export default function EditModal({ item, open, onClose }) {
 
           <Section title="Video matni (Captions):">
             {captionUrl ? (
-                <div className="hint">Fayl manzili: <a href={toPlayableUrl(captionUrl)} target="_blank" rel="noopener noreferrer">{captionUrl}</a></div>
+              <div className="hint">Fayl manzili: <a href={toPlayableUrl(captionUrl)} target="_blank" rel="noopener noreferrer">{captionUrl}</a></div>
             ) : (
               <Placeholder text="Video matni hali yaratilmagan..."/>
             )}
+            <textarea
+              className="text-area"
+              placeholder="SRT formatida video matn (00:00:00,000 --> 00:00:02,000)"
+              value={captionText}
+              onChange={(e) => setCaptionText(e.target.value)}
+              spellCheck={false}
+            />
             {captionError && <div className="error-text">{captionError}</div>}
             <div className="row">
               <button className="btn" onClick={handleGenerateCaptions} disabled={captionLoading || !audioUrl}>
                 {captionLoading ? 'Yaratilmoqda...' : 'Video matn yaratish'}
+              </button>
+              <button className="btn ghost" onClick={handleSaveCaptions} disabled={captionSaveLoading || !captionText.trim()}>
+                {captionSaveLoading ? 'Saqlanmoqda...' : 'Video matnni saqlash'}
               </button>
               {captionUrl && <button className="btn ghost" onClick={() => handleDownloadFile(captionUrl, `captions-${item.id}.srt`)}>Yuklab olish</button>}
             </div>
