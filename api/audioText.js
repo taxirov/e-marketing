@@ -35,14 +35,12 @@ export default async function handler(req, res) {
     const uploadData = await uploadResp.json().catch(() => null)
     if (!uploadData?.fileUrl) return res.status(500).json({ error: 'Serverdan fayl manzili qaytarilmadi' })
 
-    // Verify the uploaded file is actually reachable (defensive)
+    // Verify the uploaded file is actually reachable (defensive) with retries
     const fileUrl = uploadData.fileUrl
     const abs = toAbsolute(uploadUrl, fileUrl)
     try {
-      const check = await fetch(abs, { method: 'GET' })
-      if (!check.ok) return res.status(502).json({ error: 'Yuklangan faylga kira olmadik' })
-      const ab = await check.arrayBuffer()
-      if ((ab?.byteLength ?? 0) <= 0) return res.status(502).json({ error: 'Yuklangan fayl bo\'sh ko\'rinadi' })
+      const ok = await waitUntilReachable(abs, 8, 500)
+      if (!ok) return res.status(502).json({ error: 'Yuklangan faylga kira olmadik' })
     } catch (e) {
       return res.status(502).json({ error: 'Yuklangan faylni tekshirishda xato' })
     }
@@ -67,6 +65,27 @@ function toAbsolute(base, maybe) {
     const b = String(base || '').replace(/\/$/, '')
     return `${b}${p.startsWith('/') ? '' : '/'}${p}`
   }
+}
+
+async function waitUntilReachable(url, attempts = 6, delayMs = 400) {
+  for (let i = 0; i < attempts; i += 1) {
+    try {
+      const head = await fetch(url, { method: 'HEAD' })
+      if (head && head.ok) {
+        const len = Number(head.headers.get('content-length') || '0')
+        if (Number.isFinite(len) && len > 0) return true
+      }
+    } catch {}
+    try {
+      const resp = await fetch(url, { method: 'GET', cache: 'no-store' })
+      if (resp && resp.ok) {
+        const ab = await resp.arrayBuffer()
+        if ((ab?.byteLength ?? 0) > 0) return true
+      }
+    } catch {}
+    await new Promise((r) => setTimeout(r, delayMs))
+  }
+  return false
 }
 
 async function toLatinServer(text) {

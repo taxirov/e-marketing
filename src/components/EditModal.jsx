@@ -514,9 +514,15 @@ function Placeholder({ text }) {
 function toPlayableUrl(url) {
   const v = String(url || '').trim()
   if (!v) return ''
-  if (typeof window !== 'undefined' && window.location?.protocol === 'https:' && v.startsWith('http://')) {
-    return `/api/proxy?url=${encodeURIComponent(v)}`
-  }
+  if (v.startsWith('data:') || v.startsWith('blob:')) return v
+  try {
+    if (typeof window !== 'undefined') {
+      const u = new URL(v, window.location.origin)
+      if (u.origin !== window.location.origin) {
+        return `/api/proxy?url=${encodeURIComponent(u.toString())}`
+      }
+    }
+  } catch {}
   return v
 }
 

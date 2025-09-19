@@ -151,8 +151,18 @@ export async function fetchFilesForProduct(uploadUrl, productId) {
   if (!productId) throw new Error('Mahsulot identifikatori topilmadi');
   // Build https://e-content.webpack.uz/api/files/:id (do NOT start with a leading slash
   // to preserve the `/api/files` base path)
-  const abs = toAbsoluteUrl(uploadUrl, String(productId));
-  const res = await fetch(abs, { method: 'GET' });
+  const rawAbs = toAbsoluteUrl(uploadUrl, String(productId));
+  // Use proxy to avoid CORS, even for HTTPS
+  let urlToFetch = rawAbs;
+  try {
+    if (typeof window !== 'undefined') {
+      const u = new URL(rawAbs, window.location.origin);
+      if (u.origin !== window.location.origin) {
+        urlToFetch = `/api/proxy?url=${encodeURIComponent(u.toString())}`;
+      }
+    }
+  } catch {}
+  const res = await fetch(urlToFetch, { method: 'GET', cache: 'no-store' });
   if (!res.ok) {
     const t = await res.text().catch(() => '');
     throw new Error(t || `Fayllarni olishda xato: ${res.status}`);
