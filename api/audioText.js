@@ -36,14 +36,18 @@ export default async function handler(req, res) {
     const uploadData = await uploadResp.json().catch(() => null)
     if (!uploadData?.fileUrl) return res.status(500).json({ error: 'Serverdan fayl manzili qaytarilmadi' })
 
-    // Verify the uploaded file is actually reachable (defensive) with retries
+    // Verify the uploaded file is reachable (best-effort): try public and alt origins
     const fileUrl = uploadData.fileUrl
-    const abs = toAbsolute(uploadUrl, fileUrl)
-    try {
-      const ok = await waitUntilReachable(abs, 8, 500)
-      if (!ok) return res.status(502).json({ error: 'Yuklangan faylga kira olmadik' })
-    } catch (e) {
-      return res.status(502).json({ error: 'Yuklangan faylni tekshirishda xato' })
+    const primary = toAbsolute(uploadUrl, fileUrl)
+    const alt = toPublicAbsolute(uploadUrl, fileUrl)
+    let verified = false
+    try { verified = await waitUntilReachable(primary, 10, 600) } catch {}
+    if (!verified && alt && alt !== primary) {
+      try { verified = await waitUntilReachable(alt, 10, 600) } catch {}
+    }
+    // Do not fail hard if not immediately reachable; return success with a warning header
+    if (!verified) {
+      try { res.setHeader('X-File-Unverified', '1') } catch {}
     }
 
     try { res.setHeader('X-Upload-Target', `${uploadBase}/audioText/${productId}`) } catch {}
@@ -67,6 +71,28 @@ function toAbsolute(base, maybe) {
     const b = String(base || '').replace(/\/$/, '')
     return `${b}${p.startsWith('/') ? '' : '/'}${p}`
   }
+}
+
+function toPublicAbsolute(base, p) {
+  try {
+    const u = new URL(String(base || ''))
+    const origin = `${u.protocol}//${u.host}`
+    const pub = mapPublicOrigin(origin)
+    const path = String(p || '')
+    if (!/^https?:\/\//i.test(path)) return `${pub}${path.startsWith('/') ? '' : '/'}${path}`
+    return path
+  } catch { return '' }
+}
+
+function mapPublicOrigin(origin) {
+  try {
+    const u = new URL(origin)
+    const h = u.hostname
+    if (h.includes('e-kontent.vercel.app') || h.startsWith('46.173.26.14')) {
+      return 'https://e-content.webpack.uz'
+    }
+    return `${u.protocol}//${u.host}`
+  } catch { return origin }
 }
 
 function ensureFilesBase(value) {
