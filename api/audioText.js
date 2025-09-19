@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     formData.append('file', textBlob, `${productId}.txt`)
 
     const uploadBase = ensureFilesBase(uploadUrl)
-    const uploadResp = await fetch(`${uploadBase}/files/audioText/${productId}`, { method: 'POST', body: formData })
+    const uploadResp = await fetch(`${uploadBase}/audioText/${productId}`, { method: 'POST', body: formData })
     if (!uploadResp.ok) {
       const message = await uploadResp.text().catch(() => '')
       const detail = message?.trim() ? `: ${message.trim()}` : ''
