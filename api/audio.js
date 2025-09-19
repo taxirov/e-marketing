@@ -106,24 +106,15 @@ export default async function handler(req, res) {
     const uploadData = await uploadResp.json().catch(() => null)
     if (!uploadData?.fileUrl) return res.status(500).json({ error: 'Serverdan fayl manzili qaytarilmadi' })
 
-    // Verify audio is reachable and not empty using HEAD/GET
-    const abs = toAbsolute(uploadUrl, uploadData.fileUrl)
-    try {
-      let ok = false
-      const head = await fetch(abs, { method: 'HEAD' }).catch(() => null)
-      if (head && head.ok) {
-        const len = Number(head.headers.get('content-length') || '0')
-        ok = Number.isFinite(len) && len > 0
-      }
-      if (!ok) {
-        const resp = await fetch(abs, { method: 'GET' })
-        if (!resp.ok) return res.status(502).json({ error: 'Audio fayliga kira olmadik' })
-        const buf = await resp.arrayBuffer()
-        if ((buf?.byteLength ?? 0) <= 0) return res.status(502).json({ error: 'Audio fayli bo\'sh ko\'rinadi' })
-      }
-    } catch {
-      return res.status(502).json({ error: 'Audio faylni tekshirishda xato' })
+    // Verify audio is reachable (best-effort) on both primary and public origins
+    const primary = toAbsolute(uploadUrl, uploadData.fileUrl)
+    const alt = toPublicAbsolute(uploadUrl, uploadData.fileUrl)
+    let ok = false
+    try { ok = await waitUntilReachable(primary, 12, 600) } catch {}
+    if (!ok && alt && alt !== primary) {
+      try { ok = await waitUntilReachable(alt, 12, 600) } catch {}
     }
+    if (!ok) { try { res.setHeader('X-File-Unverified', '1') } catch {} }
 
     return res.status(200).json({ url: uploadData.fileUrl })
   } catch (err) {
@@ -147,6 +138,17 @@ function toAbsolute(base, maybe) {
   }
 }
 
+function toPublicAbsolute(base, p) {
+  try {
+    const u = new URL(String(base || ''))
+    const origin = `${u.protocol}//${u.host}`
+    const pub = mapPublicOrigin(origin)
+    const path = String(p || '')
+    if (!/^https?:\/\//i.test(path)) return `${pub}${path.startsWith('/') ? '' : '/'}${path}`
+    return path
+  } catch { return '' }
+}
+
 function ensureFilesBase(value) {
   const s = String(value || '').trim()
   if (!s) return '/api/files'
@@ -165,6 +167,38 @@ function ensureFilesBase(value) {
     else b = `${b}/files`
     return b
   }
+}
+
+async function waitUntilReachable(url, attempts = 6, delayMs = 400) {
+  for (let i = 0; i < attempts; i += 1) {
+    try {
+      const head = await fetch(url, { method: 'HEAD' })
+      if (head && head.ok) {
+        const len = Number(head.headers.get('content-length') || '0')
+        if (Number.isFinite(len) && len > 0) return true
+      }
+    } catch {}
+    try {
+      const resp = await fetch(url, { method: 'GET', cache: 'no-store' })
+      if (resp && resp.ok) {
+        const ab = await resp.arrayBuffer()
+        if ((ab?.byteLength ?? 0) > 0) return true
+      }
+    } catch {}
+    await new Promise((r) => setTimeout(r, delayMs))
+  }
+  return false
+}
+
+function mapPublicOrigin(origin) {
+  try {
+    const u = new URL(origin)
+    const h = u.hostname
+    if (h.includes('e-kontent.vercel.app') || h.startsWith('46.173.26.14')) {
+      return 'https://e-content.webpack.uz'
+    }
+    return `${u.protocol}//${u.host}`
+  } catch { return origin }
 }
 
 function normalizeFormat(value) {
