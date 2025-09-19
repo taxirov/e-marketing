@@ -74,14 +74,21 @@ function ensureFilesBase(value) {
   if (!s) return '/api/files'
   try {
     const u = new URL(s)
-    let p = u.pathname || ''
-    p = p.replace(/\/$/, '')
-    if (!/\/files$/i.test(p)) p = `${p}/files`
+    let p = (u.pathname || '').replace(/\/$/, '')
+    const idx = p.toLowerCase().indexOf('/files')
+    if (idx >= 0) {
+      p = p.slice(0, idx + 6) // keep up to '/files'
+    } else {
+      p = `${p}/files`
+    }
     u.pathname = p
     return u.toString().replace(/\/$/, '')
   } catch {
-    const b = s.replace(/\/$/, '')
-    return /\/files$/i.test(b) ? b : `${b}/files`
+    let b = s.replace(/\/$/, '')
+    const idx = b.toLowerCase().indexOf('/files')
+    if (idx >= 0) b = b.slice(0, idx + 6)
+    else b = `${b}/files`
+    return b
   }
 }
 
