@@ -341,7 +341,7 @@ export default function EditModal({ item, open, onClose }) {
               <button className="btn" onClick={handleGenerateAudioText} disabled={audioTextLoading}>
                 {audioTextLoading ? 'Yaratilmoqda...' : 'Audio matn yaratish'}
               </button>
-              {audioTextUrl && <div className="hint">Fayl manzili: <a href={audioTextUrl} target="_blank" rel="noopener noreferrer">{audioTextUrl}</a></div>}
+              {audioTextUrl && <CopyButton url={audioTextUrl} />}
             </div>
             {audioError && <div className="error-text">{audioError}</div>}
           </Section>
@@ -350,23 +350,20 @@ export default function EditModal({ item, open, onClose }) {
             {audioUrl ? (
               <>
                 <audio controls src={toPlayableUrl(audioUrl)} className="audio-player" />
-                <div className="hint">Fayl manzili: <a href={toPlayableUrl(audioUrl)} target="_blank" rel="noopener noreferrer">{audioUrl}</a></div>
-              </>
-            ) : (
-              <Placeholder text="Audio hali yaratilmagan..."/>
-            )}
-            <div className="row">
-              <button className="btn" onClick={handleGenerateAudioFile} disabled={audioFileLoading || !audioText.trim()}>
-                {audioFileLoading ? 'Yaratilmoqda...' : 'Audioni yaratish'}
-              </button>
-              {audioUrl && <button className="btn ghost" onClick={() => handleDownloadFile(audioUrl, `audio-${item.id}.m4a`)}>Yuklab olish</button>}
-            </div>
-          </Section>
+            </>
+          ) : (
+            <Placeholder text="Audio hali yaratilmagan..."/>
+          )}
+          <div className="row">
+            <button className="btn" onClick={handleGenerateAudioFile} disabled={audioFileLoading || !audioText.trim()}>
+              {audioFileLoading ? 'Yaratilmoqda...' : 'Audioni yaratish'}
+            </button>
+            {audioUrl && <CopyButton url={audioUrl} />}
+            {audioUrl && <button className="btn ghost" onClick={() => handleDownloadFile(audioUrl, `audio-${item.id}.m4a`)}>Yuklab olish</button>}
+          </div>
+        </Section>
 
-          <Section title="Video matni (Captions):">
-            {captionUrl && (
-              <div className="hint">Fayl manzili: <a href={toPlayableUrl(captionUrl)} target="_blank" rel="noopener noreferrer">{captionUrl}</a></div>
-            )}
+        <Section title="Video matni (Captions):">
             <textarea
               className="text-area"
               placeholder="Video matni hali yaratilmagan..."
@@ -379,6 +376,7 @@ export default function EditModal({ item, open, onClose }) {
               <button className="btn" onClick={handleGenerateCaptions} disabled={captionLoading || !audioUrl}>
                 {captionLoading ? 'Yaratilmoqda...' : 'Video matn yaratish'}
               </button>
+              {captionUrl && <CopyButton url={captionUrl} />}
               <button className="btn ghost" onClick={handleSaveCaptions} disabled={captionSaveLoading || !captionText.trim()}>
                 {captionSaveLoading ? 'Saqlanmoqda...' : 'Video matnni saqlash'}
               </button>
@@ -458,7 +456,6 @@ export default function EditModal({ item, open, onClose }) {
             {videoUrl ? (
               <>
                 <video controls src={toPlayableUrl(videoUrl)} className="video-player" />
-                <div className="hint">Fayl manzili: <a href={toPlayableUrl(videoUrl)} target="_blank" rel="noopener noreferrer">{videoUrl}</a></div>
               </>
             ) : (
               <Placeholder
@@ -476,18 +473,17 @@ export default function EditModal({ item, open, onClose }) {
               <button className="btn" onClick={handleGenerateVideo} disabled={videoLoading || !audioUrl || !captionUrl || !selectedImages.length}>
                 {videoLoading ? 'Yaratilmoqda...' : 'Videoni yaratish'}
               </button>
+              {videoUrl && <CopyButton url={videoUrl} />}
               {videoUrl && <button className="btn ghost" onClick={() => handleDownloadFile(videoUrl, `video-${item.id}.mp4`)}>Yuklab olish</button>}
             </div>
           </Section>
 
           <Section title="Video tasnif:">
             {videoCaptionUrl ? (
-              <>
-                <div className="hint">Fayl manzili: <a href={toPlayableUrl(videoCaptionUrl)} target="_blank" rel="noopener noreferrer">{videoCaptionUrl}</a></div>
-                <div className="row">
-                  <button className="btn ghost" onClick={() => handleDownloadFile(videoCaptionUrl, `video-caption-${item.id}.txt`)}>Yuklab olish</button>
-                </div>
-              </>
+              <div className="row">
+                <CopyButton url={videoCaptionUrl} />
+                <button className="btn ghost" onClick={() => handleDownloadFile(videoCaptionUrl, `video-caption-${item.id}.txt`)}>Yuklab olish</button>
+              </div>
             ) : (
               <Placeholder text="Video tasnifi hali yaratilmagan..." />
             )}
@@ -524,5 +520,30 @@ function toPlayableUrl(url) {
     }
   } catch {}
   return v
+}
+
+function CopyButton({ url, label = 'Havolani nusxalash' }) {
+  const [copied, setCopied] = React.useState(false)
+  const canCopy = typeof navigator !== 'undefined' && navigator.clipboard && url
+  const handle = async () => {
+    if (!canCopy) return
+    try {
+      await navigator.clipboard.writeText(String(url))
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    } catch (e) {
+      console.error('Copy failed:', e)
+    }
+  }
+  return (
+    <button type="button" className="btn ghost small" onClick={handle} disabled={!canCopy} title={label}>
+      <span style={{display:'inline-flex',alignItems:'center',gap:6}}>
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="currentColor" d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H10V7h9v14z"/>
+        </svg>
+        {copied ? 'Nusxalandi!' : label}
+      </span>
+    </button>
+  )
 }
 
