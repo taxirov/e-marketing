@@ -38,13 +38,11 @@ export default async function handler(req, res) {
     const uploadData = await uploadResp.json().catch(() => null)
     if (!uploadData?.fileUrl) return res.status(500).json({ error: 'Serverdan fayl manzili qaytarilmadi' })
 
-    // Verify SRT reachable (small file)
+    // Verify SRT reachable (with small retry to avoid eventual consistency issues)
     const abs = toAbsolute(uploadUrl, uploadData.fileUrl)
     try {
-      const check = await fetch(abs)
-      if (!check.ok) return res.status(502).json({ error: 'SRT fayliga kira olmadik' })
-      const txt = await check.text()
-      if (!txt || !txt.trim()) return res.status(502).json({ error: 'SRT fayli bo\'sh ko\'rinadi' })
+      const ok = await waitUntilReachable(abs, 8, 500, 'text')
+      if (!ok) return res.status(502).json({ error: 'SRT fayliga kira olmadik' })
     } catch {
       return res.status(502).json({ error: 'SRT faylni tekshirishda xato' })
     }
@@ -105,4 +103,30 @@ function formatTimestamp(seconds) {
     const h = Math.floor((totalMinutes - m) / 60);
     const pad = (n) => String(n).padStart(2, '0');
     return `${pad(h)}:${pad(m)}:${pad(s)},${String(ms).padStart(3, '0')}`;
+}
+
+async function waitUntilReachable(url, attempts = 6, delayMs = 400, expect = 'array') {
+  for (let i = 0; i < attempts; i += 1) {
+    try {
+      const head = await fetch(url, { method: 'HEAD' })
+      if (head && head.ok) {
+        const len = Number(head.headers.get('content-length') || '0')
+        if (Number.isFinite(len) && len > 0) return true
+      }
+    } catch {}
+    try {
+      const resp = await fetch(url, { method: 'GET', cache: 'no-store' })
+      if (resp && resp.ok) {
+        if (expect === 'text') {
+          const txt = await resp.text()
+          if (txt && txt.trim()) return true
+        } else {
+          const ab = await resp.arrayBuffer()
+          if ((ab?.byteLength ?? 0) > 0) return true
+        }
+      }
+    } catch {}
+    await new Promise((r) => setTimeout(r, delayMs))
+  }
+  return false
 }
