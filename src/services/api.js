@@ -145,6 +145,29 @@ export async function generateVideo(item, audioUrl, captionsUrl, images, uploadU
     return toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
 }
 
+export async function fetchFilesForProduct(uploadUrl, productId) {
+  if (!uploadUrl) throw new Error('Yuklash uchun server manzili topilmadi');
+  if (!productId) throw new Error('Mahsulot identifikatori topilmadi');
+  const url = `${uploadUrl.replace(/\/$/, '')}/${encodeURIComponent(productId)}`;
+  const res = await fetch(url, { method: 'GET' });
+  if (!res.ok) {
+    const t = await res.text().catch(() => '');
+    throw new Error(t || `Fayllarni olishda xato: ${res.status}`);
+  }
+  const json = await res.json().catch(() => ({}));
+  const makeAbs = (p) => (p ? toAbsoluteUrl(uploadUrl, p) : '');
+  return {
+    id: json?.id || null,
+    productId: json?.productId || null,
+    audioTextUrl: makeAbs(json?.audioTextUrl),
+    audioUrl: makeAbs(json?.audioUrl),
+    captionUrl: makeAbs(json?.captionUrl),
+    videoCaptionUrl: makeAbs(json?.videoCaptionUrl),
+    videoUrl: makeAbs(json?.videoUrl),
+    raw: json,
+  };
+}
+
 
 function buildAudioTemplate(item) {
   const rawRegion = item?.productRegion || item?.raw?.productOrder?.region || item?.raw?.region || null

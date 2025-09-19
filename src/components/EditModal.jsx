@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { generateAudioText, generateAudioFile, generateCaptionFile, generateVideo, saveCaptionText } from '../services/api';
+import { generateAudioText, generateAudioFile, generateCaptionFile, generateVideo, saveCaptionText, fetchFilesForProduct } from '../services/api';
 import { getAudioDurationFromUrl } from '../utils/audio';
 import { useApi } from '../utils/api';
 
@@ -25,6 +25,7 @@ export default function EditModal({ item, open, onClose }) {
   const [videoUrl, setVideoUrl] = useState('');
   const [videoLoading, setVideoLoading] = useState(false);
   const [videoError, setVideoError] = useState('');
+  const [videoCaptionUrl, setVideoCaptionUrl] = useState('');
 
   // Photos fetched per item from API
   const [photos, setPhotos] = useState([]);
@@ -49,6 +50,7 @@ export default function EditModal({ item, open, onClose }) {
       setPhotos([]);
       setPhotosError('');
       setPhotosLoading(false);
+      setVideoCaptionUrl('');
       return;
     }
 
@@ -59,6 +61,7 @@ export default function EditModal({ item, open, onClose }) {
       const captionUrlStored = localStorage.getItem(`captionUrl-${item.id}`);
       const captionTextStored = localStorage.getItem(`captionText-${item.id}`);
       const videoUrlStored = localStorage.getItem(`videoUrl-${item.id}`);
+      const videoCaptionUrlStored = localStorage.getItem(`videoCaptionUrl-${item.id}`);
       const imagesStored = JSON.parse(localStorage.getItem(`videoImages-${item.id}`) || '[]');
 
       setAudioText(audioTextStored || '');
@@ -68,6 +71,7 @@ export default function EditModal({ item, open, onClose }) {
       setCaptionText(captionTextStored || '');
       setVideoUrl(videoUrlStored || '');
       setSelectedImages(Array.isArray(imagesStored) ? imagesStored : []);
+      setVideoCaptionUrl(videoCaptionUrlStored || '');
 
     } catch (err) {
       console.error("Local storage ma'lumotlarini yuklashda xato:", err);
@@ -135,6 +139,43 @@ export default function EditModal({ item, open, onClose }) {
     }
   }, [audioUrl]);
 
+  // When modal opens, GET already generated files from upload server
+  useEffect(() => {
+    let cancelled = false;
+    async function run() {
+      if (!open || !item?.id) return;
+      try {
+        const meta = await fetchFilesForProduct(UPLOAD_SERVER_URL, item.id);
+        if (cancelled) return;
+        if (meta.audioTextUrl) {
+          setAudioTextUrl(meta.audioTextUrl);
+          try { localStorage.setItem(`audioTextUrl-${item.id}`, meta.audioTextUrl); } catch {}
+        }
+        if (meta.audioUrl) {
+          setAudioUrl(meta.audioUrl);
+          try { localStorage.setItem(`audioUrl-${item.id}`, meta.audioUrl); } catch {}
+        }
+        if (meta.captionUrl) {
+          setCaptionUrl(meta.captionUrl);
+          try { localStorage.setItem(`captionUrl-${item.id}`, meta.captionUrl); } catch {}
+        }
+        if (meta.videoUrl) {
+          setVideoUrl(meta.videoUrl);
+          try { localStorage.setItem(`videoUrl-${item.id}`, meta.videoUrl); } catch {}
+        }
+        if (meta.videoCaptionUrl) {
+          setVideoCaptionUrl(meta.videoCaptionUrl);
+          try { localStorage.setItem(`videoCaptionUrl-${item.id}`, meta.videoCaptionUrl); } catch {}
+        }
+      } catch (err) {
+        // Keep silent, just log for debugging; UI should not break
+        console.error('Fayllarni olishda xato:', err);
+      }
+    }
+    run();
+    return () => { cancelled = true };
+  }, [open, item?.id]);
+
   // Load caption text from URL (GET like audio verification) and keep in localStorage
   useEffect(() => {
     let cancelled = false;
@@ -165,6 +206,29 @@ export default function EditModal({ item, open, onClose }) {
     fetchCaption();
     return () => { cancelled = true };
   }, [open, item, captionUrl]);
+
+  // Load audio text from URL if present and no local text yet
+  useEffect(() => {
+    let cancelled = false;
+    async function loadAudioText() {
+      if (!open || !item) return;
+      if (!audioTextUrl) return;
+      if (audioText && audioText.trim()) return; // already have text
+      try {
+        const resp = await fetch(toPlayableUrl(audioTextUrl));
+        if (!resp.ok) throw new Error('Audio matnini olishda xato');
+        const txt = await resp.text();
+        if (!cancelled) {
+          setAudioText(txt || '');
+          try { localStorage.setItem(`audioText-${item.id}`, txt || ''); } catch {}
+        }
+      } catch (err) {
+        console.error('Audio matn GET xato:', err);
+      }
+    }
+    loadAudioText();
+    return () => { cancelled = true };
+  }, [open, item, audioTextUrl]);
 
   const handleGenerateAudioText = async () => {
     if (!item) return;
@@ -503,6 +567,19 @@ export default function EditModal({ item, open, onClose }) {
               </button>
               {videoUrl && <button className="btn ghost" onClick={() => handleDownloadFile(videoUrl, `video-${item.id}.mp4`)}>Yuklab olish</button>}
             </div>
+          </Section>
+
+          <Section title="Video tasnif:">
+            {videoCaptionUrl ? (
+              <>
+                <div className="hint">Fayl manzili: <a href={toPlayableUrl(videoCaptionUrl)} target="_blank" rel="noopener noreferrer">{videoCaptionUrl}</a></div>
+                <div className="row">
+                  <button className="btn ghost" onClick={() => handleDownloadFile(videoCaptionUrl, `video-caption-${item.id}.txt`)}>Yuklab olish</button>
+                </div>
+              </>
+            ) : (
+              <Placeholder text="Video tasnifi hali yaratilmagan..." />
+            )}
           </Section>
         </div>
       </div>
