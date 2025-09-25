@@ -218,7 +218,15 @@ export async function fetchFilesForProduct(uploadUrl, productId) {
   };
 }
 
-export function buildVideoCaptionTemplate(item) {
+export function buildVideoCaptionTemplate(item, options = {}) {
+  const {
+    contactPhone = '+998 55 517-22-20',
+    contactPrefix = '📞',
+    includePrice = true,
+    includeLink = true,
+    linkText,
+  } = options
+
   const id = item?.id || item?.productId || ''
   const name = item?.name || 'Obyekt'
   const region = item?.region || item?.raw?.region || ''
@@ -232,7 +240,7 @@ export function buildVideoCaptionTemplate(item) {
   const effectiveArea = formatRounded(item?.effectiveArea || item?.area_living)
   const commList = formatCommunications(item?.engineerCommunications)
   const price = formatSom(item?.price || item?.raw?.price || item?.productPrice)
-  const link = `https://e-riletor.uz/products/product/${id}`
+  const link = linkText || (id ? `https://e-riletor.uz/products/product/${id}` : '')
 
   const lines = []
   if (id) lines.push(`ID ${id}`)
@@ -247,10 +255,23 @@ export function buildVideoCaptionTemplate(item) {
     lines.push(`🌏 Foydali maydoni ${effectiveArea} m²`)
   }
   if (commList) lines.push(`🔥⚡️💦 ${commList}`)
-  if (price) lines.push(`\n💰 ${price} so'm`)
-  lines.push(`\n📞 +998 55 517-22-20`)
-  lines.push(`To'liq ma'lumot uchun 👉 ${link} shu havolaga kiring.`)
+  if (price && includePrice) lines.push(`\n💰 ${price} so'm`)
+  if (contactPhone) lines.push(`\n${contactPrefix ? `${contactPrefix} ` : ''}${contactPhone}`.trim())
+  if (includeLink && link) lines.push(`To'liq ma'lumot uchun 👉 ${link} shu havolaga kiring.`)
   return lines.join('\n')
+}
+
+export function generateVideoCaptionText(item, options = {}) {
+  const template = buildVideoCaptionTemplate(item, options)
+  const normalized = String(template || '')
+    .replace(/\r\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .split('\n')
+    .map((line) => line.trimEnd())
+    .join('\n')
+    .trim()
+  if (!normalized) throw new Error('Video tasnifini yaratib bo\'lmadi')
+  return normalized
 }
 
 export async function saveVideoCaptionText(text, uploadUrl, productId) {
@@ -342,6 +363,17 @@ function formatRounded(value, fallback = "maʻlumot koʻrsatilmagan") {
   const num = Number(value)
   if (!Number.isFinite(num)) return fallback
   return String(Math.round(num))
+}
+
+function formatSom(value) {
+  if (value === null || value === undefined || value === '') return ''
+  const num = Number(value)
+  if (!Number.isFinite(num)) return ''
+  try {
+    return new Intl.NumberFormat('uz-UZ').format(num)
+  } catch {
+    return String(Math.round(num)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+  }
 }
 
 function normalizeValue(value, fallback = "maʻlumot ko'rsatilmagan") {
