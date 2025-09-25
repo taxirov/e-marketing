@@ -1,6 +1,6 @@
 <<<<<<< ours
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { generateAudioText, generateAudioFile, generateCaptionFile, generateVideo, saveCaptionText, fetchFilesForProduct, saveAudioText, buildVideoCaptionTemplate, saveVideoCaptionText } from '../services/api';
+import { generateAudioText, generateAudioFile, generateCaptionFile, generateVideo, saveCaptionText, fetchFilesForProduct, saveAudioText, generateVideoCaptionText, saveVideoCaptionText } from '../services/api';
 import { getAudioDurationFromUrl } from '../utils/audio';
 import { useApi } from '../utils/api';
 
@@ -185,6 +185,7 @@ export default function EditModal({ item, open, onClose }) {
   const [videoCaptionUrl, setVideoCaptionUrl] = useState('');
   const [videoCaptionText, setVideoCaptionText] = useState('');
   const [videoCaptionSaveLoading, setVideoCaptionSaveLoading] = useState(false);
+  const [videoCaptionError, setVideoCaptionError] = useState('');
 
   // Photos fetched per item from API
   const [photos, setPhotos] = useState([]);
@@ -211,6 +212,8 @@ export default function EditModal({ item, open, onClose }) {
       setPhotosError('');
       setPhotosLoading(false);
       setVideoCaptionUrl('');
+      setVideoCaptionText('');
+      setVideoCaptionError('');
 =======
     if (!open || !hasItemId) {
       setAudioText('')
@@ -449,9 +452,15 @@ export default function EditModal({ item, open, onClose }) {
         const resp = await fetch(toPlayableUrl(videoCaptionUrl));
         if (!resp.ok) throw new Error('Video tasnifini olishda xato');
         const txt = await resp.text();
-        if (!cancelled) setVideoCaptionText(txt || '');
+        if (!cancelled) {
+        setVideoCaptionText(txt || '');
+        setVideoCaptionError('');
+      }
       } catch (err) {
         console.error('Video tasnif GET xato:', err);
+        if (!cancelled) {
+          setVideoCaptionError(err.message || 'Video tasnifini yuklab bo\'lmadi');
+        }
 =======
   const handleGenerateAudioFile = async () => {
     if (!currentItem) return
@@ -474,13 +483,30 @@ export default function EditModal({ item, open, onClose }) {
     const text = String(videoCaptionText || '').trim();
     if (!text) return;
     setVideoCaptionSaveLoading(true);
+    setVideoCaptionError('');
     try {
       const url = await saveVideoCaptionText(text, UPLOAD_SERVER_URL, item.id);
       setVideoCaptionUrl(url);
     } catch (err) {
       console.error('Video tasnifni saqlashda xato:', err);
+      setVideoCaptionError(err.message || 'Video tasnifni saqlashda xatolik yuz berdi');
     } finally {
       setVideoCaptionSaveLoading(false);
+    }
+  };
+
+  const handleGenerateVideoCaption = () => {
+    if (!item) {
+      setVideoCaptionError('Obyekt tanlanmagan');
+      return;
+    }
+    try {
+      const generated = generateVideoCaptionText(item);
+      setVideoCaptionText(generated);
+      setVideoCaptionError('');
+    } catch (err) {
+      console.error('Video tasnifni yaratishda xatolik:', err);
+      setVideoCaptionError(err.message || 'Video tasnifini yaratishda xatolik yuz berdi');
     }
   };
 
@@ -951,8 +977,9 @@ export default function EditModal({ item, open, onClose }) {
               onChange={(e) => setVideoCaptionText(e.target.value)}
               spellCheck={false}
             />
+            {videoCaptionError && <div className="error-text">{videoCaptionError}</div>}
             <div className="row">
-              <button className="btn" onClick={() => setVideoCaptionText(buildVideoCaptionTemplate(item))}>
+              <button className="btn" onClick={handleGenerateVideoCaption}>
                 Video tasnif yaratish
               </button>
               {videoCaptionUrl && <CopyButton url={videoCaptionUrl} />}
