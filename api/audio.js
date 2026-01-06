@@ -1,10 +1,6 @@
 export const config = { runtime: 'nodejs' };
 
-const ENDPOINTS = {
-  m4a: 'https://api.narakeet.com/text-to-speech/m4a',
-  mp3: 'https://api.narakeet.com/text-to-speech/mp3',
-  wav: 'https://api.narakeet.com/text-to-speech/wav',
-};
+const ENDPOINT = 'https://api.elevenlabs.io/v1/text-to-speech/1bPXrtOTOTW6dae9i0K9';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -31,13 +27,12 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "productId talab qilinadi" });
   }
 
-  const apiKey = process.env.NARAKEET_API_KEY || 'd9oq53OreB7PVhOTzX2zV9sNALxL2HrwJ4AvwzK0';
+  const apiKey = process.env.ELEVENLABS_API || `sk_eb736eb54bb49683c91fead56ae08c7797cecbe9ed754c92`;
   if (!apiKey) {
-    return res.status(500).json({ error: 'Narakeet API kaliti topilmadi' });
+    return res.status(500).json({ error: 'ElevenLabs API kaliti topilmadi' });
   }
 
   const format = normalizeFormat(body?.format);
-  const endpoint = ENDPOINTS[format] || ENDPOINTS.m4a;
   const requestContentType = normalizeContentType(body?.contentType);
 
   const params = new URLSearchParams();
@@ -50,20 +45,20 @@ export default async function handler(req, res) {
     sourceText = await toLatinServer(sourceText)
   } catch {}
 
-  const narakeetUrl = params.toString() ? `${endpoint}?${params.toString()}` : endpoint;
-
-  // Generate audio from Narakeet API
+  // Generate audio from ElevenLabs API
   try {
-    const accept = format === 'mp3' ? 'audio/mpeg' : (format === 'wav' ? 'audio/wav' : 'audio/mp4')
-    const narakeetResp = await fetch(narakeetUrl, {
+    const elevenlabsResponse = await fetch(ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': requestContentType, 'x-api-key': apiKey, 'Accept': accept },
-      body: sourceText,
+      headers: { 'Content-Type': application/json, 'x-api-key': apiKey},
+      body: {
+        "text": sourceText,
+        "model_id": "eleven_v3"
+      },
     })
-    if (!narakeetResp.ok) {
-      const message = await narakeetResp.text().catch(() => '')
+    if (!elevenlabsResponse.ok) {
+      const message = await elevenlabsResponse.text().catch(() => '')
       const detail = message?.trim() ? `: ${message.trim()}` : ''
-      return res.status(narakeetResp.status).json({ error: `Narakeet xatosi ${narakeetResp.status}${detail}` })
+      return res.status(elevenlabsResponse.status).json({ error: `Narakeet xatosi ${elevenlabsResponse.status}${detail}` })
     }
 
     // Narakeet returns an async job envelope (JSON) with `statusUrl`.
@@ -71,7 +66,7 @@ export default async function handler(req, res) {
     let audioBuffer
     let contentType
     try {
-      const meta = await narakeetResp.json()
+      const meta = await elevenlabsResponse.json()
       if (!meta?.statusUrl) throw new Error('statusUrl topilmadi')
       const resultInfo = await pollNarakeetStatus(meta.statusUrl)
       if (!resultInfo?.result) throw new Error('result topilmadi')
@@ -82,10 +77,10 @@ export default async function handler(req, res) {
     } catch (_) {
       // Fallback: if parsing as JSON failed, assume body already has audio
       if (!audioBuffer) {
-        const ctHeader = (narakeetResp.headers.get('content-type') || '').toLowerCase()
+        const ctHeader = (elevenlabsResponse.headers.get('content-type') || '').toLowerCase()
         if (ctHeader && !ctHeader.includes('json')) {
-          audioBuffer = await narakeetResp.arrayBuffer()
-          contentType = narakeetResp.headers.get('content-type') || accept
+          audioBuffer = await elevenlabsResponse.arrayBuffer()
+          contentType = elevenlabsResponse.headers.get('content-type') || accept
         } else {
           return res.status(502).json({ error: 'Narakeet javobini qayta ishlashda xatolik' })
         }
