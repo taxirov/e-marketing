@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { useApi } from '../utils/api'
 import { normalizeObject } from '../data/normalize'
 
-const DEFAULT_BASE = 'https://api.uy-joy.uz'
+const DEFAULT_BASE = '/api/public'
 
 function pickBaseUrl() {
   const envBase = import.meta.env?.VITE_PRODUCT_API_BASE || import.meta.env?.VITE_API_BASE
@@ -18,6 +18,9 @@ function pickBaseUrl() {
 function buildProductUrl(id) {
   const base = pickBaseUrl()
   const normalized = base.replace(/\/$/, '')
+  if (/\/api\/public$/i.test(normalized) || /\/public$/i.test(normalized)) {
+    return `${normalized}/product/${id}`
+  }
   if (/\/api$/i.test(normalized)) {
     return `${normalized}/product/${id}`
   }

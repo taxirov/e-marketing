@@ -86,7 +86,7 @@ export default function EditModal({ item, open, onClose }) {
       setPhotosLoading(true);
       setPhotosError('');
       try {
-        const res = await apiFetch(`/api/product/${item.id}`, { method: 'GET' });
+        const res = await fetch(`/api/public/product/${item.id}`, { method: 'GET' });
         if (!res.ok) {
           const t = await res.text().catch(() => '');
           throw new Error(t || `Rasmlar API xatosi: ${res.status}`);
