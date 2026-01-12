@@ -1,6 +1,6 @@
 // Note: Template helpers are defined in this file.
 
-const DEFAULT_BACKEND_BASE = 'http://45.79.223.216:3000';
+const DEFAULT_BACKEND_BASE = 'http://avto-video2.webpack.uz';
 
 function getBackendBase() {
   const envBase = import.meta.env?.VITE_BACKEND_BASE;
