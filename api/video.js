@@ -8,14 +8,7 @@ import crypto from 'node:crypto'
 import FormData from 'form-data';
 import { bundle, renderMedia, getCompositions } from '@remotion/renderer'
 
-<<<<<<< ours
 export const config = { runtime: 'nodejs', maxDuration: 300 }
-=======
-export const config = {
-  runtime: 'nodejs',
-  maxDuration: 300,
-}
->>>>>>> theirs
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
