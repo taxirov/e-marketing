@@ -49,7 +49,7 @@ export async function generateAudioText(productId, item, uploadUrl) {
   const payload = (item && typeof item === 'object')
     ? item
     : { id: productId };
-  const res = await fetch(withBackendBase('/api/generate/audio/text'), {
+  const res = await fetch(withBackendBase('/generate/audio/text'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -70,7 +70,7 @@ export async function saveAudioText(text, uploadUrl, productId) {
   if (!productId) throw new Error('Mahsulot identifikatori topilmadi');
 
   const payload = { text: script, uploadUrl, productId };
-  const res = await fetch(withBackendBase('/api/generate/audio/text'), {
+  const res = await fetch(withBackendBase('/generate/audio/text'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -97,7 +97,7 @@ export async function generateAudioFile(text, uploadUrl, productId, options = {}
   if (options.format) payload.format = options.format;
   if (options.contentType) payload.contentType = options.contentType;
 
-  const res = await fetch(withBackendBase('/api/generate/audio'), {
+  const res = await fetch(withBackendBase('/generate/audio'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -240,7 +240,7 @@ export async function fetchAudioTextFromBackend(productId) {
   if (!productId && productId !== 0) {
     throw new Error('Mahsulot identifikatori topilmadi');
   }
-  const url = withBackendBase(`/api/audio/text/${productId}`);
+  const url = withBackendBase(`/audio/text/${productId}`);
   const res = await fetch(url, { method: 'GET' });
   if (!res.ok) {
     const t = await res.text().catch(() => '');
