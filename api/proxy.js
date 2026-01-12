@@ -5,6 +5,8 @@ const ALLOWED_HOSTS = new Set([
   '46.173.26.14',
   'e-content.webpack.uz',
   'e-content.webpack.uz:443',
+  'avto-video2.webpack.uz',
+  'avto-video2.webpack.uz:443',
 ]);
 
 export default async function handler(req, res) {
