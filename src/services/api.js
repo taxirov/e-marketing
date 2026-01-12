@@ -236,6 +236,24 @@ export async function fetchFilesForProduct(uploadUrl, productId) {
   };
 }
 
+export async function fetchAudioTextFromBackend(productId) {
+  if (!productId && productId !== 0) {
+    throw new Error('Mahsulot identifikatori topilmadi');
+  }
+  const url = withBackendBase(`/api/audio/text/${productId}`);
+  const res = await fetch(url, { method: 'GET' });
+  if (!res.ok) {
+    const t = await res.text().catch(() => '');
+    throw new Error(t || `Audio matnni olishda xato: ${res.status}`);
+  }
+  const data = await res.json().catch(() => null);
+  return {
+    text: data?.text || '',
+    url: data?.fileUrl || '',
+    raw: data,
+  };
+}
+
 export function buildVideoCaptionTemplate(item) {
   const id = item?.id || item?.productId || ''
   const name = item?.name || 'Obyekt'

@@ -5,10 +5,10 @@ import {
   generateCaptionFile,
   generateVideo,
   saveCaptionText,
-  fetchFilesForProduct,
   saveAudioText,
   buildVideoCaptionTemplate,
   saveVideoCaptionText,
+  fetchAudioTextFromBackend,
 } from '../services/api';
 import { getAudioDurationFromUrl } from '../utils/audio';
 import { useApi } from '../utils/api';
@@ -124,27 +124,24 @@ export default function EditModal({ item, open, onClose }) {
     }
   }, [audioUrl]);
 
-  // When modal opens, GET already generated files from upload server
+  // When modal opens, GET audio text from backend (files meta is disabled for now)
   useEffect(() => {
     let cancelled = false;
     async function run() {
       if (!open || !item?.id) return;
       try {
-        const meta = await fetchFilesForProduct(UPLOAD_SERVER_URL, item.id);
+        const meta = await fetchAudioTextFromBackend(item.id);
         if (cancelled) return;
-        if (meta.audioTextUrl) setAudioTextUrl(meta.audioTextUrl);
-        if (meta.audioUrl) setAudioUrl(meta.audioUrl);
-        if (meta.captionUrl) setCaptionUrl(meta.captionUrl);
-        if (meta.videoUrl) setVideoUrl(meta.videoUrl);
-        if (meta.videoCaptionUrl) setVideoCaptionUrl(meta.videoCaptionUrl);
+        if (meta.text && !audioText.trim()) setAudioText(meta.text);
+        if (meta.url) setAudioTextUrl(meta.url);
       } catch (err) {
         // Keep silent, just log for debugging; UI should not break
-        console.error('Fayllarni olishda xato:', err);
+        console.error('Audio matnni olishda xato:', err);
       }
     }
     run();
     return () => { cancelled = true; };
-  }, [open, item?.id]);
+  }, [open, item?.id, audioText]);
 
   // Load caption text from URL (GET like audio verification)
   useEffect(() => {
