@@ -9,6 +9,7 @@ import {
   buildVideoCaptionTemplate,
   saveVideoCaptionText,
   fetchAudioTextFromBackend,
+  fetchAudioFromBackend,
 } from '../services/api';
 import { getAudioDurationFromUrl } from '../utils/audio';
 import { useApi } from '../utils/api';
@@ -124,7 +125,7 @@ export default function EditModal({ item, open, onClose }) {
     }
   }, [audioUrl]);
 
-  // When modal opens, GET audio text from backend (files meta is disabled for now)
+  // When modal opens, GET audio text and audio file from backend (files meta is disabled for now)
   useEffect(() => {
     let cancelled = false;
     async function run() {
@@ -138,10 +139,17 @@ export default function EditModal({ item, open, onClose }) {
         // Keep silent, just log for debugging; UI should not break
         console.error('Audio matnni olishda xato:', err);
       }
+      try {
+        const audioMeta = await fetchAudioFromBackend(item.id);
+        if (cancelled) return;
+        if (audioMeta.url && !audioUrl) setAudioUrl(audioMeta.url);
+      } catch (err) {
+        console.error('Audio faylni olishda xato:', err);
+      }
     }
     run();
     return () => { cancelled = true; };
-  }, [open, item?.id, audioText]);
+  }, [open, item?.id, audioText, audioUrl]);
 
   // Load caption text from URL (GET like audio verification)
   useEffect(() => {
