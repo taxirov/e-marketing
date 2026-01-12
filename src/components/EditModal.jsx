@@ -69,6 +69,14 @@ export default function EditModal({ item, open, onClose }) {
     }
   }, [open, item]);
 
+  useEffect(() => {
+    if (!open || !item) return;
+    const seeded = extractPhotos(item);
+    if (seeded.length) {
+      setPhotos(seeded);
+    }
+  }, [open, item]);
+
   // Fetch real photos for the item when modal opens
   useEffect(() => {
     let cancelled = false;
@@ -83,16 +91,11 @@ export default function EditModal({ item, open, onClose }) {
           throw new Error(t || `Rasmlar API xatosi: ${res.status}`);
         }
         const data = await res.json();
-        const list = Array.isArray(data?.photos) ? data.photos : [];
-        const mapped = list
-          .map((p, idx) => {
-            const url = p?.url || p?.imageUrl || p?.src || '';
-            const id = p?.id || url || String(idx);
-            return url ? { id: String(id), url: String(url) } : null;
-          })
-          .filter(Boolean);
+        const mapped = extractPhotos(data);
         if (!cancelled) {
-          setPhotos(mapped);
+          if (mapped.length) {
+            setPhotos(mapped);
+          }
           // Filter selected images to existing ones
           setSelectedImages((cur) => cur.filter((id) => mapped.find((m) => m.id === id)));
         }
@@ -606,6 +609,59 @@ function toPlayableUrl(url) {
     }
   } catch {}
   return v;
+}
+
+function extractPhotos(payload) {
+  if (!payload || typeof payload !== 'object') return [];
+  const root = payload?.data || payload?.result || payload;
+  const candidates = [
+    root?.photos,
+    root?.images,
+    root?.productOrder?.photos,
+    root?.product?.photos,
+    root?.productOrder?.product?.photos,
+  ];
+  const singles = [
+    root?.photo,
+    root?.productOrder?.photo,
+    root?.product?.photo,
+  ];
+
+  const out = [];
+  const seen = new Set();
+  const addEntry = (entry, idx) => {
+    const normalized = normalizePhotoEntry(entry, idx);
+    if (!normalized) return;
+    const key = normalized.url || normalized.id;
+    if (key && seen.has(key)) return;
+    if (key) seen.add(key);
+    out.push(normalized);
+  };
+
+  candidates.forEach((list) => {
+    if (!Array.isArray(list)) return;
+    list.forEach((entry, idx) => addEntry(entry, idx));
+  });
+
+  singles.forEach((entry, idx) => {
+    if (!entry) return;
+    addEntry(entry, `single-${idx}`);
+  });
+
+  return out;
+}
+
+function normalizePhotoEntry(entry, fallbackId) {
+  if (!entry) return null;
+  if (typeof entry === 'string') {
+    const url = entry.trim();
+    if (!url) return null;
+    return { id: String(fallbackId), url };
+  }
+  const url = entry?.url || entry?.imageUrl || entry?.src || entry?.path || entry?.fileUrl || '';
+  if (!url) return null;
+  const id = entry?.id || entry?.uuid || url || fallbackId;
+  return { id: String(id), url: String(url) };
 }
 
 function CopyButton({ url, label = 'Havolani nusxalash' }) {
