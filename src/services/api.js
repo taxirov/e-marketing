@@ -1,5 +1,23 @@
 // Note: Template helpers are defined in this file.
 
+const DEFAULT_BACKEND_BASE = 'http://45.79.223.216:3000';
+
+function getBackendBase() {
+  const envBase = import.meta.env?.VITE_BACKEND_BASE;
+  if (typeof envBase === 'string' && envBase.trim()) {
+    return envBase.trim().replace(/\/$/, '');
+  }
+  return DEFAULT_BACKEND_BASE;
+}
+
+function withBackendBase(path) {
+  const base = getBackendBase();
+  const suffix = String(path || '').trim();
+  if (!suffix) return base;
+  if (/^https?:\/\//i.test(suffix)) return suffix;
+  return `${base}${suffix.startsWith('/') ? '' : '/'}${suffix}`;
+}
+
 function toAbsoluteUrl(base, maybeRelative) {
   const v = String(maybeRelative || '').trim();
   if (!v) return v;
@@ -30,7 +48,7 @@ function toAbsoluteUrl(base, maybeRelative) {
 export async function generateAudioText(productId, item, uploadUrl) {
   const text = buildAudioTemplate(item);
   const payload = { text, uploadUrl, productId };
-  const res = await fetch('/api/audioText', {
+  const res = await fetch(withBackendBase('/api/generate/audio/text'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -52,7 +70,7 @@ export async function saveAudioText(text, uploadUrl, productId) {
   if (!productId) throw new Error('Mahsulot identifikatori topilmadi');
 
   const payload = { text: script, uploadUrl, productId };
-  const res = await fetch('/api/audioText', {
+  const res = await fetch(withBackendBase('/api/generate/audio/text'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -79,7 +97,7 @@ export async function generateAudioFile(text, uploadUrl, productId, options = {}
     if (options.format) payload.format = options.format;
     if (options.contentType) payload.contentType = options.contentType;
 
-    const res = await fetch('/api/audio', {
+    const res = await fetch(withBackendBase('/api/generate/audio'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -286,7 +304,6 @@ function ensureFilesBase(value) {
   }
 }
 
-
 function buildAudioTemplate(item) {
   const rawRegion = item?.productRegion || item?.raw?.productOrder?.region || item?.raw?.region || null
   const parentName = rawRegion?.parent?.name || rawRegion?.parent?.parent?.name || item?.region || ''
@@ -321,7 +338,7 @@ function buildAudioTemplate(item) {
     `Foydali maydoni ${effectiveArea} metr kvadrat.`,
     normalizeSpaces(`Qurilish turi ${typeOfBuilding}.`),
     normalizeSpaces(floorsSentence),
-    communications ? `${communications} taʻminoti mavjud.` : `Taʻminot bo'yicha maʻlumot mavjud emas.`,
+    communications ? `${communications} taʻminoti mavjud.` : ``,
     'Joylashuvi qulay.',
     `Batafsil maʻlumot uchun 55 517 22 20 raqamiga bogʻlaning!`,
   ]
