@@ -46,23 +46,23 @@ function toAbsoluteUrl(base, maybeRelative) {
 }
 
 export async function generateAudioText(productId, item, uploadUrl) {
-  const text = buildAudioTemplate(item);
-  const payload = { text, uploadUrl, productId };
+  const payload = (item && typeof item === 'object')
+    ? item
+    : { id: productId };
   const res = await fetch(withBackendBase('/api/generate/audio/text'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
-      const errorText = await res.text().catch(() => 'NomaÊ¼lum xatolik');
-      throw new Error(`Audio matn yaratishda xato: ${res.status} - ${errorText}`);
+    const errorText = await res.text().catch(() => 'NomaE¬lum xatolik');
+    throw new Error(`Audio matn yaratishda xato: ${res.status} - ${errorText}`);
   }
   const data = await res.json();
   const url = toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
-  const latinText = typeof data?.text === 'string' && data.text.trim() ? data.text : text;
+  const latinText = typeof data?.text === 'string' && data.text.trim() ? data.text : '';
   return { text: latinText, url };
 }
-
 export async function saveAudioText(text, uploadUrl, productId) {
   const script = (text || '').trim();
   if (!script) throw new Error('Audio matni bo\'sh');
@@ -87,104 +87,104 @@ export async function saveAudioText(text, uploadUrl, productId) {
 }
 
 export async function generateAudioFile(text, uploadUrl, productId, options = {}) {
-    const script = (text || '').trim();
-    if (!script) throw new Error("Audio uchun matn mavjud emas");
-    if (!uploadUrl) throw new Error("Yuklash uchun server manzili topilmadi");
-    if (!productId) throw new Error("Mahsulot identifikatori topilmadi");
+  const script = (text || '').trim();
+  if (!script) throw new Error("Audio uchun matn mavjud emas");
+  if (!uploadUrl) throw new Error("Yuklash uchun server manzili topilmadi");
+  if (!productId) throw new Error("Mahsulot identifikatori topilmadi");
 
-    const payload = { text: script, uploadUrl, productId };
-    if (options.voice) payload.voice = options.voice;
-    if (options.format) payload.format = options.format;
-    if (options.contentType) payload.contentType = options.contentType;
+  const payload = { text: script, uploadUrl, productId };
+  if (options.voice) payload.voice = options.voice;
+  if (options.format) payload.format = options.format;
+  if (options.contentType) payload.contentType = options.contentType;
 
-    const res = await fetch(withBackendBase('/api/generate/audio'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-    });
+  const res = await fetch(withBackendBase('/api/generate/audio'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
 
-    if (!res.ok) {
-        const message = await res.text().catch(() => '');
-        const detail = message?.trim() ? `: ${message.trim()}` : '';
-        throw new Error(`Audio servisi xatosi ${res.status}${detail}`);
-    }
+  if (!res.ok) {
+    const message = await res.text().catch(() => '');
+    const detail = message?.trim() ? `: ${message.trim()}` : '';
+    throw new Error(`Audio servisi xatosi ${res.status}${detail}`);
+  }
 
-    const data = await res.json();
-    return toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
+  const data = await res.json();
+  return toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
 }
 
 export async function generateCaptionFile(text, duration, uploadUrl, productId) {
-    if (!text) throw new Error("Sarlavha uchun matn mavjud emas");
-    if (!duration) throw new Error("Audio davomiyligi topilmadi");
-    if (!uploadUrl) throw new Error("Yuklash uchun server manzili topilmadi");
-    if (!productId) throw new Error("Mahsulot identifikatori topilmadi");
+  if (!text) throw new Error("Sarlavha uchun matn mavjud emas");
+  if (!duration) throw new Error("Audio davomiyligi topilmadi");
+  if (!uploadUrl) throw new Error("Yuklash uchun server manzili topilmadi");
+  if (!productId) throw new Error("Mahsulot identifikatori topilmadi");
 
-    const payload = { text, duration, uploadUrl, productId };
-    const res = await fetch('/api/caption', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-        const message = await res.text().catch(() => '');
-        const detail = message?.trim() ? `: ${message.trim()}` : '';
-        throw new Error(`Sarlavha servisi xatosi ${res.status}${detail}`);
-    }
+  const payload = { text, duration, uploadUrl, productId };
+  const res = await fetch('/api/caption', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const message = await res.text().catch(() => '');
+    const detail = message?.trim() ? `: ${message.trim()}` : '';
+    throw new Error(`Sarlavha servisi xatosi ${res.status}${detail}`);
+  }
 
-    const data = await res.json();
-    return toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
+  const data = await res.json();
+  return toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
 }
 
 export async function saveCaptionText(srtText, uploadUrl, productId) {
-    const srt = String(srtText || '').trim();
-    if (!srt) throw new Error('SRT matni bo\'sh');
-    if (!uploadUrl) throw new Error('Yuklash uchun server manzili topilmadi');
-    if (!productId) throw new Error('Mahsulot identifikatori topilmadi');
+  const srt = String(srtText || '').trim();
+  if (!srt) throw new Error('SRT matni bo\'sh');
+  if (!uploadUrl) throw new Error('Yuklash uchun server manzili topilmadi');
+  if (!productId) throw new Error('Mahsulot identifikatori topilmadi');
 
-    const payload = { srt, uploadUrl, productId };
-    const res = await fetch('/api/caption', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-        const message = await res.text().catch(() => '');
-        const detail = message?.trim() ? `: ${message.trim()}` : '';
-        throw new Error(`Sarlavha servisi xatosi ${res.status}${detail}`);
-    }
-    const data = await res.json();
-    return toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
+  const payload = { srt, uploadUrl, productId };
+  const res = await fetch('/api/caption', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const message = await res.text().catch(() => '');
+    const detail = message?.trim() ? `: ${message.trim()}` : '';
+    throw new Error(`Sarlavha servisi xatosi ${res.status}${detail}`);
+  }
+  const data = await res.json();
+  return toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
 }
 
 export async function generateVideo(item, audioUrl, captionsUrl, images, uploadUrl) {
-    if (!audioUrl) throw new Error('Avval audio faylni yarating');
-    if (!captionsUrl) throw new Error('Avval sarlavha faylini yarating');
-    if (!images?.length) throw new Error('Kamida bitta rasm tanlang');
+  if (!audioUrl) throw new Error('Avval audio faylni yarating');
+  if (!captionsUrl) throw new Error('Avval sarlavha faylini yarating');
+  if (!images?.length) throw new Error('Kamida bitta rasm tanlang');
 
-    const payload = {
-        audioUrl,
-        captionsUrl,
-        images,
-        title: item?.name || '',
-        subtitle: [item?.region, item?.district].map((x) => (x || '').trim()).filter(Boolean).join(' â€¢ '),
-        durationSeconds: null,
-        uploadUrl,
-        productId: item.id
-    };
+  const payload = {
+    audioUrl,
+    captionsUrl,
+    images,
+    title: item?.name || '',
+    subtitle: [item?.region, item?.district].map((x) => (x || '').trim()).filter(Boolean).join(' ??› '),
+    durationSeconds: null,
+    uploadUrl,
+    productId: item.id
+  };
 
-    const res = await fetch('/api/video', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-    });
+  const res = await fetch('/api/video', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
 
-    if (!res.ok) {
-        const text = await res.text().catch(() => '');
-        const detail = text?.trim() ? `: ${text.trim()}` : '';
-        throw new Error(`Video servisi xatosi ${res.status}${detail}`);
-    }
-    const data = await res.json();
-    return toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    const detail = text?.trim() ? `: ${text.trim()}` : '';
+    throw new Error(`Video servisi xatosi ${res.status}${detail}`);
+  }
+  const data = await res.json();
+  return toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
 }
 
 export async function fetchFilesForProduct(uploadUrl, productId) {
@@ -253,7 +253,6 @@ export async function fetchAudioTextFromBackend(productId) {
     raw: data,
   };
 }
-
 export function buildVideoCaptionTemplate(item) {
   const id = item?.id || item?.productId || ''
   const name = item?.name || 'Obyekt'
@@ -402,3 +401,4 @@ function formatCommunications(values) {
 function normalizeSpaces(text) {
   return text.replace(/\s+/g, ' ').trim()
 }
+
