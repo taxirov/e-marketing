@@ -296,7 +296,7 @@ export default function EditModal({ item, open, onClose }) {
     try {
       const audioDur = audioDuration || await getAudioDurationFromUrl(toPlayableUrl(audioUrl));
       setAudioDuration(audioDur);
-      const url = await generateCaptionFile(audioText, audioDur, UPLOAD_SERVER_URL, item.id);
+      const url = await generateCaptionFile(item, audioDur, UPLOAD_SERVER_URL, item.id);
       setCaptionUrl(url);
       // Refresh caption text after generating
       try {

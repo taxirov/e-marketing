@@ -113,14 +113,25 @@ export async function generateAudioFile(text, uploadUrl, productId, options = {}
   return toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
 }
 
-export async function generateCaptionFile(text, duration, uploadUrl, productId) {
-  if (!text) throw new Error("Sarlavha uchun matn mavjud emas");
+export async function generateCaptionFile(textOrItem, duration, uploadUrl, productId) {
   if (!duration) throw new Error("Audio davomiyligi topilmadi");
   if (!uploadUrl) throw new Error("Yuklash uchun server manzili topilmadi");
-  if (!productId) throw new Error("Mahsulot identifikatori topilmadi");
+  const durationSeconds = Number(duration);
+  if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) {
+    throw new Error("Audio davomiyligi topilmadi");
+  }
 
-  const payload = { text, duration, uploadUrl, productId };
-  const res = await fetch('/api/caption', {
+  let payload;
+  if (textOrItem && typeof textOrItem === 'object') {
+    payload = { product: textOrItem, productId, durationSeconds };
+  } else {
+    const text = String(textOrItem || '').trim();
+    if (!text) throw new Error("Sarlavha uchun matn mavjud emas");
+    if (!productId) throw new Error("Mahsulot identifikatori topilmadi");
+    payload = { text, productId, durationSeconds };
+  }
+
+  const res = await fetch(withBackendBase('/generate/audio/caption'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -134,7 +145,6 @@ export async function generateCaptionFile(text, duration, uploadUrl, productId) 
   const data = await res.json();
   return toAbsoluteUrl(uploadUrl, data?.url || data?.fileUrl);
 }
-
 export async function saveCaptionText(srtText, uploadUrl, productId) {
   const srt = String(srtText || '').trim();
   if (!srt) throw new Error('SRT matni bo\'sh');
