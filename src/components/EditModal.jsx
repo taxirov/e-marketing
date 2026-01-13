@@ -19,6 +19,9 @@ const UPLOAD_SERVER_URL = 'https://e-content.webpack.uz/api/files';
 
 export default function EditModal({ item, open, onClose }) {
   const { apiFetch } = useApi();
+  const fetchedAudioTextRef = React.useRef(null);
+  const fetchedAudioRef = React.useRef(null);
+  const fetchedCaptionRef = React.useRef(null);
   const [audioText, setAudioText] = useState('');
   const [audioUrl, setAudioUrl] = useState('');
   const [audioTextUrl, setAudioTextUrl] = useState('');
@@ -68,6 +71,9 @@ export default function EditModal({ item, open, onClose }) {
       setPhotosError('');
       setPhotosLoading(false);
       setVideoCaptionUrl('');
+      fetchedAudioTextRef.current = null;
+      fetchedAudioRef.current = null;
+      fetchedCaptionRef.current = null;
     }
   }, [open, item]);
 
@@ -131,6 +137,8 @@ export default function EditModal({ item, open, onClose }) {
     let cancelled = false;
     async function run() {
       if (!open || !item?.id) return;
+      if (fetchedAudioTextRef.current !== item.id) {
+        fetchedAudioTextRef.current = item.id;
       try {
         const meta = await fetchAudioTextFromBackend(item.id);
         if (cancelled) return;
@@ -140,6 +148,9 @@ export default function EditModal({ item, open, onClose }) {
         // Keep silent, just log for debugging; UI should not break
         console.error('Audio matnni olishda xato:', err);
       }
+      }
+      if (fetchedCaptionRef.current !== item.id) {
+        fetchedCaptionRef.current = item.id;
       try {
         const captionMeta = await fetchAudioCaptionFromBackend(item.id);
         if (cancelled) return;
@@ -148,6 +159,9 @@ export default function EditModal({ item, open, onClose }) {
       } catch (err) {
         console.error('Sarlavha faylni olishda xato:', err);
       }
+      }
+      if (fetchedAudioRef.current !== item.id) {
+        fetchedAudioRef.current = item.id;
       try {
         const audioMeta = await fetchAudioFromBackend(item.id);
         if (cancelled) return;
@@ -155,10 +169,11 @@ export default function EditModal({ item, open, onClose }) {
       } catch (err) {
         console.error('Audio faylni olishda xato:', err);
       }
+      }
     }
     run();
     return () => { cancelled = true; };
-  }, [open, item?.id, audioText, audioUrl, captionText]);
+  }, [open, item?.id]);
 
   // Load caption text from URL (GET like audio verification)
   useEffect(() => {
