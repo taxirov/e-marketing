@@ -279,6 +279,23 @@ export async function fetchAudioTextFromBackend(productId) {
     raw: data,
   };
 }
+export async function fetchAudioCaptionFromBackend(productId) {
+  if (!productId && productId !== 0) {
+    throw new Error('Mahsulot identifikatori topilmadi');
+  }
+  const url = withBackendBase(`/generate/audio/caption/${productId}`);
+  const res = await fetch(url, { method: 'GET' });
+  if (!res.ok) {
+    const t = await res.text().catch(() => '');
+    throw new Error(t || `Sarlavha faylni olishda xato: ${res.status}`);
+  }
+  const data = await res.json().catch(() => null);
+  return {
+    text: data?.srt || '',
+    url: data?.fileUrl || '',
+    raw: data,
+  };
+}
 export function buildVideoCaptionTemplate(item) {
   const id = item?.id || item?.productId || ''
   const name = item?.name || 'Obyekt'
