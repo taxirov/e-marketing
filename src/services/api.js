@@ -283,7 +283,7 @@ export async function fetchAudioCaptionFromBackend(productId) {
   if (!productId && productId !== 0) {
     throw new Error('Mahsulot identifikatori topilmadi');
   }
-  const url = withBackendBase(`/generate/audio/caption/${productId}`);
+  const url = withBackendBase(`/audio/caption/${productId}`);
   const res = await fetch(url, { method: 'GET' });
   if (!res.ok) {
     const t = await res.text().catch(() => '');
